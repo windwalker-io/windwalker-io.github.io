@@ -35,6 +35,8 @@ $router->group('article')
     });
 ```
 
+Admin routes are loaded by `routes/admin.route.php`, which adds the `/admin` URL prefix and the `admin` route namespace. That is why the page is served at `/admin/article/list`, and why `$nav->to('article_list')` inside the admin module resolves to the `admin::article_list` route.
+
 ::: warning
 Make sure `ArticleListView` is the Admin class, not the Front one.
 :::
@@ -74,7 +76,7 @@ class ArticleListView
         AppContext $app,
         View $view,
         #[Input, Filter('int|range(min: 1)')]
-        ?int $page = null,
+        int $page = 1,
     ): array {
         $limit = 5;
 
@@ -287,7 +289,7 @@ use Windwalker\Query\Query;
         AppContext $app,
         View $view,
         #[Input, Filter('int|range(min: 1)')]
-        ?int $page = null,
+        int $page = 1,
 +        #[InputCompact('q', 'state')] Collection $filter = new Collection(),
     ): array {
         $limit = 5;

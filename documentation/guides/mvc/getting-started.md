@@ -163,6 +163,7 @@ You can also write inline macro styles. If a Blade file contains a `<style data-
         color: $primary;
     }
 </style>
+@endpush
 
 ...
 ```
