@@ -4,204 +4,250 @@ layout: doc
 
 # Getting Started
 
-## Start a New MVC
+This tutorial covers the basic Windwalker MVC only. Advanced packages such as Unicorn and Luna are not included.
 
-Run
+Tutorial chapters:
 
-```shell
+1. Getting Started (this page)
+2. [Entity, Migrations and Seeders](./modeling)
+3. [Create Views](./view)
+4. [Admin and Forms](./admin)
+
+## Prerequisites
+
+Please install and set up the environment as described in [Installation](../start/):
+
+- PHP 8.4.6 or above
+- Composer and a web server (or the built-in PHP server)
+- Node.js 20+ (22+ recommended) and Yarn 4.9+ (installing via corepack is recommended)
+
+## Install the Default Database Schema
+
+After installation, run the migrations (add `-s` to run the seeders too):
+
+```bash
+php windwalker mig:go -s
+```
+
+It will ask you to confirm:
+
+```
+Do you really want to run migration/seeding?: [N/y] y
+```
+
+To skip this question, add `-f` when running migrations.
+
+The command lists each migration and seeder it runs and ends with `Completed.`.
+
+Then open `http://{site}/www/admin/acme`. If you see a list of sample `acme` records, the installation succeeded.
+
+## Create a New MVC Set
+
+Run:
+
+```bash
 php windwalker g view Front/Sakura
 ```
 
-This will create a `src/Front/Sakura/SakuraView` file and a series of files.
+This creates `src/Module/Front/Sakura/SakuraView.php` and a set of related files.
 
-Let's write something into the `prepare()` function.
+Add something to `prepare()`:
 
-```php 
+```php
 <?php
-// src/Front/Sakura/SakuraView.php
+// src/Module/Front/Sakura/SakuraView.php
 
 // ...
 
-class SakuraView implements ViewModelInterface
+class SakuraView
 {
     // ...
-    
+
+    #[ViewPrepare]
     public function prepare(AppContext $app, View $view): array
     {
-        $title = 'Sakura View Title'; // [!code ++]
-        
-        return []; // [!code --]
-        return compact('title'); // [!code ++]
+        // Add these lines
+        $title = 'Sakura View';
+
+        return compact('title');
     }
 }
-
 ```
 
-Then print out the variable in the template file.
+Then print the variable in the template:
 
-```blade
+```php
 <?php // src/Module/Front/Sakura/views/sakura.blade.php ?>
+
+...
 
 @extends('global.body')
 
 @section('content')
-    <h2>Sakura view</h2> // [!code --]
-    <div class="container"> // [!code ++]
-        <h2>{{ $title }}</h2> // [!code ++]
-    </div> // [!code ++]
+    <div class="container">
+        <h2>{{ $title }}</h2>
+    </div>
 @stop
-
 ```
 
-Next, run the following command to create routing.
+Next, create the route:
 
-```shell
+```bash
 php windwalker g route front/sakura
 ```
 
-Edit the file to add the route settings.
+Open the generated file and register the URL:
 
-```php 
+```php
 <?php
 // routes/front/sakura.route.php
 
-use App\Module\Front\Sakura\SakuraView; // [!code focus]
+use App\Module\Front\Sakura\SakuraView;
 
 // ...
 
 $router->group('sakura')
     ->register(function (RouteCreator $router) {
-        // Add this // [!code focus]
-        $router->any('sakura', '/sakura')  // [!code focus]
-            ->view(SakuraView::class);  // [!code focus]
+        // Add this
+        $router->any('sakura', '/sakura')
+            ->view(SakuraView::class);
     });
 ```
 
-Next, open the following URL in the browser to see the view we create.
+Now open the following URL in the browser to see your view:
 
-``` 
-http://localhost:8000/sakura
+```
+http://{site}/www/sakura
 ```
 
-![sakura title](https://github.com/lyrasoft/ww4tut/assets/1639206/b6fef366-9f95-4144-a645-bba6881d0e13)
+The page displays the "Sakura View" heading.
 
-## Modify CSS Styles
+### Modify CSS
 
-Next, let's try modifying the assets/_sakura.scss in sakura. Add:
+Edit `assets/_sakura.scss` in the Sakura folder:
 
 ```scss
 // src/Module/Front/Sakura/assets/_sakura.scss
 
-// Limit to this view only
+// Scoped to this view only
 .view-sakura {
   h2 {
     color: red;
   }
 }
-
 ```
 
-Next, run
+Then run:
 
-``` 
-yarn build css
+```bash
+yarn build
 ```
 
-After completion, you will see the style take effect.
+The heading is now displayed in red.
 
-![red title](https://github.com/lyrasoft/ww4tut/assets/1639206/93d0d2f7-82f9-449c-8b8a-af398761bef9)
+You can also keep a dev server running, so you don't need to rebuild after every edit:
 
-In Windwalker 4, CSS is distributed in different MVC folders and will be integrated together during fusion compile.
+```bash
+yarn dev
+```
 
-## Modify JS
+In Windwalker 4, CSS is spread across MVC folders and merged only when Vite compiles.
 
-Similar to CSS, JS is also distributed in the MVC folders corresponding to the view name. Let's modify `sakura.ts`.
+You can also write inline macro styles. If a Blade file contains a `<style data-macro …>` tag, you can write styles directly inside it. Remove the red style above, then add the following to the Blade file, using a Bootstrap variable:
+
+```html
+@push('macro')
+<style data-macro type="text/scss" data-scope=".view-sakura">
+    // Add below
+    h2 {
+        color: $primary;
+    }
+</style>
+
+...
+```
+
+Keep `yarn dev` running and it will compile automatically. The heading now uses the Bootstrap primary color.
+
+### Modify JS (TypeScript)
+
+JS is also placed inside the MVC folder, named after the view. Edit `sakura.ts`:
 
 ```ts
 // src/Module/Front/Sakura/assets/sakura.ts
 
 console.log('Hello Sakura');
-
 ```
 
-Then compile with fusion.
+Compile with `yarn build`, or keep `yarn dev` running.
 
-``` 
-yarn build js
+Refresh the page and open the browser console to see the `Hello Sakura` output.
+
+Windwalker TypeScript runs in an ES Module + bundler environment, so you can use `import` directly. The following is only an example, do not paste it into your file, it will break:
+
+```ts
+import { Modal } from 'bootstrap';
+
+const modalEl = document.querySelector<HTMLDivElement>('#my-modal')!;
+const modal = Modal.getOrCreateInstance(modalEl);
+
+modalEl.addEventListener('shown.bs.modal', () => {
+  console.log('Modal show');
+});
+
+modal.show();
 ```
 
-Refresh the page and open the browser console to see the result.
+You can also write an inline macro. Find the `<script data-macro="…" lang="ts" …>` tag in the Blade file and write something inside it. This example imports a module inside `<script>`, keep `yarn dev` running:
 
-![console](https://github.com/lyrasoft/ww4tut/assets/1639206/bd458e36-1560-4e4d-a513-966a7053f0d2)
+```html
+...
 
-## Page Title
+<script data-macro="sakura" lang="ts" type="module">
+    import { Modal } from 'bootstrap';
 
-Simply add this line to add title to browser:
+    console.log(Modal);
+</script>
 
-```php
-    // ...
-
-    public function prepare(AppContext $app, View $view): array
-    {
-        $title = 'Sakura View Title';
-
-        $view->setTitle($title); // [!code ++]
-
-        return compact('title');
-    }
+...
 ```
 
-![title](https://github.com/windwalker-io/framework/assets/1639206/92ca07b3-88ce-4c47-97a5-2c34c3858df8)
+If the console prints the imported `Modal` class, it works.
 
-### Use `#[ViewMetadata]` Attribute
+## Project Structure
 
-If you want to set more metadata, try use `#[ViewMetadata]` with another method. You amy inject any service or view data into this method through declaring the arguments.
+See [Directory Structures](../start/#directory-structures) in the installation guide for the layout of the project root.
 
-The `HtmlFrame` is a useful object that help you configure HTML header and body. See [HtmlFrame Service](../../framework/html-frame.md)
+Inside `src/`, files are organized like this:
 
-```php
-use Windwalker\Core\Attributes\ViewMetadata; // [!code ++]
-use Windwalker\Core\Html\HtmlFrame; // [!code ++]
-
-    // ...
-
-    public function prepare(AppContext $app, View $view): array
-    {
-        $title = 'Sakura View Title';
-
-        $view->setTitle($title); // [!code --]
-        // Inject title to view  // [!code ++]
-        $view['title'] = $title; // [!code ++]
-
-        return compact('title');
-    }
-
-    #[ViewMetadata] // [!code ++]
-    public function prepareMetadata(HtmlFrame $htmlFrame, string $title): void // [!code ++]
-    { // [!code ++]
-        $htmlFrame->setTitle($title); // [!code ++]
-        $htmlFrame->setDescription('Sakura Description'); // [!code ++]
-    } // [!code ++]
-```
+| Directory | Purpose                          |
+|:----------|:---------------------------------|
+| Command   | Project CLI commands             |
+| Console   | Project console app              |
+| Entity    | Shared entities                  |
+| Enum      | Shared enums                     |
+| Module    | MVC modules (views, controllers) |
+| Web       | Project web app                  |
+| Services  | Shared services                  |
 
 ## Debug Mode
 
-If you need to enter debug mode, such as viewing DB Queries, complete error messages, or want to prevent CSS/JS caching, you can enter debug mode.
+To enter debug mode (to see DB queries, full error messages, or to disable CSS/JS caching), the easiest way is to add `/dev.php` to the URL.
 
-The simplest way is to add /dev.php at the end of the website URL.
+For example, change `http://localhost/hello/www/sakura/list` to `http://localhost/hello/www/dev.php/sakura/list`.
 
-For example: 
-- The URL: http://localhost/hello/www/sakura/list 
-- Change to: http://localhost/hello/www/dev.php/sakura/list.
+In debug mode, a debug console appears at the bottom of the page, showing information such as DB queries and timeline.
 
-In this case, we are using PHP server: `http://localhost:8000`, we can simply add `dev.php` after ths host: `http://localhost:8000/dev.php`
+When an error occurs, the full error message is displayed. Try throwing an exception or visiting an invalid URL to see the error page with the message and stack trace.
 
-This will enter debug mode.
+See [Debugging](../start/debugging) for details, including `DEV_ALLOW_IPS` and verbosity settings.
 
-![debug console](https://github.com/lyrasoft/ww4tut/assets/1639206/13a93c09-eba2-4d65-80c1-944ccdcc6bf7)
+## CLI Auto-completion
 
-When an error occurs, it can also display complete error messages.
+Windwalker supports auto-completion for macOS ZSH. Run this once:
 
-![error page](https://github.com/lyrasoft/ww4tut/assets/1639206/3e89efcb-a6b1-4594-85b6-4107632d00ee)
+```bash
+php windwalker auto-complete
+```
 
-More details please see [Debugging](../start/debugging.html)
+Restart your terminal, then type part of a command and press Tab to complete it. For example, typing `php windwalker g v` and pressing Tab completes it to `g view`.

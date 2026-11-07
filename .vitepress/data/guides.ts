@@ -25,12 +25,16 @@ export const guidesSidebar = computed<DefaultTheme.Sidebar>(() => {
           link: `/${guideRoutePrefix}/mvc/getting-started`
         },
         {
-          text: 'Modeling',
+          text: 'Entity, Migrations and Seeders',
           link: `/${guideRoutePrefix}/mvc/modeling`
         },
         {
-          text: 'View',
+          text: 'Create Views',
           link: `/${guideRoutePrefix}/mvc/view`
+        },
+        {
+          text: 'Admin and Forms',
+          link: `/${guideRoutePrefix}/mvc/admin`
         },
       ]
     }

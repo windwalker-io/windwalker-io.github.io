@@ -2,37 +2,31 @@
 layout: doc
 ---
 
-# View
+# Create Views
 
-Next, we will create a View to fetch data from the database.
+Next we create views to print the data in the database.
 
-## Create View Model for List
+## Create a List View
 
 Run:
 
-```shell
+```bash
 php windwalker g view Front/Article/ArticleListView
 ```
 
-This will create the `ArticleListView` object.
+This creates the `ArticleListView` class.
 
-> [!info]
-> If you enter the short name `Front/Article`, it will generate `Front\Article\ArticleView`.
-> 
-> And if you enter the full name `Front/Article/ArticleListView`, it will generate `Front\Article\ArticleListView`.
-> 
-> Since we want multiple Views to be managed in the same folder, we enter the full name here.
+- If you enter the short name `Front/Article`, it generates `Front\Article\ArticleView`.
+- If you enter the full name `Front/Article/ArticleListView`, it generates `Front\Article\ArticleListView`.
 
-We will use the ORM object's query builder to fetch articles. Every view object is a [ViewModel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel), that you can load or fetch data in it, and return as view data.
+Since we want several views in the same module folder, we use the full name here.
+
+We use the ORM query builder to fetch articles:
 
 ```php
 <?php // src/Module/Front/Article/ArticleListView.php
 
-#[ViewModel(
-    layout: 'article-list',
-    js: 'article-list.js'
-)]
-class ArticleListView implements ViewModelInterface
+class ArticleListView
 {
     public function __construct(
         // Inject ORM
@@ -41,39 +35,35 @@ class ArticleListView implements ViewModelInterface
         //
     }
 
+    #[ViewPrepare]
     public function prepare(AppContext $app, View $view): array
     {
         $items = $this->orm->from(Article::class)
-            ->where('state', 1) // Only fetch state = 1
+            // Only fetch state = 1
+            ->where('state', 1)
+            // Limit to 15 items
             ->limit(15)
-            ->all(Article::class);
+            // Use an iterator instead of returning everything at once,
+            // nothing is fetched until the foreach.
+            // Article::class converts each row into an entity.
+            ->getIterator(Article::class);
 
         return compact('items');
     }
 }
-
 ```
 
-Here we add a class name: `Article::class` to `all()` method as first argument, that well make ORM hydrate every item
-to `Article` entity. If no argument provided, a `Collection` list will be returned.
+In the Blade template, we print the articles with `foreach`, wrapped in Bootstrap cards.
 
-If you don't want to read items from DB instantly, you may consider replace `->all(Article::class)` with `->getIterator(Article::class)`, the ORM will return an iterator, before you loop it, the ORM will not send any request to DB.
+Declare the type of `$items` at the top of the template so values are read through the entity (`@var $items \App\Entity\Article[]`) rather than untyped array keys.
 
-In the `views/article-list.blade.php` template file, we use foreach to print the articles, wrapped in
-a [bootstrap](https://getbootstrap.com/docs/5.3/components/card/) card.
-
-```blade
+```php
 <?php // src/Module/Front/Article/views/article-list.blade.php
 // ...
 
-use App\Entity\Article;
-
-// ...
-
 /**
- * Annotate the type of $items
- * @var $items Article[]
- * @var $item  Article
+ * Declare the type of $items in a comment
+ * @var $items \App\Entity\Article[]
  */
 ?>
 
@@ -88,17 +78,17 @@ use App\Entity\Article;
                     <div class="card mb-4">
                         <div class="card-body">
                             <h2 class="card-title">
-                                {{ $item->getTitle() }}
+                                {{ $item->title }}
                             </h2>
 
                             <div class="mb-2 small text-muted">
-                                {{-- Convert DB UTC timezone to local timezone --}}
-                                {{ $chronos->toLocalFormat($item->getCreated(), 'Y/m/d H:i:s') }}
+                                {{-- Convert the DB UTC time to the local timezone --}}
+                                {{ $chronos->toLocalFormat($item->created, 'Y/m/d H:i:s') }}
                             </div>
 
                             <div>
-                                {{-- Truncate the string for summary --}}
-                                {!! \Windwalker\str($item->getContent())->stripHtmlTags()->truncate(100, '...') !!}
+                                {{-- Truncate the content as a summary --}}
+                                {!! \Windwalker\str($item->content)->stripHtmlTags()->truncate(100, '...') !!}
                             </div>
                         </div>
                     </div>
@@ -108,62 +98,59 @@ use App\Entity\Article;
         </div>
     </div>
 @stop
-
 ```
 
-> [!note]
-> Although the view file named **blade**, this is not render by Laravel Blade engine. Windwalker implemented a blade compatible engine called [Edge](/documentation/components/edge/), which is not depend on any Illumination package and dose not contains any Laravel built-in functions, and can be fully customize for any PHP projects.
+Next, create the route:
 
-Next, create the routing, run:
-
-```shell
+```bash
 php windwalker g route front/article
 ```
 
-and edit the generated file to add article-list route:
+Edit the generated file and add `article_list`:
 
-```blade
+```php
 <?php // routes/front/article.route.php
 
+use App\Module\Front\Article\ArticleListView;
 // ...
-use App\Module\Front\Article\ArticleListView; // [!code focus]
 
 $router->group('article')
     ->register(function (RouteCreator $router) {
-        $router->any('article_list', '/article/list') // [!code focus]
-            ->view(ArticleListView::class); // [!code focus]
-    });
 
+        // Add This
+        $router->any('article_list', '/article/list')
+            ->view(ArticleListView::class);
+    });
 ```
 
-Now, open the URL `http://localhost:8000/article/list`
+Now open `http://{site}/article/list` to see the article list. Each article is displayed as a Bootstrap card.
 
-You will see the article list.
+## ORM and Query Builder
 
-![sarticle list](https://github.com/windwalker-io/framework/assets/1639206/05ac054f-fa8c-46e2-bbc8-21defff2dc62)
+The Windwalker ORM follows the DataMapper pattern, closer to Symfony Doctrine than to the ActiveRecord pattern of Laravel or Ruby on Rails. Entities hold no logic or database operations, an entity is just an anemic object.
 
-## Create Pagination
+All operations go through the ORM / EntityMapper. See the [ORM](/documentation/components/orm/) and [Query Builder](/documentation/components/query/) documentation for details.
 
-Pagination requires three numbers:
+## Pagination
 
-| **Number**             | **Purpose**                     | **Explanation**                                                                                                                   |
-|------------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| **page** or **offset** | Current page or offset          | page is the current page number, usually obtained from the URL. `(page - 1) x limit` is the offset                                |
-| **limit**              | Items per page                  | limit is directly set in our program, or can be controlled from the URL if needed                                                 |
-| **total**              | Maximum number of current query | total is used to calculate the number of pages. It can be omitted, resulting in infinite next pages, usually calculated by the DB |
+Pagination needs three numbers:
 
-We first modify the `ArticleListView` code as follows:
+| Number                 | Purpose                                      | Description                                                                                                                                                                              |
+|------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **page** or **offset** | The current page or the current start offset | `page` is the current page number, usually taken from the URL. <br/> `(page - 1) x limit` is the offset.                                                                                 |
+| **limit**              | How many items per page                      | `limit` is set directly in code, and can also be controlled from the URL if needed.                                                                                                      |
+| **total**              | The maximum count of the current query       | `total` is used to calculate the page count. <br/> It is optional, without it there is always a next page and the total page count is unknown. <br/> It is usually counted by the DB. |
+
+Modify the code like this:
 
 ```php
-use App\Entity\Article;
 use Windwalker\Core\Pagination\PaginationFactory;
-use Windwalker\ORM\ORM;
 
 use function Windwalker\filter;
 
 // ...
 
-class ArticleListView implements ViewModelInterface
+class ArticleListView
 {
     public function __construct(
         protected ORM $orm,
@@ -172,94 +159,151 @@ class ArticleListView implements ViewModelInterface
         //
     }
 
-    public function prepare(AppContext $app, View $view): array
-    {
+    #[ViewPrepare]
+    public function prepare(
+        AppContext $app,
+        View $view,
+    ): array {
         $page = (int) $app->input('page');
         $limit = 5;
 
-        // Restrict the minimum value of page to 1
+        // Page must be at least 1
         $page = filter($page, 'int|range(min=1)');
 
         $query = $this->orm->from(Article::class)
+            // Only fetch state = 1
             ->where('state', 1)
-            ->offset(($page - 1) * $limit) // Calculate offset
+            // Calculate the offset
+            ->offset(($page - 1) * $limit)
             ->limit($limit);
 
-        // Create pagination object
+        // Create the pagination object
         $pagination = $this->paginationFactory->create($page, $limit)
-            // Calculate total using ORM::countWith()
+            // Calculate total with ORM::countWith()
             ->total(fn () => $this->orm->countWith($query));
 
+        // Use an iterator instead of returning everything at once
         $items = $query->getIterator(Article::class);
 
         return compact('items', 'pagination');
     }
 }
-
 ```
 
-Then print the pagination in the blade template.
+Then print the pagination below the `foreach` in the template:
 
-```blade
-    ...
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+```diff
+// src/Module/Front/Article/views/article-list.blade.php
 
-                <div class="my-4"> // [!code ++]
-                    <x-pagination :pagination="$pagination"></x-pagination> // [!code ++]
-                </div> // [!code ++]
+      ...
 
-            </div>
         </div>
-    ...
+      @endforeach
+
++      <div class="my-4">
++          <x-pagination :pagination="$pagination" />
++      </div>
 ```
 
-The result:
+Result: the list shows 5 articles per page, with page links below. Use `?page=2` to open the second page.
 
-![pagination](https://github.com/windwalker-io/framework/assets/1639206/746b7449-450b-4f60-9902-372c593ede9d)
+For the syntax supported by `filter()`, see the constants and examples in
+[FilterService](https://github.com/windwalker-io/core/blob/master/src/Core/Service/FilterService.php#L14-L42).
 
+### Changing How Input Is Read
 
-We use `x-pagination` component to print the pagination HTML, you can modify the HTML by editing `views/layout/pagination/basic-pagination.blade.php`. And you can replace the template file path by editing `etc/packages/renderer.php`
+We currently read the parameter with `$app->input('page')` and convert and limit it with `filter()`.
 
-```php
-    // ...
+Let's inject the input more directly by declaring a `page` parameter in `prepare()`:
 
-        'aliases' => [
-            '@pagination' => 'layout.pagination.basic-pagination', // [!code focus]
-            '@messages' => 'layout.messages.bs5-messages',
-            '@csrf' => 'layout.security.csrf',
-        ],
+```diff
++ use Windwalker\Core\Attributes\Request\Input;
 
-    // ...
+// ...
+
+    #[ViewPrepare]
+    public function prepare(
+        AppContext $app,
+        View $view,
++       #[Input] ?string $page = null,
+    ): array {
+-       $page = (int) $app->input('page');
+
+        // Page must be at least 1
+        $page = filter($page, 'int|range(min=1)');
 ```
 
-## Create View Model for Item
+The `#[Input]` attribute injects a request input as a variable. If the parameter name differs from the input name, specify it manually: `#[Input('param_name')]`.
 
-Similar to the previous steps, run this command:
+::: warning
+Values from the URL are always strings, even if they look like numbers. Use a `string` type (nullable if the value may be missing), or apply a filter to convert it.
+:::
 
-```php
+We can also move the filter into an attribute. Since the filter converts the value to int, the type can be `?int`:
+
+```diff
+use Windwalker\Core\Attributes\Request\Input;
++ use Windwalker\Core\Attributes\Filter;
+
+// ...
+
+    #[ViewPrepare]
+    public function prepare(
+        AppContext $app,
+        View $view,
+-       #[Input]
++       #[Input, Filter('int|range(min: 1)')]
+-       ?string $page = null,
++       ?int $page = null,
+    ): array {
+        $limit = 5;
+
+-        // Page must be at least 1
+-        $page = filter($page, 'int|range(min=1)');
+```
+
+Now suppose we want to fail with an error when `page` is less than 1. Use the `#[Assert]` attribute. Move the `range` rule from the filter into `Assert` and keep only `int` in the filter (the order of the two does not matter).
+
+The default of `page` can also be `1` instead of `null`:
+
+```diff
+use Windwalker\Core\Attributes\Request\Input;
+use Windwalker\Core\Attributes\Filter;
++ use Windwalker\Core\Attributes\Assert;
+
+// ...
+
+    #[ViewPrepare]
+    public function prepare(
+        AppContext $app,
+        View $view,
+-       #[Input, Filter('int|range(min: 1)')]
+-       ?int $page = null,
++       #[Input, Filter('int'), Assert('range(min: 1)')]
++       int $page = 1,
+    ): array {
+
+        // ...
+```
+
+Now try `page=0`, and you get a `400 Bad Request` error page.
+
+## Create an Item View
+
+Run the command the same way:
+
+```bash
 php windwalker g view Front/Article/ArticleItemView
 ```
 
-to create `ArticleItemView`, and then write the code as follows:
+This creates `ArticleItemView`. Write the code like this:
 
 ```php
 // src/Module/Front/Article/ArticleItemView.php
 
 // ...
-use App\Entity\Article;
-use Windwalker\Core\Router\Exception\RouteNotFoundException;
-use Windwalker\ORM\ORM;
 
-// ...
-
-#[ViewModel(
-    layout: 'article-item',
-    js: 'article-item.js'
-)]
-class ArticleItemView implements ViewModelInterface
+class ArticleItemView
 {
     public function __construct(
         protected ORM $orm
@@ -267,10 +311,9 @@ class ArticleItemView implements ViewModelInterface
         //
     }
 
-    public function prepare(AppContext $app, View $view): array
+    #[ViewPrepare]
+    public function prepare(AppContext $app, View $view, #[Input] string $id): array
     {
-        $id = $app->input('id');
-
         $item = $this->orm->findOne(Article::class, $id);
 
         if (!$item) {
@@ -280,28 +323,15 @@ class ArticleItemView implements ViewModelInterface
         return compact('item');
     }
 }
-
 ```
 
-Here we get ID from URL params and find record from DB. If there are no any item found, throw a 404 exception. You may simply replace to `mustFinOne()` to done this by one line.  
+Then write the template:
 
 ```php
-        $item = $this->orm->mustFindOne(Article::class, $id); // [!code ++]
-        $item = $this->orm->findOne(Article::class, $id); // [!code --]
-
-        if (!$item) { // [!code --]
-            throw new RouteNotFoundException(); // [!code --]
-        } // [!code --]
-```
-
-Next, write the blade template.
-
-```blade
-<?php
 // src/Module/Front/Article/views/article-item.blade.php
 
 /**
- * @var $item Article
+ * @var $item \App\Entity\Article
  */
 ?>
 
@@ -313,70 +343,160 @@ Next, write the blade template.
             <div class="col-lg-8 col-md-10">
                 <article class="c-article">
                     <header>
-                        <h2>{{ $item->getTitle() }}</h2>
+                        <h2>{{ $item->title }}</h2>
                     </header>
 
                     <div class="my-2 text-muted">
-                        {{ $chronos->toLocalFormat($item->getCreated(), 'Y/m/d H:i:s') }}
+                        {{ $chronos->toLocalFormat($item->created, 'Y/m/d H:i:s') }}
                     </div>
 
                     <div class="c-article__content">
-                        {!! $item->getContent() !!}
+                        {!! $item->content !!}
                     </div>
                 </article>
             </div>
         </div>
     </div>
 @stop
-
 ```
 
-Then add this view to the route.
+Add this view to the routes:
 
 ```php
-// ...
-
-use App\Module\Front\Article\ArticleItemView; // [!code focus]
-use App\Module\Front\Article\ArticleListView;
-use Windwalker\Core\Router\RouteCreator;
-
-/** @var RouteCreator $router */
+// routes/front/article.route.php
 
 $router->group('article')
     ->register(function (RouteCreator $router) {
         $router->any('article_list', '/article/list')
             ->view(ArticleListView::class);
 
-        $router->any('article_item', '/article/item/{id}') // [!code focus]
-            ->view(ArticleItemView::class); // [!code focus]
+        // Add this
+        $router->any('article_item', '/article/{id}')
+            ->view(ArticleItemView::class);
     });
 ```
 
-Finally, go back to `article-list.blade.php` and add links to each card to `article_item`.
+Finally, go back to `article-list.blade.php` and add a link to `article_item` in each card:
 
-```blade
+```php
 @foreach ($items as $item)
     <div class="card mb-4">
         <div class="card-body">
             ...
-            
-            <div>
-                {{-- Truncate the string for summary --}}
-                {!! \Windwalker\str($item->getContent())->stripHtmlTags()->truncate(100, '...') !!}
-            </div>
 
-            <div class="mt-2"> // [!code ++]
-                <a href="{{ $nav->to('article_item', ['id' => $item->getId()]) }}" class="btn btn-primary"> // [!code ++]
-                    Read More // [!code ++]
-                </a> // [!code ++]
-            </div> // [!code ++]
+            {{-- Add this --}}
+            <div class="mt-2">
+                <a class="btn btn-primary"
+                    href="{{ $nav->to('article_item', ['id' => $item->id]) }}">
+                    Read More
+                </a>
+            </div>
         </div>
     </div>
 @endforeach
 ```
 
-The final result:
+The final result: each card in the list now has a "Read more" link to its article, and the item page shows the title, creation time and full content.
 
-![list](https://github.com/windwalker-io/framework/assets/1639206/f1c58ed0-ac00-493d-b7f8-f4f360e523da)
+## Add a Back Button
 
-![item](https://github.com/windwalker-io/framework/assets/1639206/ba033563-bc2e-4711-901c-aa359136d8d9)
+The `Navigator` object has a handy `back()` method to return to the previous page.
+
+Add the following button to the article item page:
+
+```php
+@extends('global.body')
+
+@section('content')
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+
+                {{-- Add here --}}
+                <aside class="my-2">
+                    <a class="btn btn-sm btn-outline-secondary"
+                        href="{{ $nav->back() ?? $nav->to('article_list') }}">
+                        Back
+                    </a>
+                </aside>
+
+
+                <article class="c-article">
+                ...
+```
+
+If no history can be found, it falls back to the article list.
+
+::: tip
+Most templates have `$nav` injected by default, so you can use it directly.
+:::
+
+The item page now has a back button that returns to the previous page.
+
+## Add the Browser Title
+
+Go back to `ArticleListView` and `ArticleItemView` and add the titles respectively:
+
+```php
+// src/Module/Front/Article/ArticleListView.php
+
+    // ...
+    $view->setTitle('Articles');
+
+    return compact('items', 'pagination');
+```
+
+and
+
+```php
+// src/Module/Front/Article/ArticleItemView.php
+
+    // ...
+    $view->setTitle($item->title);
+
+    return compact('item');
+```
+
+The browser tab now shows the title you set.
+
+## Add Other Metadata
+
+To add other metadata, use `HtmlFrame`:
+
+```php
+// src/Module/Front/Article/ArticleItemView.php
+
+use function Windwalker\str;
+
+    // ...
+
+    $view->setTitle($item->title);
+
+    $htmlFrame = $view->getHtmlFrame();
+    $htmlFrame->addMetadata(
+        'description',
+        str($item->content)->stripHtmlTags()->truncate(100, '...'),
+        true // TRUE overrides the previous metadata
+    );
+    $htmlFrame->addOpenGraph(
+        'og:image',
+        $item->image,
+        true
+    );
+
+    return compact('item');
+```
+
+There are also shortcuts:
+
+```php
+    // Same as the description metadata
+    $htmlFrame->setDescriptionIfNotEmpty(
+        (string) str($item->content)->stripHtmlTags()->truncate(100, '...'),
+    );
+
+    // Same as og:image
+    $htmlFrame->setCoverImages($item->image);
+```
+
+See the [HtmlFrame](/documentation/framework/html-frame) documentation for the full metadata API.
