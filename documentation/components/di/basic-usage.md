@@ -383,6 +383,25 @@ $container->registerByConfig([
 Class-string bindings in this configuration are registered as shared services. Providers implementing
 `BootableProviderInterface` are booted after registration through `registerByConfig()`.
 
+Use the `Windwalker\DI\share()` helper when a configuration entry needs a shared factory definition:
+
+```php
+use Windwalker\DI\Container;
+use function Windwalker\DI\share;
+
+$container->registerByConfig([
+    'bindings' => [
+        'report.file' => share(
+            static fn(Container $container) =>
+                $container->newInstance(FileLogger::class),
+        ),
+    ],
+]);
+```
+
+For factories with explicit constructor arguments, use `create()` as described in
+[Parameters](./parameters#resolve-factories).
+
 ## Extending
 
 Use `extend()` to modify a service after its factory returns it:

@@ -7,6 +7,11 @@ Input (one of these):
 Locating sources:
 - Follow `.github/skills/source-lookup/README.md` to locate the host app and read the package source, `README.md`, `docs/`, and the package's own instructions. Do not search the whole filesystem.
 
+Step 0 (mandatory, before writing anything):
+- Read `.github/instructions/documentation-style.instructions.md` in full.
+- Read `.github/skills/templates/component-doc-page.md` in full.
+- Reply with a short list of the rules you will apply, including where pitfalls go and the line-length limit, before creating any file.
+
 - Follow `.github/instructions/documentation-style.instructions.md` for writing rules, and `.github/skills/templates/component-doc-page.md` for page structure.
 - Study the Overview sections of existing component pages under `documentation/components/` to match tone and layout.
 - Focus on standalone usage (without the framework) for every component. In the Overview, include the main framework entry point (DI examples are allowed there). On topic pages, mention framework-level behavior only briefly as background, for example when a config setting can control it. Do not write large DI, service provider, or command-line examples on topic pages; those belong to their own dedicated section.
@@ -23,6 +28,13 @@ Requirements:
 8. Use the site's page layout and frontmatter conventions: `layout: doc`, `title`, and `component: <name>` on every page of the component. Add the component to `.vitepress/data/components.ts` and its menu to `.vitepress/data/menu/components/<name>.ts` so the sidebar lists every page.
 9. Keep every line in code examples at 75 characters or fewer. When a line would exceed 75 characters, break it vertically: put each argument, array item, or chained call on its own line.
 10. Do not change framework or host app source code.
+
+Final self-check (run before reporting completion, and report the result):
+- No `## Pitfalls` or `### Pitfalls` heading at the end of a page, except one cross-cutting list of at most two items on the Overview. Every other pitfall sits right after the code or concept it concerns, marked `**Pitfall:**`.
+- Every code block line is 75 characters or fewer. Check with: awk over fenced blocks, printing lines longer than 75.
+- No sentence describes several methods, options, or steps in a list. Replace it with a short code example.
+- Every topic page follows the order: purpose, minimal setup, showcase, details, pitfalls.
+- `yarn build` passes with no dead links.
 
 Success criteria:
 - The overview explains the package and its main parts, and each page covers its topic with concepts, usage, and pitfalls.

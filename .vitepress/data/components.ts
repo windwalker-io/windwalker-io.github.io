@@ -92,12 +92,14 @@ export const groupedComponents: ComponentSet = {
     'queue': {
       title: 'Queue',
       description: 'Multiple connection queue management.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/queue'),
+      extra: {},
     },
     'language': {
       title: 'Language',
       description: 'I18n library for PHP, support multiple file formats.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/language'),
+      extra: {},
     },
   },
 
