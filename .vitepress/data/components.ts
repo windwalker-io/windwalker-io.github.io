@@ -58,8 +58,9 @@ export const groupedComponents: ComponentSet = {
 
     'reactor': {
       title: 'Reactor',
-      description: 'Simple tools to supports event-looping library.',
-      extra: { 'wip': true },
+      description: 'Swoole server, WebSocket and event-loop tools for Windwalker.',
+      menu: () => import('./menu/components/reactor'),
+      extra: {},
     },
   },
 
@@ -67,7 +68,8 @@ export const groupedComponents: ComponentSet = {
     'cache': {
       title: 'Cache',
       description: 'PSR-6 / PSR-16 compatible cache package.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/cache'),
+      extra: {},
     },
     'environment': {
       title: 'Environment',
