@@ -107,12 +107,14 @@ export const groupedComponents: ComponentSet = {
     'http': {
       title: 'HTTP',
       description: 'PSR-7 / PSR-15 HTTP message foundation, including Uri, Http client tools.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/http'),
+      extra: {},
     },
     'stream': {
       title: 'Stream',
       description: 'PSR-7 Streaming library.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/stream'),
+      extra: {},
     },
     'session': {
       title: 'Session',

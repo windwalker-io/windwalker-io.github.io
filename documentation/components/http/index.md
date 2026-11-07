@@ -63,23 +63,23 @@ $request = $factory->createRequest('GET', 'https://example.com/');
 
 ## Use in Windwalker
 
-Windwalker does not bind `HttpClient` by default. Your application
-binds it once, for example in a service provider, and then obtains it
-from the existing container or app:
+`HttpClient` is a plain object that you assemble yourself. It is not
+registered in the container, so create it where you need it and pass it
+to the classes that use it, for example through a constructor:
 
 ```php
-$container->bindShared(
-    HttpClient::class,
-    fn() => HttpClient::create(
-        new HttpClientOptions(
-            baseUri: 'https://api.example.com/v1/',
-            timeout: 10,
-        ),
+use Windwalker\Http\HttpClient;
+use Windwalker\Http\HttpClientOptions;
+
+$http = HttpClient::create(
+    new HttpClientOptions(
+        baseUri: 'https://api.example.com/v1/',
+        timeout: 10,
     ),
 );
-```
 
-Inject it in a constructor:
+$service = new UserService($http);
+```
 
 ```php
 class UserService
@@ -89,13 +89,6 @@ class UserService
     ) {
     }
 }
-```
-
-Retrieve it from the container or app:
-
-```php
-$http = $container->get(HttpClient::class);
-$http = $app->retrieve(HttpClient::class);
 ```
 
 The current web request is registered as `ServerRequest` and aliased to
@@ -117,19 +110,22 @@ such as `CurlTransport` perform the network call.
 
 ## Topic Pages
 
-- [HTTP Client](./client): sending requests, handling errors, uploads,
-  downloads, async requests, and events.
+- [HTTP Client](./client): creating requests, the request methods,
+  options, responses, debugging, uploads, downloads, async requests,
+  and events.
+- [Transports](./transports): the drivers, transport options, driver
+  overrides, and the CA bundle.
 - [Messages](./messages): PSR-7 request and response objects, the
   factories, and the server request.
 - [Output](./output): sending a response to the PHP SAPI or a stream.
 
 ## Related components
 
-- [Uri](/components/uri/index): the PSR-7 URI implementation used by
-  requests.
-- [Stream](/components/stream/index): the PSR-7 stream implementation
-  used for bodies.
-- [Promise](/components/promise/index): the promises returned by
-  asynchronous requests.
-- [Reactor](/components/reactor/index): Swoole and event-loop servers
-  that handle HTTP requests.
+- [Uri](/documentation/components/uri/index): the PSR-7 URI implementation
+  used by requests.
+- [Stream](/documentation/components/stream/index): the PSR-7 stream
+  implementation used for bodies.
+- [Promise](/documentation/components/promise/index): the promises
+  returned by asynchronous requests.
+- [Reactor](/documentation/components/reactor/index): Swoole and
+  event-loop servers that handle HTTP requests.
