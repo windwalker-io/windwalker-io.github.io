@@ -1230,6 +1230,7 @@ __metadata:
     lodash-es: "npm:^4.17.21"
     playwright-core: "npm:^1.65.0"
     vitepress: "npm:>=2.0.0-alpha.1||>=2.0.0-beta.1||>=2.0.0-rc.1||^2.0"
+    vue: "npm:^3.5.43"
   languageName: unknown
   linkType: soft
 
