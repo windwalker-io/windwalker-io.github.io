@@ -8,7 +8,7 @@ Requirements:
 1. For provided component in `documentation/components/`, compare the existing pages with the current source. Record which content is outdated (wrong APIs, signatures, defaults, or examples) and which is missing (new features, options, or behavior).
 2. Fix outdated content and fill in missing content in the existing pages. Keep the current structure, tone, and naming. Verify every code sample and API name against the source before writing it.
 3. Treat the draft docs under the package `docs/` folders in the host app's vendor (`vendor/windwalker-io/*/docs/`, for example database, orm, query, session, utilities) as major features that need documentation. Add them to the matching component pages.
-4. Do not create new section pages without asking the user first. Report which features you consider worth a new section page and wait for approval.
+4. Decide new section pages by the split rules in `.github/instructions/documentation-style.instructions.md` (subsystem, domain concept, topic, or optional add-on, not length). When a split is unclear, ask the user before creating the page.
 5. Only add a feature to the docs when it significantly changes the logic, usage, or developer experience. Skip minor internal changes.
 6. Keep docs English, professional, and neutral. Do not add internal links, IDE tutorials, or images.
 7. Do not change framework source code.
