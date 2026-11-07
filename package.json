@@ -1,5 +1,9 @@
 {
   "private": true,
+  "packageManager": "yarn@4.17.1",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
     "lodash-es": "^4.17.21",

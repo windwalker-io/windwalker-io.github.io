@@ -29,24 +29,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
-      # - uses: pnpm/action-setup@v3 # Uncomment this if you're using pnpm
-      # - uses: oven-sh/setup-bun@v1 # Uncomment this if you're using Bun
+      # - uses: pnpm/action-setup # Uncomment this if you're using pnpm
+      # - uses: oven-sh/setup-bun # Uncomment this if you're using Bun
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
-          cache: yarn
+          node-version: 24 # Active LTS; @vueuse/core@15 requires Node >= 22
+      - name: Enable Corepack (Yarn from packageManager)
+        run: corepack enable
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
       - name: Build with VitePress
         run: yarn build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: .vitepress/dist
 
@@ -61,4 +62,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
