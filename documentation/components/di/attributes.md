@@ -9,6 +9,18 @@ component: di
 The container can resolve attributes as decorators. Register each attribute for the targets where it should be
 processed. Call `registerDefaultAttributes()` to register the built-in attributes for their default target types.
 
+| Attribute | Default handler targets |
+| --- | --- |
+| `Decorator` | Classes |
+| `Autowire` | Classes, callables, and parameters |
+| `Inject` | Properties and parameters |
+| `Setup` | Methods |
+| `Service` | Properties and parameters |
+| `Lazy` | Properties |
+
+Class-level `Service`, `Isolation`, and `Lazy` markers, parameter-level `NoAutowire` and `Lazy` markers, and
+`Factory` are also recognized directly during resolution; they do not need a registered attribute handler.
+
 ## #[Autowire]
 
 For example, if you create a class with dependencies which has not set to container,
@@ -335,7 +347,7 @@ class Cache
 ## `#[Factory]`
 
 `#[Factory]` marks a closure returned by a callable passed to `newInstance()` as a factory definition. The container
-resolves the returned closure instead of returning the closure itself:
+resolves the returned closure instead of returning the closure itself. It does not need a registered attribute handler:
 
 ```php
 use Windwalker\DI\Attributes\Factory;
