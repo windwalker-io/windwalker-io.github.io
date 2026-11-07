@@ -260,9 +260,11 @@ foreach ($old as $path) {
 
 ## Common Pitfalls
 
+::: warning
 **User input is not trusted.** Pass names or paths from users through
 `Path::makeSafe()` or `Path::makeSafeAbsolute()` before use. See
 [Path Utilities](./path-utilities).
+:::
 
 ## Related components
 

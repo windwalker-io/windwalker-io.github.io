@@ -114,9 +114,15 @@ or in long-running servers.
 
 ## Common Pitfalls
 
-- `setOS()`, `setUname()`, `PhpHelper::setStrict()`, and
-  `PhpHelper::setMuted()` change global state. Restore the previous
-  values after a temporary change, as the package's own tests do.
-- Values such as `HTTP_HOST` and `REQUEST_URI` come from the client.
-  Do not use them as the sole basis for security decisions.
-- `PlatformHelper` is deprecated and kept only for compatibility.
+::: warning
+`setOS()`, `setUname()`, `PhpHelper::setStrict()`, and
+`PhpHelper::setMuted()` change global state. Restore the previous
+values after a temporary change, as the package's own tests do.
+:::
+
+::: warning
+Values such as `HTTP_HOST` and `REQUEST_URI` come from the client.
+Do not use them as the sole basis for security decisions.
+:::
+
+- **Tip:** `PlatformHelper` is deprecated and kept only for compatibility.

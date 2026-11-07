@@ -130,12 +130,13 @@ Windwalker runtime and read the port and options from the server state.
 Copy one of the preset scripts as a starting point. Without `--main`, a
 `swoole:` name must be registered, or the command fails.
 
-Pitfalls:
-
+::: warning
 - A standalone script ignores `--port`, `--workers`, and the other
   command options. Set them in the script, or read them from the state.
-- Port `9501` is hard-coded in the example above. Change it when another
-  process already uses it.
+:::
+
+- **Tip:** Port `9501` is hard-coded in the example above. Change it when
+  another process already uses it.
 
 , such as `worker_num`,
 `task_worker_num`, and `max_request`:

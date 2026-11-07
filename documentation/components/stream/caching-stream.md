@@ -78,7 +78,7 @@ its size, `CachingStream` reads the whole source into the cache first.
 `getSize()` returns the larger of the cache size and the source size, so
 it reports the full length once the source knows it.
 
-**Pitfall:** The cache keeps everything you have read until the
+**Tip:** The cache keeps everything you have read until the
 `CachingStream` is released. For a large source, pass a cache that stays
 on disk. A `php://temp` cache keeps data in memory up to a PHP limit and then
 moves it to a temporary file, but the cache still holds every byte:
@@ -130,13 +130,17 @@ still has bytes.
 
 `close()` closes the source and the cache together.
 
-**Pitfall:** Closing a `CachingStream` also closes the source you passed in.
+::: warning
+Closing a `CachingStream` also closes the source you passed in.
 Do not close the source yourself, and do not keep using it after the
 `CachingStream` is closed.
+:::
 
-**Pitfall:** `getSize()` on a `CachingStream` also calls the source's
+::: warning
+`getSize()` on a `CachingStream` also calls the source's
 `getSize()`. Wrapping a `GzStream` therefore makes it throw, because
 `GzStream` does not support that method. See [Gz Stream](./gz-stream).
+:::
 
 ## DecoratorStream
 
@@ -167,6 +171,8 @@ $stream = new UppercaseStream(new StringStream('foo bar'));
 echo $stream->getContents(); // FOO BAR
 ```
 
-**Pitfall:** Always pass the inner stream to the constructor. The argument
+::: warning
+Always pass the inner stream to the constructor. The argument
 is optional in the signature, but a decorator with no inner stream fails
 on its first call.
+:::

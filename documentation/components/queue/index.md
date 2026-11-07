@@ -203,12 +203,17 @@ See [Workers](workers#events) for the full list.
 
 ## Common Pitfalls
 
-- A pushed job runs only when a worker consumes its channel. Forgetting to
-  start a worker for a channel leaves its jobs waiting.
-- Jobs are stored as PHP serialized objects. Anyone who can write to the
-  queue storage can inject a payload that is unserialized by the worker.
-  Restrict write access to the queue table, the broker, or the SQS queue
-  to trusted producers.
+::: warning
+A pushed job runs only when a worker consumes its channel. Forgetting to
+start a worker for a channel leaves its jobs waiting.
+:::
+
+::: warning
+Jobs are stored as PHP serialized objects. Anyone who can write to the
+queue storage can inject a payload that is unserialized by the worker.
+Restrict write access to the queue table, the broker, or the SQS queue to
+trusted producers.
+:::
 
 ## Related components
 

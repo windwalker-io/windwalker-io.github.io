@@ -12,7 +12,7 @@ client for calling remote services, and the output layer that sends a
 response back to the PHP SAPI. Because the message classes implement the
 PSR-7 interfaces, code that uses them does not depend on the framework.
 
-The package has three main parts:
+The package has five main parts:
 
 - **Messages**: `Request`, `Response`, and `ServerRequest` objects, and the
   factories that create them. See [Messages](./messages).
@@ -21,6 +21,10 @@ The package has three main parts:
   See [HTTP Client](./client).
 - **Output**: `Output` and `StreamOutput`, which write a response to the
   SAPI or a stream. See [Output](./output).
+- **Server**: `PhpServer` and `ReactServer`, which turn incoming requests
+  into events. See [Server](./server).
+- **Middleware**: PSR-15 steps that run before the listeners. See
+  [Middleware](./middleware).
 
 ## Installation
 
@@ -118,6 +122,10 @@ such as `CurlTransport` perform the network call.
 - [Messages](./messages): PSR-7 request and response objects, the
   factories, and the server request.
 - [Output](./output): sending a response to the PHP SAPI or a stream.
+- [Server](./server): `PhpServer`, `ReactServer`, server events, and
+  building a custom adapter.
+- [Middleware](./middleware): the PSR-15 chain, writing middleware, and
+  the built-in favicon and file middleware.
 
 ## Related components
 

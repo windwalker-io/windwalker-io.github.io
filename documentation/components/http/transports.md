@@ -164,13 +164,17 @@ $client->get(
 );
 ```
 
-**Pitfall:** A value in `curl` silently replaces the value that the
+::: warning
+A value in `curl` silently replaces the value that the
 transport computed from a shared option. If you set both `timeout` and
 `CURLOPT_TIMEOUT`, the `curl` value is the one that takes effect.
+:::
 
-**Pitfall:** `ignoreCurlError: true` turns a network failure into an
+::: warning
+`ignoreCurlError: true` turns a network failure into an
 ordinary response instead of an exception. Only use it when you check the
 response yourself, because the status and body may be empty.
+:::
 
 ## CA Bundle
 
@@ -215,10 +219,14 @@ A custom transport can change the lookup as well. The method
 `findCAPathOrFile()` is protected in `AbstractTransport`, and a subclass
 can override it to return its own path or `null`.
 
-**Pitfall:** If the file set with `setDefaultPath()` does not exist, the
+::: warning
+If the file set with `setDefaultPath()` does not exist, the
 lookup falls back to the bundled file without any warning. A typo in the
 path therefore does not fail; it silently uses a different certificate
 list. Check the path at startup.
+:::
 
-**Pitfall:** `verifyPeer: false` disables the CA check entirely, so the
+::: warning
+`verifyPeer: false` disables the CA check entirely, so the
 CA settings have no effect. Keep it `true` outside of local tests.
+:::

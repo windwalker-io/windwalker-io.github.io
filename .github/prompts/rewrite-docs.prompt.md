@@ -7,9 +7,9 @@ Requirements:
 - Verify every command and API against the current code, following `.github/skills/source-lookup/README.md`. Delete temporary files afterwards.
 - Prefer updating an existing page over creating an overlapping one. When adding or renaming a page, update `.vitepress/data/guides.ts` or `.vitepress/data/components.ts`, and keep the route patterns and `layout: doc` frontmatter.
 - Apply all rules in `.github/instructions/documentation-style.instructions.md`: English tone, no internal or IDE material, no personal remarks, and no images (replace each image with text or simulated terminal output, and delete unreferenced image files).
-- Give every rewritten topic page a complete flow: purpose and problem solved, minimal enabling and assembly, a complete showcase example, then detailed features, then pitfalls. Add the missing introduction and showcase when the source jumps straight into details.
+- Give every rewritten topic page a complete flow: purpose and problem solved, minimal enabling and assembly, a complete showcase example, then detailed features, with reminders placed in the sections they concern. Add the missing introduction and showcase when the source jumps straight into details.
 - Keep code samples complete and correct: working imports where they matter, consistent examples across a chapter, and no stale or intermediate code left in the final version.
-- Use VitePress containers (`::: tip`, `::: warning`) sparingly, only for information that matters to the reader.
+- Mark reminders with plain text, `::: tip`, `::: info`, or `::: warning`, chosen by type and severity as described in the documentation style instructions. Use them sparingly.
 - Link to related component docs (for example ORM, Query, HtmlFrame) after confirming the target page exists.
 
 Success criteria:

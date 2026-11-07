@@ -36,10 +36,10 @@ use Windwalker\Cache\Storage\ArrayStorage;
 $pool = new CachePool(new ArrayStorage(), new RawSerializer());
 ```
 
-Pitfalls:
-
-- Storages that write strings, such as files, Redis, or databases, cannot store arrays or objects through this
-  serializer. Use `PhpSerializer` or a JSON serializer instead.
+::: warning
+Storages that write strings, such as files, Redis, or databases, cannot store arrays or objects through this
+serializer. Use `PhpSerializer` or a JSON serializer instead.
+:::
 
 ## PhpSerializer
 
@@ -54,12 +54,15 @@ $data = $serializer->serialize(['id' => 1, 'tags' => ['a']]);
 $value = $serializer->unserialize($data);
 ```
 
-Pitfalls:
+::: warning
+Objects are rebuilt from the stored class name. Only read data that your own application wrote. Reading tampered
+data can instantiate arbitrary classes.
+:::
 
-- Objects are rebuilt from the stored class name. Only read data that your own application wrote. Reading tampered
-  data can instantiate arbitrary classes.
-- Serialized objects tie the cache to class names and property layouts. A change to a class can make old entries
-  fail to load.
+::: warning
+Serialized objects tie the cache to class names and property layouts. A change to a class can make old entries
+fail to load.
+:::
 
 ## PhpFileSerializer
 
@@ -73,10 +76,10 @@ $serializer = new PhpFileSerializer();
 $source = $serializer->serialize(['debug' => false]);
 ```
 
-Pitfalls:
-
-- Closures cannot be exported. Objects become `__set_state` calls, which need the class to exist when the file is
-  included.
+::: warning
+Closures cannot be exported. Objects become `__set_state` calls, which need the class to exist when the file is
+included.
+:::
 
 ## JsonSerializer
 
@@ -93,10 +96,13 @@ $user = $serializer->unserialize($data);
 echo $user->name; // Alice
 ```
 
-Pitfalls:
+::: warning
+Class names are lost. An object becomes a `stdClass`.
+:::
 
-- Class names are lost. An object becomes a `stdClass`.
-- Large integers and floats can lose precision.
+::: warning
+Large integers and floats can lose precision.
+:::
 
 ## JsonAssocSerializer
 
@@ -113,10 +119,13 @@ $user = $serializer->unserialize($serializer->serialize(['id' => 1]));
 echo $user['id']; // 1
 ```
 
-Pitfalls:
+::: warning
+Objects become arrays. Values that need to stay objects must be rebuilt by the caller.
+:::
 
-- Objects become arrays. Values that need to stay objects must be rebuilt by the caller.
-- Same precision caveat as `JsonSerializer`.
+::: warning
+Same precision caveat as `JsonSerializer`.
+:::
 
 ## StringSerializer
 
@@ -130,9 +139,9 @@ $serializer = new StringSerializer();
 $html = $serializer->serialize(42); // "42"
 ```
 
-Pitfalls:
-
-- Types are not preserved. A stored `42` comes back as `"42"`, and an array cannot be converted to a string.
+::: warning
+Types are not preserved. A stored `42` comes back as `"42"`, and an array cannot be converted to a string.
+:::
 
 ## DeflateSerializer
 
@@ -150,11 +159,12 @@ $serializer = new DeflateSerializer(
 
 - `serializer`: the wrapped serializer. Defaults to `RawSerializer`.
 
-Pitfalls:
+::: warning
+Requires the `zlib` extension. The constructor throws `RuntimeException` without it.
+:::
 
-- Requires the `zlib` extension. The constructor throws `RuntimeException` without it.
-- Small values may grow after compression. Use it for large payloads only.
-- Do not wrap a `CipherSerializer` with it, because encrypted data does not compress. Place `DeflateSerializer` inside.
+- **Tip:** Small values may grow after compression. Use it for large payloads only.
+- **Tip:** Do not wrap a `CipherSerializer` with it, because encrypted data does not compress. Place `DeflateSerializer` inside.
 
 ## CipherSerializer
 
@@ -182,10 +192,13 @@ $serializer = new CipherSerializer(
 
 Generate a key once with `SodiumCipher::generateKey()`, then store it in the environment. Do not commit it.
 
-Pitfalls:
+::: warning
+Losing the key makes every cached value unreadable. Treat the key like any other secret.
+:::
 
-- Losing the key makes every cached value unreadable. Treat the key like any other secret.
-- Changing the key or the cipher makes old entries fail to decrypt. Clear the cache after rotating either.
+::: warning
+Changing the key or the cipher makes old entries fail to decrypt. Clear the cache after rotating either.
+:::
 
 ## SodiumSerializer
 
@@ -212,7 +225,10 @@ $serializer = new SodiumSerializer(
 Rotation: add the new key pair as `key` and move the old one into `previousKeys`. New writes use the new key, and
 old entries remain readable until they expire.
 
-Pitfalls:
+::: warning
+Losing the key pair makes the entries unreadable.
+:::
 
-- Losing the key pair makes the entries unreadable.
-- Requires the wrapped serializer to return a string. Use `PhpSerializer` or a JSON serializer.
+::: warning
+Requires the wrapped serializer to return a string. Use `PhpSerializer` or a JSON serializer.
+:::

@@ -50,12 +50,18 @@ $server->listen('0.0.0.0', 9501);
 
 ## Pitfalls
 
+::: warning
 - **Protocol flags go to the parent.** `createSubServer()` writes the
   flags to the parent server's settings, not to the sub-server. If the
   parent also serves HTTP, check the combined flags before you start.
+:::
+
+::: warning
 - **Calling `listen()` on a sub-server only registers it.** The port
   opens when the parent calls `listen()`. Calling the sub-server's
   `listen()` after the parent has started does nothing.
-- **Bind errors appear at parent start.** A port that is already in use
-  fails during the parent's `listen()`, not when the sub-server is
+:::
+
+- **Tip:** **Bind errors appear at parent start.** A port that is already
+  in use fails during the parent's `listen()`, not when the sub-server is
   created.

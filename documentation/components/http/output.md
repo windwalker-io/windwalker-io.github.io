@@ -90,8 +90,10 @@ output object, as shown on the [Messages](./messages) page.
 `respond()` sends the status line and headers only if they have not
 been sent yet, and then sends the body. The check uses `headersSent()`.
 
-**Pitfall:** Any output written before `respond()` sends the body
+::: warning
+Any output written before `respond()` sends the body
 first, for example an `echo`, a PHP warning, or a blank line after a
 closing `?>` in an included file. After that, the headers cannot be sent,
 so the status and content type of the response are lost. Do not write to
 `php://output` directly while you use `Output`.
+:::

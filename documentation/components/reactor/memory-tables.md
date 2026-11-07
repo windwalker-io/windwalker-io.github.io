@@ -79,12 +79,20 @@ size argument applies only to strings.
 
 ## Pitfalls
 
+::: warning
 - **Create the table before the server starts.** A table created later
   is not visible to the worker processes.
+:::
+
+::: warning
 - **Strings are fixed-size.** Set a size large enough for the longest
   value. Longer values are truncated.
+:::
+
+::: warning
 - **The fallback is not shared.** `ArrayTable` works in tests and in
   single-process code, but workers do not see each other's writes.
+:::
 
 ## Two-way Mappings
 

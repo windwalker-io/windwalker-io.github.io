@@ -204,6 +204,7 @@ For a stronger guarantee, combine it with `Path::makeSafeAbsolute()`. See
 
 ## Pitfalls
 
+::: warning
 **Roots do not resolve overrides.** Deduplication compares full paths, so
 two roots that contain the same relative file, such as `home.twig`, return
 both files. A theme system that expects the first root to win must choose
@@ -222,3 +223,4 @@ foreach ($roots->getPaths() as $root) {
     }
 }
 ```
+:::

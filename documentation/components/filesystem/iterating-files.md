@@ -241,6 +241,7 @@ results. See [Path Collection](./path-collection) for the full behavior.
 
 ## Pitfalls
 
+::: warning
 **Do not change a tree while walking it.** Deleting or renaming entries
 during a recursive listing can skip or fail on entries that the iterator has
 not reached. Collect the paths first with `toArray()`, then modify them:
@@ -257,6 +258,7 @@ foreach ($stale as $path) {
     fs($path)->deleteIfExists();
 }
 ```
+:::
 
-**Large listings use memory.** `toArray()` loads every entry at once. For
+**Tip:** **Large listings use memory.** `toArray()` loads every entry at once. For
 large folders, iterate with `foreach` and stop early, or use `limit()`.

@@ -341,7 +341,9 @@ if ($target->exists()) {
 
 ## Pitfalls
 
+::: warning
 **`delete()` follows links by default.** This default is kept for backward
 compatibility. In a folder that contains a symbolic link to another
 folder, `delete()` removes the contents of the link target. Use
 `deleteNoFollow()` in new code, and for folders you do not fully control.
+:::

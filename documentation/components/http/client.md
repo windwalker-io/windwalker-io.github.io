@@ -132,10 +132,12 @@ $response = $client->sendRequest(
 );
 ```
 
-**Pitfall:** `sendRequest()` sends the request as it is. It does not
+::: warning
+`sendRequest()` sends the request as it is. It does not
 apply the base URI, the default headers, or the client options, and it
 does not emit `BeforeRequestEvent`. Set the full URL and headers on the
 request yourself.
+:::
 
 `mustRequest()` is the generic form of the `must*()` methods that throw
 on an error status. See [Responses](#responses). Unlike the other
@@ -185,15 +187,19 @@ The options that apply to every transport are `timeout`, `userAgent`,
 Transport-specific settings are described on the
 [Transports](./transports) page.
 
-**Pitfall:** `verifyPeer` is `true` by default and checks the server
+::: warning
+`verifyPeer` is `true` by default and checks the server
 certificate. Setting it to `false` disables TLS verification and exposes
 your credentials to anyone on the network path. Use it only in local
 tests, and prefer `certpath` for a private certificate authority.
+:::
 
-**Pitfall:** Relative URLs are concatenated to the base URI as strings.
+::: warning
+Relative URLs are concatenated to the base URI as strings.
 Write the base URI with a trailing slash and the path without a leading
 slash, for example `users/42`. A URL that starts with a scheme, such as
 `https://...`, is sent unchanged and ignores the base URI.
+:::
 
 ## Uploads and Form Data
 
@@ -274,9 +280,11 @@ $client->post(
 `writeStream` also accepts a path, such as `'/tmp/report.csv'`, in the
 same place.
 
-**Pitfall:** When the target is a stream object, the body is written to
+::: warning
+When the target is a stream object, the body is written to
 the stream and `getContent()` returns an empty string. Read the file after
 the request completes.
+:::
 
 ## Asynchronous Requests
 
@@ -301,7 +309,7 @@ The concurrent requests run through `MultiCurlTransport`. The async
 methods need `CurlTransport`, and the client throws a `DomainException`
 if the transport is different.
 
-**Pitfall:** `wait()` blocks the caller until all promises settle. Call
+**Tip:** `wait()` blocks the caller until all promises settle. Call
 it once, at the point where you need the results.
 
 ## Events
@@ -385,9 +393,11 @@ want the collection methods of Windwalker's data package:
 $collection = $response->decode('json');
 ```
 
-**Pitfall:** `jsonDecode()` throws a `JsonException` when the body is not
+::: warning
+`jsonDecode()` throws a `JsonException` when the body is not
 valid JSON. An error page from a proxy is often HTML, so check the status
 or the `Content-Type` before you decode.
+:::
 
 ### Converting to Exceptions
 
@@ -422,10 +432,12 @@ class ApiException extends RuntimeException
 $response->throwIfError(ApiException::class);
 ```
 
-**Pitfall:** The exception class must accept a message and a code in its
+::: warning
+The exception class must accept a message and a code in its
 constructor, because the response is turned into it with those two
 values. A class with a different constructor fails when the exception is
 created.
+:::
 
 ### Catching HTTP Errors
 
@@ -549,11 +561,15 @@ is written in the form that matches its content type:
 Each part is quoted for a POSIX shell, so you can paste the command
 without editing it.
 
-**Pitfall:** The command contains every header, including
+::: warning
+The command contains every header, including
 `Authorization` and `Cookie`, and the full request body. Do not write it
 to a shared log or show it to users. Remove the sensitive headers before
 you log it, or log it only in a development environment.
+:::
 
-**Pitfall:** Generating a command does not send the request. It still
-runs the `BeforeRequestEvent` listeners of the client, so a listener that
-counts requests or writes to a log is called as well.
+::: info
+Generating a command does not send the request. It still runs the
+`BeforeRequestEvent` listeners of the client, so a listener that counts
+requests or writes to a log is called as well.
+:::

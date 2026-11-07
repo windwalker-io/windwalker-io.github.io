@@ -51,11 +51,19 @@ $server = $container->resolve(
 
 ## Pitfalls
 
+::: warning
 - **One process means shared state.** Services and globals are shared by
   every request in the process, the same as the other server types.
   There is only one process, so the workers' memory-sharing concern does
   not apply.
+:::
+
+::: warning
 - **Blocking code blocks every coroutine.** A synchronous call that does
   not yield stops all other requests in the process.
+:::
+
+::: warning
 - **`stop()` must be called from running code.** Call it from a request
   listener or a timer after the server has started.
+:::

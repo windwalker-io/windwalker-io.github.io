@@ -99,16 +99,20 @@ echo $reader->getContents();
 
 `GzStream` cannot report its size. `getSize()` throws `LogicException`.
 
-**Pitfall:** Any code that calls `getSize()` on the stream fails. This
+::: warning
+Any code that calls `getSize()` on the stream fails. This
 includes a `CachingStream` that wraps a `GzStream`, and code that sets a
 `Content-Length` header from the stream size. Read the content with
 `getContents()` instead, then use `strlen()` on the result.
+:::
 
 ## Writing and Closing
 
 Opening a file with `WRITE_ONLY_RESET` replaces its content. Pass a read
 mode when you only need to read.
 
-**Pitfall:** Call `close()` as soon as you finish writing. It writes the gzip
+::: warning
+Call `close()` as soon as you finish writing. It writes the gzip
 footer and releases the file. Do not rely on the object being destroyed to
 do that work.
+:::

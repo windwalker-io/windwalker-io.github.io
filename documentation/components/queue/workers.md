@@ -53,7 +53,7 @@ $worker = new Worker(
 );
 ```
 
-**Pitfall:** the default `sleep` is one second, so one worker handles at
+**Tip:** the default `sleep` is one second, so one worker handles at
 most one job per second. Lower `sleep` or run more worker processes for
 throughput.
 
@@ -165,13 +165,16 @@ $options = new RunnerOptions(
 `SIGINT` and `SIGTERM` also stop the worker, after the job in progress
 finishes. `timeout` uses `SIGALRM` to stop a cycle that runs too long.
 
-**Pitfall:** signal handling needs the `pcntl` extension. Without it, the
-`timeout` option and the signal handling do nothing.
+::: warning
+Signal handling needs the `pcntl` extension. Without it, the `timeout`
+option and the signal handling do nothing.
+:::
 
-**Pitfall:** `UnrecoverableException` that escapes `next()`, for example
-from a custom driver, stops the process at once with exit code `1`. Job
-exceptions never reach this path, because the worker treats them as
-failures.
+::: warning
+`UnrecoverableException` that escapes `next()`, for example from a custom
+driver, stops the process at once with exit code `1`. Job exceptions never
+reach this path, because the worker treats them as failures.
+:::
 
 To restart all workers after a deploy, write the current timestamp into
 the `restartSignal` file. Each worker then stops after its current cycle,
@@ -184,13 +187,16 @@ file_put_contents(
 );
 ```
 
-**Pitfall:** a worker is a long-running process. Code and configuration
-changes are not seen until it restarts, so write the restart signal or run
-your supervisor's restart command after every deploy.
+::: warning
+A worker is a long-running process. Code and configuration changes are not
+seen until it restarts, so write the restart signal or run your
+supervisor's restart command after every deploy.
+:::
 
-**Pitfall:** PHP memory grows in long-running processes. Set
-`memoryLimit`, `maxRuns`, or `lifetime`, and let a supervisor restart the
-worker when it stops.
+::: warning
+PHP memory grows in long-running processes. Set `memoryLimit`, `maxRuns`,
+or `lifetime`, and let a supervisor restart the worker when it stops.
+:::
 
 ## Channels
 

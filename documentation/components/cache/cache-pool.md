@@ -92,11 +92,14 @@ It applies to:
 - `modify()`, `compute()`, and `touch()` without a TTL.
 - Items returned by `getItem()` before `expiresAfter()` is called.
 
-Pitfalls:
+::: warning
+`fetch()` with a `null` TTL does not use `defaultTtl`. It stores the value for one year. Pass an explicit TTL to
+`fetch()`.
+:::
 
-- `fetch()` with a `null` TTL does not use `defaultTtl`. It stores the value for one year. Pass an explicit TTL to
-  `fetch()`.
-- When `defaultTtl` is `null`, the default is one year.
+::: warning
+When `defaultTtl` is `null`, the default is one year.
+:::
 
 ## Derived pools
 
@@ -135,14 +138,23 @@ How groups are stored depends on the storage:
 - `RedisStorage`: a key prefix in the form `group:key`.
 - `MemcachedStorage`: no groups. Use key prefixes instead.
 
-Pitfalls:
+::: warning
+Avoid `:` in group names. Redis joins the group and the key with `:`, so names can collide.
+:::
 
-- Avoid `:` in group names. Redis joins the group and the key with `:`, so names can collide.
-- `clear()` on a group runs a scoped delete. Calling `clear()` on a pool without a group empties everything in the
-  storage.
-- Profiles from `CacheFactory` use the profile name as the group by default. Each profile's database entries
-  therefore live in their own group, and file entries go to `@cache/<profile>`.
-- `withGroup()` on a `TaggedCachePool` also applies to its tag pool when the tag pool supports groups.
+::: warning
+`clear()` on a group runs a scoped delete. Calling `clear()` on a pool without a group empties everything in the
+storage.
+:::
+
+::: warning
+Profiles from `CacheFactory` use the profile name as the group by default. Each profile's database entries
+therefore live in their own group, and file entries go to `@cache/<profile>`.
+:::
+
+::: warning
+`withGroup()` on a `TaggedCachePool` also applies to its tag pool when the tag pool supports groups.
+:::
 
 ## Atomic Read-Through
 
@@ -327,17 +339,29 @@ Keep these rules when changing the list:
 
 ### Behavior and pitfalls
 
-- **Scope**: `flock()` coordinates processes on the same machine only. Servers that share a cache storage do not share
-  these locks. Across machines, rely on a storage that handles concurrency, or accept that a lock covers one host.
-- **Timeout**: if the lock cannot be acquired within `setTimeout()` (default 30 seconds), the handler runs without
-  it. A timeout of `0` gives up immediately. `setWaitInterval()` sets how often the lock is retried (default 100 ms).
-- **Re-entrancy**: within one process, a handler that calls a helper for the same key does not deadlock. It receives
-  the current cached value and does not run the handler again.
-- **Shared stripes**: two different keys in the same process and stripe share one file handle. Releasing one key
-  releases the stripe, so the other key loses its lock early. Use more stripes when many keys are active at once.
-- **Logging**: set `CacheLock::$logger` to a PSR-3 logger to see acquisition, timeout, and release messages.
-- **Single-process use**: pass `lock: false` for in-process storages such as `ArrayStorage`, or in single-threaded
-  environments. A file lock adds overhead without protecting anything there.
+::: warning
+**Scope**: `flock()` coordinates processes on the same machine only. Servers that share a cache storage do not share
+these locks. Across machines, rely on a storage that handles concurrency, or accept that a lock covers one host.
+:::
+
+::: warning
+**Timeout**: if the lock cannot be acquired within `setTimeout()` (default 30 seconds), the handler runs without
+it. A timeout of `0` gives up immediately. `setWaitInterval()` sets how often the lock is retried (default 100 ms).
+:::
+
+::: warning
+**Re-entrancy**: within one process, a handler that calls a helper for the same key does not deadlock. It receives
+the current cached value and does not run the handler again.
+:::
+
+::: warning
+**Shared stripes**: two different keys in the same process and stripe share one file handle. Releasing one key
+releases the stripe, so the other key loses its lock early. Use more stripes when many keys are active at once.
+:::
+
+- **Tip:** **Logging**: set `CacheLock::$logger` to a PSR-3 logger to see acquisition, timeout, and release messages.
+- **Tip:** **Single-process use**: pass `lock: false` for in-process storages such as `ArrayStorage`, or in
+  single-threaded environments. A file lock adds overhead without protecting anything there.
 
 ## Asynchronous fetch
 

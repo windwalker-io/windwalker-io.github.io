@@ -113,9 +113,11 @@ echo $stream->read(10); // BAR
 
 Seeking before the start of the string throws `RuntimeException`.
 
-**Pitfall:** `seekable(false)` blocks `seek()` and `rewind()`. Both throw
+::: warning
+`seekable(false)` blocks `seek()` and `rewind()`. Both throw
 `RuntimeException`, and `getContents()` still reads from the current
 position. Use it only when a consumer must not rewind the content.
+:::
 
 ## Constructing from Objects
 

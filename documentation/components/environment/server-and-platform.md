@@ -127,24 +127,34 @@ replaces it and returns the instance, so calls can be chained.
 
 ## Pitfalls
 
+::: warning
 **Missing keys in CLI.** Several getters are typed `string` but return
 `null` when the key is absent, for example `getHost()`, `getPort()`,
 `getScheme()`, `getRequestUri()`, and `getServerPublicRoot()`. Under
 `strict_types`, this throws a `TypeError`. CLI processes usually have
 no `HTTP_HOST`, so guard these calls or pass the parameters you need.
+:::
 
+::: warning
 **Client-supplied values.** `HTTP_HOST` and `REQUEST_URI` are set by the
 client. Do not use `getHost()` alone to build redirects, password reset
 links, or other security-sensitive URLs. Compare the value with a list
 of trusted hosts first.
+:::
 
+::: warning
 **Scheme detection.** `isSSL()` relies only on `REQUEST_SCHEME`. Its
 value depends on how the web server or proxy is configured. Behind a
 reverse proxy, it may report `http` for an HTTPS request.
+:::
 
+::: warning
 **Snapshot of server data.** The constructor copies the array. For a
 long-running server, create the instance per request, or pass the
 request's parameters explicitly.
+:::
 
+::: warning
 **Cygwin.** `isUnix()` is true on Cygwin, although the system is
 Windows-based. Use `isWindows()` when you need to detect native Windows.
+:::

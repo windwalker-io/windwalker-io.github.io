@@ -48,9 +48,11 @@ The `timeout` value is the number of seconds a reserved message stays
 hidden from other workers. If a worker crashes while running a job, the
 message becomes visible again after this period.
 
-**Pitfall:** a job that runs longer than `timeout` can be picked up by a
-second worker while the first one is still running it. Keep `timeout`
-longer than your slowest job, or split the job into smaller ones.
+::: warning
+A job that runs longer than `timeout` can be picked up by a second worker
+while the first one is still running it. Keep `timeout` longer than your
+slowest job, or split the job into smaller ones.
+:::
 
 `idType` sets the ID type of the table. The ID column must match it:
 
@@ -124,9 +126,11 @@ To share a connection with other code, pass it as
 `'connection' => $connection`, where `$connection` is an
 `AbstractConnection` from php-amqplib.
 
-**Pitfall:** the driver closes its connection when it is destroyed,
-including a connection you passed in. Do not keep using a shared
-connection after the driver is gone.
+::: warning
+The driver closes its connection when it is destroyed, including a
+connection you passed in. Do not keep using a shared connection after the
+driver is gone.
+:::
 
 ## Sync Driver
 
@@ -156,9 +160,11 @@ In a Windwalker application, the `sync` connection passes its own handler
 that starts a separate `queue:worker --once` process, so the job runs in
 its own environment.
 
-**Pitfall:** the job runs inside `push()`, so an exception from the job
-reaches the caller of `push()`. The `$delay` argument is ignored, because
-nothing is stored.
+::: warning
+The job runs inside `push()`, so an exception from the job reaches the
+caller of `push()`. The `$delay` argument is ignored, because nothing is
+stored.
+:::
 
 ## Null Driver
 
@@ -200,11 +206,15 @@ $worker = new Worker(
 $worker->loop('default');
 ```
 
-**Pitfall:** nothing is persisted, so a restart begins the loop again. Use
-this driver only for work that is safe to repeat on a timer.
+::: warning
+Nothing is persisted, so a restart begins the loop again. Use this driver
+only for work that is safe to repeat on a timer.
+:::
 
-**Pitfall:** the callable is wrapped in a closure job, so it needs
+::: warning
+The callable is wrapped in a closure job, so it needs
 `laravel/serializable-closure` and must not capture resources.
+:::
 
 ## Custom Drivers
 

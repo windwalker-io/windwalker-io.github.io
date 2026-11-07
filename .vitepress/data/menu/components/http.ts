@@ -23,5 +23,13 @@ export default <ComponentMenu> {
       text: 'Output',
       link: 'output',
     },
+    {
+      text: 'Server',
+      link: 'server',
+    },
+    {
+      text: 'Middleware',
+      link: 'middleware',
+    },
   ]
 };

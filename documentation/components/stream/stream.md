@@ -115,9 +115,11 @@ $stream = Stream::fromFilePath(
 );
 ```
 
-**Pitfall:** Calling `fromFilePath()` without a mode truncates the file.
+::: warning
+Calling `fromFilePath()` without a mode truncates the file.
 Pass `READ_ONLY_FROM_BEGIN` or another mode that keeps the content when you
 only need to read.
+:::
 
 `Stream::wrap()` is for functions that accept several input types. It
 returns a `StreamInterface` unchanged, and it wraps a path or a resource
@@ -136,10 +138,12 @@ function body(mixed $input): string
 }
 ```
 
-**Pitfall:** `wrap()` does not create a missing file. A path that cannot
+::: warning
+`wrap()` does not create a missing file. A path that cannot
 be opened produces a PHP warning. Later calls on that object throw
 `RuntimeException`. Check that the file exists before you wrap it, or use a
 create mode such as `WRITE_ONLY_CREATE_FROM_BEGIN`.
+:::
 
 ## Reading and Writing
 
@@ -160,14 +164,18 @@ echo $stream->read(3); // FOO
 echo $stream->tell();  // 3
 ```
 
-**Pitfall:** Casting a stream to a string, as in `(string) $stream`, rewinds
+::: warning
+Casting a stream to a string, as in `(string) $stream`, rewinds
 it, reads the whole content, and leaves the position at the end. A later
 `getContents()` returns an empty string. Call `rewind()` after the cast if
 you need to read again.
+:::
 
-**Pitfall:** Writing to a stream opened with a read-only mode throws
+::: warning
+Writing to a stream opened with a read-only mode throws
 `RuntimeException`. Use `isWritable()` and `isReadable()` to check the mode
 before you rely on it.
+:::
 
 ## Closing and Detaching
 
@@ -189,8 +197,10 @@ fwrite($resource, 'FOO BAR');
 fclose($resource);
 ```
 
-**Pitfall:** After `detach()`, the stream object is unusable, and the
+::: warning
+After `detach()`, the stream object is unusable, and the
 caller is responsible for closing the returned resource.
+:::
 
 ## Copying with StreamHelper
 
@@ -220,8 +230,10 @@ $stream->seek(4);
 echo StreamHelper::copyToString($stream); // BAR
 ```
 
-**Pitfall:** `copyTo()` overwrites an existing file at the destination.
+::: warning
+`copyTo()` overwrites an existing file at the destination.
 Write to a new path when you must keep the original.
+:::
 
 ```php
 use Windwalker\Stream\StreamHelper;

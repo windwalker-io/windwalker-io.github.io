@@ -41,9 +41,10 @@ $failer->add(
 
 `$db` is a `DatabaseAdapter` from `windwalker/database`.
 
-**Pitfall:** the stored body contains the serialized job. Treat the
-failed-jobs table as sensitive, like the queue table, and restrict access
-to it.
+::: warning
+The stored body contains the serialized job. Treat the failed-jobs table as
+sensitive, like the queue table, and restrict access to it.
+:::
 
 ## Showcase
 
@@ -101,8 +102,10 @@ application:
 php windwalker queue:retry --all --failer=database
 ```
 
-**Pitfall:** a retried job runs its code again. Check that the job is
-idempotent before you retry a batch.
+::: warning
+A retried job runs its code again. Check that the job is idempotent before
+you retry a batch.
+:::
 
 ## Failer Configuration
 

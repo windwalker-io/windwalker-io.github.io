@@ -39,10 +39,12 @@ through the container, so its constructor dependencies are injected:
 $queue->push(ClearReportCache::class);
 ```
 
-**Pitfall:** a job is serialized when it is pushed. If you rename its class
-or change its properties while messages are waiting, those messages cannot
-be unserialized after a deployment. Drain the queue before changing a job
+::: warning
+A job is serialized when it is pushed. If you rename its class or change
+its properties while messages are waiting, those messages cannot be
+unserialized after a deployment. Drain the queue before changing a job
 class.
+:::
 
 ## Showcase
 
@@ -115,10 +117,12 @@ $queue->push(
 );
 ```
 
-**Pitfall:** do not capture services, database connections, or file
-handles. They cannot be serialized, or they will be stale when the worker
-runs the job. Pass an ID and load the data inside the closure, or use a
-class job instead.
+::: warning
+Do not capture services, database connections, or file handles. They
+cannot be serialized, or they will be stale when the worker runs the job.
+Pass an ID and load the data inside the closure, or use a class job
+instead.
+:::
 
 ## Entry Methods and Attributes
 
@@ -195,9 +199,11 @@ the final failure and keep the state pending otherwise. The error is in
     }
 ```
 
-**Pitfall:** an array backoff limits the attempts. With `[10, 60, 300]`,
-the job runs at most three times. When it is picked up a fourth time, the
-worker removes it without running it.
+::: warning
+An array backoff limits the attempts. With `[10, 60, 300]`, the job runs at
+most three times. When it is picked up a fourth time, the worker removes it
+without running it.
+:::
 
 `JobBackoff::backoff()` is a static helper that computes one delay for an
 attempt number, for linear, exponential, or polynomial schedules. It is
@@ -222,8 +228,10 @@ class SyncCatalog
 }
 ```
 
-**Pitfall:** returning `false` from a backoff method removes the job the
-next time it is picked up, before it runs.
+::: warning
+Returning `false` from a backoff method removes the job the next time it is
+picked up, before it runs.
+:::
 
 ## Middleware
 
@@ -351,9 +359,11 @@ class SyncCatalog
 }
 ```
 
-**Pitfall:** `defer()`, `abandoned()`, and `failed()` return exceptions,
-not controllers. Use `throw` with them in a middleware. A `return` would
+::: warning
+`defer()`, `abandoned()`, and `failed()` return exceptions, not
+controllers. Use `throw` with them in a middleware. A `return` would
 violate the `JobController` return type of the method.
+:::
 
 ## The JobController
 
@@ -528,9 +538,11 @@ class SyncCatalog
 `resume()` clears the pending `defer()` and `retryAfter()`. With nothing else
 pending, the worker deletes the message as finished.
 
-**Pitfall:** `tries` does not limit deferred runs. A job whose condition never
-clears keeps being requeued, so it needs a condition that eventually changes,
-or an `abandoned()` branch that ends it.
+::: warning
+`tries` does not limit deferred runs. A job whose condition never clears
+keeps being requeued, so it needs a condition that eventually changes, or an
+`abandoned()` branch that ends it.
+:::
 
 ### retryAfter()
 
@@ -598,9 +610,11 @@ class SyncCatalog
 `resume()` clears both pending states, so the message is deleted as finished
 instead of being requeued.
 
-**Pitfall:** `retryAfter()` does not stop the method. Code after it still runs,
-so `return` right after the call. An exception thrown after `retryAfter()`
+::: warning
+`retryAfter()` does not stop the method. Code after it still runs, so
+`return` right after the call. An exception thrown after `retryAfter()`
 makes the run a failure, and the retry request is dropped.
+:::
 
 ### failed()
 
@@ -667,9 +681,11 @@ class SyncCatalog
 }
 ```
 
-**Pitfall:** the method keeps running after `failed()`. The `cache->clear()`
-call above runs even on failure. Add `return` or `throw` if the remaining work
-must not run.
+::: warning
+The method keeps running after `failed()`. The `cache->clear()` call above
+runs even on failure. Add `return` or `throw` if the remaining work must not
+run.
+:::
 
 ### abandoned()
 
@@ -738,11 +754,15 @@ class ShipOrder
 `keep()` clears only the abandoned flag. Without it, an exception thrown
 later in the method would delete the message instead of retrying it.
 
-**Pitfall:** an abandoned job is discarded for good, so `queue:retry` cannot
-bring it back. Use it only for work you never want to repeat. Because the
-worker does not log it, log the reason first, as shown above.
+::: warning
+An abandoned job is discarded for good, so `queue:retry` cannot bring it
+back. Use it only for work you never want to repeat. Because the worker
+does not log it, log the reason first, as shown above.
+:::
 
-**Pitfall:** delivery is at least once. A worker can crash after your side
-effect and before it deletes the message, so the job runs again. Make the
-job idempotent, for example by checking whether the mail was already sent
+::: warning
+Delivery is at least once. A worker can crash after your side effect and
+before it deletes the message, so the job runs again. Make the job
+idempotent, for example by checking whether the mail was already sent
 before sending it.
+:::

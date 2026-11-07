@@ -39,10 +39,11 @@ $storage = new ArrayStorage(
 - `pruneProbability`: chance (0 to 1) that a write triggers a prune of expired entries.
 - `group`: key namespace.
 
-Pitfalls:
+- **Tip:** Entries disappear when the process or request ends. It suits one run, such as a single request or a worker loop.
 
-- Entries disappear when the process or request ends. It suits one run, such as a single request or a worker loop.
-- It is not shared between processes. Two PHP-FPM workers hold separate copies.
+::: warning
+It is not shared between processes. Two PHP-FPM workers hold separate copies.
+:::
 
 ## NullStorage
 
@@ -55,9 +56,9 @@ use Windwalker\Cache\Storage\NullStorage;
 $pool = new CachePool(new NullStorage());
 ```
 
-Pitfalls:
-
-- Code that depends on a saved value, such as a counter built with `modify()`, never sees a hit.
+::: warning
+Code that depends on a saved value, such as a counter built with `modify()`, never sees a hit.
+:::
 
 ## FileStorage
 
@@ -83,11 +84,15 @@ $storage = new FileStorage(
   a `.php` extension and a guard. `extension` (default `.data`) and `expiration_format` are also available.
 - `pruneProbability` and `group`: as in `ArrayStorage`.
 
-Pitfalls:
+::: warning
+Do not place `root` inside a publicly served directory unless `deny_access` is enabled.
+:::
 
-- Do not place `root` inside a publicly served directory unless `deny_access` is enabled.
-- Not suitable for several web servers unless the directory is on shared storage.
-- `clear()` walks the whole group directory, which can be slow for large caches.
+::: warning
+Not suitable for several web servers unless the directory is on shared storage.
+:::
+
+- **Tip:** `clear()` walks the whole group directory, which can be slow for large caches.
 
 ## FlysystemStorage
 
@@ -113,10 +118,11 @@ $storage = new FlysystemStorage(
 - `driver`: the Flysystem `Filesystem` instance. The adapter decides where files go.
 - `options`, `pruneProbability`, and `group`: as in `FileStorage`.
 
-Pitfalls:
+::: warning
+It requires `league/flysystem` and an adapter for the target storage.
+:::
 
-- It requires `league/flysystem` and an adapter for the target storage.
-- Remote adapters add network latency to every read and write.
+- **Tip:** Remote adapters add network latency to every read and write.
 
 ## PhpFileStorage
 
@@ -136,10 +142,13 @@ $pool = new CachePool(
 
 It takes the same parameters as `FileStorage`.
 
-Pitfalls:
+::: warning
+Use it only with `PhpFileSerializer`. Other serializers do not produce a file that `include` can read back.
+:::
 
-- Use it only with `PhpFileSerializer`. Other serializers do not produce a file that `include` can read back.
-- Values must be representable by `var_export()`. Closures cannot be stored.
+::: warning
+Values must be representable by `var_export()`. Closures cannot be stored.
+:::
 
 ## ForeverFileStorage
 
@@ -153,9 +162,9 @@ $storage = new ForeverFileStorage(__DIR__ . '/generated', group: 'routes');
 
 It takes the same parameters as `FileStorage`.
 
-Pitfalls:
-
-- Nothing removes old entries automatically. Use it for data you invalidate explicitly.
+::: warning
+Nothing removes old entries automatically. Use it for data you invalidate explicitly.
+:::
 
 ## ModifiedFileStorage
 
@@ -179,10 +188,11 @@ $storage = new ModifiedFileStorage(
 - `listenFiles`: files or `SplFileInfo` objects whose modification times are checked.
 - `options`: as in `FileStorage`.
 
-Pitfalls:
+::: warning
+The check uses file modification times. Copying files that keep old timestamps can hide a change.
+:::
 
-- The check uses file modification times. Copying files that keep old timestamps can hide a change.
-- Each `has()` checks every listed file, so keep the list short.
+- **Tip:** Each `has()` checks every listed file, so keep the list short.
 
 ## DatabaseStorage
 
@@ -207,13 +217,15 @@ $storage = new DatabaseStorage(
 - `table` and `columns`: the table name and column name overrides.
 - `autoCreateTable`: when `true`, the table is created after a save fails because it is missing.
 
-Pitfalls:
+- **Tip:** Values are stored in a `longtext` column. Large values are slow to write and read, and they grow the table.
+- **Tip:** Slower than memory or Redis. Use it when a shared, durable cache is required and a database is already available.
 
-- Values are stored in a `longtext` column. Large values are slow to write and read, and they grow the table.
-- Slower than memory or Redis. Use it when a shared, durable cache is required and a database is already available.
-- `autoCreateTable` is convenient in development. In production, create the table with `php windwalker cache:table`
-  and a migration.
-- `prune()` runs at random, using `pruneProbability`. Expired rows are not removed at once.
+::: warning
+`autoCreateTable` is convenient in development. In production, create the table with `php windwalker cache:table`
+and a migration.
+:::
+
+- **Tip:** `prune()` runs at random, using `pruneProbability`. Expired rows are not removed at once.
 
 ## PdoStorage
 
@@ -242,10 +254,11 @@ $storage = new PdoStorage(
 - `pdo`: the connection.
 - `columns`: maps the logical column names to the actual column names.
 
-Pitfalls:
+::: warning
+If `columns` do not match the table, every save fails. Keep the mapping in step with the table definition.
+:::
 
-- If `columns` do not match the table, every save fails. Keep the mapping in step with the table definition.
-- Same `longtext` and prune caveats as `DatabaseStorage`.
+- **Tip:** Same `longtext` and prune caveats as `DatabaseStorage`.
 
 ## RedisStorage
 
@@ -265,11 +278,17 @@ $storage = new RedisStorage(driver: $redis, group: 'products');
 - `driver`: a connected `Redis` instance. When `null`, it connects to `127.0.0.1:6379`.
 - `group`: used as a key prefix (`group:key`).
 
-Pitfalls:
+::: warning
+`clear()` on a group runs `KEYS group:*`, which scans the whole keyspace and can block Redis on large databases.
+:::
 
-- `clear()` on a group runs `KEYS group:*`, which scans the whole keyspace and can block Redis on large databases.
-- Pass a configured instance in production. The default connects to localhost.
-- The cache shares a Redis database with other data unless you use a separate database or instance.
+::: warning
+Pass a configured instance in production. The default connects to localhost.
+:::
+
+::: warning
+The cache shares a Redis database with other data unless you use a separate database or instance.
+:::
 
 ## MemcachedStorage
 
@@ -288,11 +307,17 @@ $storage = new MemcachedStorage($memcached);
 
 - `driver`: a `Memcached` instance. The constructor throws `RuntimeException` if the extension is not loaded.
 
-Pitfalls:
+::: warning
+It has no groups, so `withGroup()` throws `LogicException`. Use key prefixes instead.
+:::
 
-- It has no groups, so `withGroup()` throws `LogicException`. Use key prefixes instead.
-- `clear()` calls `flush()`, which empties the entire Memcached server, including data used by other applications.
-- There is no `prune()`. Memcached evicts entries when memory is full, so entries can vanish before they expire.
+::: warning
+`clear()` calls `flush()`, which empties the entire Memcached server, including data used by other applications.
+:::
+
+::: warning
+There is no `prune()`. Memcached evicts entries when memory is full, so entries can vanish before they expire.
+:::
 
 ## Choosing a storage
 

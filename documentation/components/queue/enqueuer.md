@@ -97,7 +97,7 @@ $enqueuer->loop(['reminders', 'feeds']);
 `channel()`. `loop()` calls `next()` for each channel name, which runs the
 matching handler.
 
-**Pitfall:** the default `sleep` is one second. For a source that changes
+**Tip:** the default `sleep` is one second. For a source that changes
 slowly, use a longer interval, as set in the `RunnerOptions` above, to
 avoid polling it too often.
 
@@ -158,10 +158,14 @@ $enqueuer->channel('health', fn () => new CheckHealth());
 Return nothing from a handler that only pushes jobs with
 `$controller->enqueue()`.
 
-**Pitfall:** an exception thrown by a handler is caught, reported as
+::: warning
+An exception thrown by a handler is caught, reported as
 `EnqueueFailureEvent`, and the loop continues. If you do not listen for
 that event, the failure is silent.
+:::
 
-**Pitfall:** a handler that runs on every cycle sees the same source again.
-Mark items as queued, for example in a column or a cache key, so each item
-becomes one job.
+::: warning
+A handler that runs on every cycle sees the same source again. Mark items
+as queued, for example in a column or a cache key, so each item becomes
+one job.
+:::

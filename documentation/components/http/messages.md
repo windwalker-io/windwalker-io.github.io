@@ -68,8 +68,10 @@ $request->withHeader('X-Trace', 'abc');
 $traced = $request->withHeader('X-Trace', 'abc');
 ```
 
-**Pitfall:** Calling `withHeader()` and discarding the result has no
+::: warning
+Calling `withHeader()` and discarding the result has no
 effect. This is the most common mistake with PSR-7 objects.
+:::
 
 ## Requests
 
@@ -184,8 +186,10 @@ $ip = IpHelper::getTrustedIp(
 );
 ```
 
-**Pitfall:** Do not read `X-Forwarded-For` or other forwarding headers
+::: warning
+Do not read `X-Forwarded-For` or other forwarding headers
 directly. Any client can send them, so they can be used to forge the
 address that your application logs, rate-limits, or checks against an
 allow list. The deprecated `HttpHelper::getIp()` does not take a list of
 trusted proxies, and it should not be used in new code.
+:::

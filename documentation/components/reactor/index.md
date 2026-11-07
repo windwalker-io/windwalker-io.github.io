@@ -122,13 +122,24 @@ $server->listen('0.0.0.0', 9501);
 
 ## Common Pitfalls
 
+::: warning
 - **Blocking code stalls the worker.** A slow synchronous call, such as a
   `sleep()` or a blocking network request, delays every other request
   that the same worker is handling.
+:::
+
+::: warning
 - **State leaks between requests.** A service that stores request data in
   a property keeps that data for the next request in the same worker.
+:::
+
+::: warning
 - **Public binding.** Listening on `0.0.0.0` exposes the server to the
   network. In production, bind to a specific address or put a reverse
   proxy in front of the server.
+:::
+
+::: warning
 - **Runtime control from user input.** Do not pass user data into
   `shutdown()`, `reload()`, or `stop()`.
+:::

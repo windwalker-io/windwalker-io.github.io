@@ -91,14 +91,18 @@ project.
 
 ## Pitfalls
 
+::: warning
 **PHP-FPM is not a web SAPI here.** Under PHP-FPM, `PHP_SAPI` is
 `fpm-fcgi`, which `isWebServer()` does not list. Use `PHP_SAPI` or your
 own check when the code must detect PHP-FPM.
+:::
 
+::: warning
 **Muting hides everything.** `setMuted()` also hides deprecation and
 warning messages. Use it only around a narrow block of code, and restore
 the previous level afterwards.
+:::
 
-**Removed extensions.** The `mcrypt` extension was removed from PHP 8.0,
+**Tip:** **Removed extensions.** The `mcrypt` extension was removed from PHP 8.0,
 so `hasMcrypt()` is false on current runtimes unless a legacy build is
 used.

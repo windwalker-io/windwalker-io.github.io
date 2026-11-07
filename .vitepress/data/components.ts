@@ -119,12 +119,14 @@ export const groupedComponents: ComponentSet = {
     'session': {
       title: 'Session',
       description: 'Object oriented interface to manage PHP sessions.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/session'),
+      extra: {},
     },
     'uri': {
       title: 'Uri',
       description: 'PSR-7 Uri class to manipulate URL data.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/uri'),
+      extra: {},
     },
   },
 

@@ -105,9 +105,11 @@ stream constructors in the services that use them.
 from the current position. They do not restart from the beginning of the
 content. Call `rewind()` or `seek()` before reading again.
 
-**Pitfall:** `Stream::fromString()` writes the string and leaves the
+::: warning
+`Stream::fromString()` writes the string and leaves the
 position at the end. A call to `getContents()` right after it returns an
 empty string:
+:::
 
 ```php
 use Windwalker\Stream\Stream;
