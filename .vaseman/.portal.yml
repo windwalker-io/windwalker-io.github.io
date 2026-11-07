@@ -1,9 +1,0 @@
-title: Vaseman
-public: /
-parses:
-    - .vaseman/.npmrc.dist
-scripts:
-    - rm -rf assets
-    - cp .vaseman/.npmrc.dist .vaseman/.npmrc
-    - yarn --cwd .vaseman install
-    - yarn --cwd .vaseman build:prod

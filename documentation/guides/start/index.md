@@ -6,8 +6,8 @@ layout: doc
 
 ## Requirement
 
-- PHP 8.2 or above
-- Node 16up / npm or yarn
+- PHP 8.4.6 or above
+- Node 20 or above, with Yarn 4 (Corepack)
 - Composer and web server
 
 ## Starter Package
@@ -58,6 +58,7 @@ Install complete.
 Start Custom Script: prepare
 ---------------------------------------
 >>> yarn install
+>>> yarn build -- install
 ```
 
 After the installation is complete, open the localhost URL:
@@ -81,9 +82,31 @@ Go to: `http://localhost:8000/admin` to see a simple fake dashboard.
 ![dashboard](https://github.com/lyrasoft/ww4tut/assets/1639206/9ad6fa6a-8466-4332-b34e-aeab916e45e7)
 
 
+### Frontend Build
+
+The starter uses Vite (with `@windwalker-io/fusion-next`) to build CSS/JS. Common commands:
+
+| Command              | Purpose                                 |
+|----------------------|-----------------------------------------|
+| `yarn dev`           | Start Vite dev server                   |
+| `yarn build`         | Build assets in development mode        |
+| `yarn watch`         | Build and watch changes                 |
+| `yarn build:prod`    | Build assets for production             |
+
+### Environment Files
+
+Settings are read from `.env`. Windwalker loads these files in order, later ones override earlier ones:
+
+1. `.env`
+2. `.env.{APP_ENV}` (e.g. `.env.dev`)
+3. `.env.{APP_ENV}.local`
+
+`APP_ENV` defaults to `prod`. See `.env.dist` for all available variables (`APP_SECRET`, `DATABASE_*`, `MAIL_*`, `QUEUE_*`...).
+If you need to regenerate `.env`, run `composer env`.
+
 ### Install Default Database Files
 
-If you want to use database, please install `windwalker/database` and `windwalker/orm` first:
+If you chose to use database during installation but `windwalker/database` and `windwalker/orm` are not installed yet, install them first:
 
 ```shell
 composer require windwalker/database windwalker/orm
@@ -139,8 +162,9 @@ success.
 
 | **Directory** | **Purpose**                                                                  |
 |---------------|------------------------------------------------------------------------------|
+| build         | Build helper files (e.g. CI / portal scripts)                                |
 | cache         | Cache directory                                                              |
-| etc           | Configuration files                                                          |
+| etc           | Configuration files: `app/`, `conf/`, `packages/`, `di/`                     |
 | logs          | Log files                                                                    |
 | resources     | Various resource files- assets / languages / migrations / registry / seeders |
 | routes        | Route configuration files                                                    |
@@ -150,9 +174,12 @@ success.
 | views         | Template files                                                               |
 | www           | Public directory                                                             |
 
+When deploying to a production server, point the web server document root to the `www` directory.
+The starter provides `.htaccess` (Apache) and `www/web.config` (IIS) for URL rewriting.
+
 ## CLI Auto-Completion
 
-Windwlaker Console currently supports auto-completion on macOS `zsh` terminal. If you want to enable it, run this command once:
+Windwalker Console currently supports auto-completion on macOS `zsh` terminal. If you want to enable it, run this command once:
 
 ```shell
 php windwalker completion

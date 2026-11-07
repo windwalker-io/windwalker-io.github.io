@@ -5,6 +5,9 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
+# Packages
+/.yarn
+
 # IDE Ignores #
 .idea/
 .vscode/
@@ -26,3 +29,7 @@ Thumbs.db
 .vitepress/dist
 /assets
 !.vaseman/**/*.html
+
+# Temp
+/tmp/*
+
