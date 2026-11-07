@@ -40,27 +40,18 @@ There are no dedicated lint or test scripts in this repo, so prefer `yarn build`
 ## Documentation standards
 
 - Prefer the existing language and structure used by nearby pages.
-- Keep agent or contributor guidance in `doc/skills/` and maintain the index when new categories are added.
+- Keep agent or contributor guidance in `.github/skills/` and maintain `.github/skills/index.md` when new categories are added.
+- Reusable documentation rules live in `.github/instructions/documentation-style.instructions.md`. Follow them for every public page.
 - When creating reusable knowledge, keep it concise and actionable.
 
-## Windwalker and Unicorn ecosystem
+## Host app and framework source (MANDATORY)
 
-- This site documents Windwalker and Unicorn. Their packages are installed inside a host app, not used from this repo.
-- The host app is usually named `earth`, but the name may differ. Locate it first through PhpStorm settings: the `PhpIncludePathManager` and `PhpWorkspaceProjectConfiguration` include paths in `.idea/php.xml` and `.idea/workspace.xml`, and the attached folders in the project settings.
-- Windwalker and Unicorn live under the host app's `vendor/` directory. Read their source and docs there when you need API details.
-- Each host-app domain package has its own `instructions` (for example `AGENTS.md` or `.github/copilot-instructions.md`). Read them before working on that package.
-- Do not search the whole filesystem for the host app or the framework. Use the IDE include paths first, then the paths they point to.
+This site documents Windwalker and Unicorn, whose packages are installed in a host app, not in this repository.
 
-## Verifying docs against the host app
+**Before documenting, explaining, or verifying any Windwalker or Unicorn API, you MUST read `.github/skills/source-lookup/README.md` and follow it.** It defines how to locate the host app, which package files to read, how to verify behavior at runtime, and the safety rules. Do not guess paths, class names, signatures, or defaults, and do not skip this step because the task looks small.
 
-When writing or changing docs, verify behavior in the host app instead of guessing. Read the host app's `.github/dev/instructions/` first (`cli`, `smoke-test`, `test-common`, `test-coverage`) and `.github/dev/skills/test/SKILL.md`.
-
-- Dev server: `php windwalker server:start php:main --host localhost --port 8080` (run from the host app root; serves `www/`, entry `/dev.php`). Default port search starts at 8000, so pass an explicit `--port`.
-- After starting, confirm it responds (e.g. `curl`). Stop only the process you started; `server:stop` supports Swoole only.
-- Quick runtime checks: `php windwalker exec tmp/<distinctive-name>.php` or a temporary route/command per `smoke-test.instructions.md`. Delete temporary files afterwards.
-- Run PHPUnit per the host app's test instructions to confirm documented behavior.
-- Never run `php windwalker run preparedev` or other reset/seed commands against data that must be preserved, and never bypass auth/CSRF to make a check pass.
-- Do not commit host-app changes made only for verification.
+- Locate the host app only through the IDE include paths in `.idea/php.xml` and `.idea/workspace.xml`. Never search the whole filesystem.
+- Read the host app's `vendor/` packages, and each package's own instructions, before writing about that package.
 
 ## Before finishing
 
