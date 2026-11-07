@@ -27,6 +27,9 @@ async function collectMarkdownFiles(dir: string = srcDir): Promise<string[]> {
 
 const toUrl = (file: string) => `${siteUrl}/${file}`;
 
+const humanize = (name: string) =>
+  name.split(/[-_]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
 type MdInfo = { file: string; title: string; description: string };
 
 async function readMdInfo(file: string): Promise<MdInfo> {
@@ -61,16 +64,19 @@ async function readMdInfo(file: string): Promise<MdInfo> {
   };
 }
 
+const llmsExcludePrefixes = ['.github/'];
+
 const sectionNames: [prefix: string, name: string][] = [
   ['documentation/guides', 'Guides'],
   ['documentation/components', 'Components'],
   ['documentation/framework', 'Framework'],
-  ['.github', 'Repository (.github)'],
 ];
 
 // Build llms.txt: H2 sections per area, nested lists per sub-directory
 async function buildLlmsTxt(): Promise<string> {
-  const files = await collectMarkdownFiles();
+  const files = (await collectMarkdownFiles()).filter(
+    (file) => file.includes('/') && !llmsExcludePrefixes.some((prefix) => file.startsWith(prefix)),
+  );
   const infos = new Map((await Promise.all(files.map(readMdInfo))).map((i) => [i.file, i]));
   const item = (info: MdInfo, indent = '') =>
     `${indent}- [${info.title}](${toUrl(info.file)})${info.description ? `: ${info.description}` : ''}`;
@@ -119,9 +125,10 @@ async function buildLlmsTxt(): Promise<string> {
     for (const [dir, groupFiles] of groups) {
       const groupBase = prefix ? `${prefix}/${dir}` : dir;
       const indexInfo = infos.get(`${groupBase}/index.md`);
-      const label = indexInfo ? `[${indexInfo.title}](${toUrl(indexInfo.file)})` : dir;
+      const label = humanize(dir);
+      const title = indexInfo ? `[${label}](${toUrl(indexInfo.file)})` : label;
 
-      lines.push(`- ${label}`);
+      lines.push(`- ${title}`);
 
       for (const file of groupFiles.sort()) {
         if (file !== `${groupBase}/index.md`) {
