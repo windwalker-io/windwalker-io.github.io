@@ -144,12 +144,10 @@ $queue = $container->get(Queue::class);
 $queue = $app->retrieve(Queue::class);
 ```
 
-To use a named connection, go through `QueueFactory`:
+To use a named connection, go through tagged service:
 
 ```php
-use Windwalker\Core\Queue\QueueFactory;
-
-$sqs = $container->get(QueueFactory::class)->get('sqs');
+$sqs = $container->get(Queue::class, tag: 'sqs');
 ```
 
 ### Configuration

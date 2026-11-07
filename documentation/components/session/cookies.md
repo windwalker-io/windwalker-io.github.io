@@ -80,22 +80,24 @@ set, just before you return the response.
 ## Cookie Options
 
 `CookiesOptions` holds the attributes of a cookie: `expires`, `path`,
-`domain`, `secure`, `httpOnly`, and `sameSite`. Pass it to the constructor
-of `ArrayCookies` or `Cookies`, or pass an array to `set()`:
+`domain`, `secure`, `httpOnly`, and `sameSite`. Pass it to `set()` as
+shown below, or to the constructor of `ArrayCookies` or `Cookies` as the
+default for every cookie:
 
 ```php
 use Windwalker\Session\Cookie\Cookies;
+use Windwalker\Session\Cookie\CookiesOptions;
 
 $cookies = new Cookies();
 
 $cookies->set(
     'remember',
     'token-value',
-    [
-        'expires' => '+30 days',
-        'path' => '/account',
-        'httpOnly' => true,
-    ],
+    new CookiesOptions(
+        expires: '+30 days',
+        path: '/account',
+        httpOnly: true,
+    ),
 );
 ```
 
@@ -122,14 +124,6 @@ session cookie. Over HTTPS, a cookie without the `Secure` flag can also be
 sent over plain HTTP. In production, set `secure` to `true`, or keep the
 automatic setting described below.
 :::
-
-## Automatic Secure Cookies
-
-In a Windwalker application, the `CookiesAutoSecureSubscriber` marks cookies
-as `secure` when the request uses HTTPS. It is enabled by default and can be
-turned off with the `COOKIES_AUTO_SECURE` environment variable. It requires
-cookies that implement `CookiesConfigurableInterface`, which both `Cookies`
-and `ArrayCookies` do.
 
 ## Reading and Removing Cookies
 

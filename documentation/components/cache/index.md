@@ -67,12 +67,12 @@ $cache = $container->get(CachePool::class);
 $cache = $app->retrieve(CachePool::class);
 ```
 
-To get a named profile, use `CacheFactory`:
+To get a named profile, use tagged service:
 
 ```php
 use Windwalker\Core\Factory\CacheFactory;
 
-$htmlCache = $container->get(CacheFactory::class)->get('html');
+$htmlCache = $container->get(CachePool::class, tag: 'html');
 ```
 
 ### Configuration

@@ -61,9 +61,7 @@ Then retrieve the profile from the factory. The factory caches each profile, so 
 later calls:
 
 ```php
-use Windwalker\Core\Factory\CacheFactory;
-
-$tagged = $container->get(CacheFactory::class)->get('tagged');
+$tagged = $container->get(CachePool::class, tag:'tagged');;
 ```
 
 Inject it through the constructor when the service needs tags:

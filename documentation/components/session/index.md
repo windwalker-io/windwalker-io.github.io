@@ -71,7 +71,7 @@ constructor, or retrieve it from the application:
 class CartService
 {
     public function __construct(
-        protected SessionInterface $session
+        protected Session $session
     ) {
     }
 
@@ -86,18 +86,8 @@ class CartService
 ```
 
 ```php
-$session = $app->retrieve(SessionInterface::class);
+$session = $app->retrieve(Session::class);
 ```
-
-Each named instance is a session with its own bridge and handler. The
-framework defines the `native`, `filesystem`, `database`, and `null`
-instances. Pass the name as the tag to get one of them:
-
-```php
-$session = $app->retrieve(Session::class, tag: 'database');
-```
-
-`SessionManager` is deprecated. Use container tags instead.
 
 ### Configuration
 

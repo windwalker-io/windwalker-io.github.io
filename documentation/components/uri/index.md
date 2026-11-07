@@ -67,37 +67,36 @@ $uri = new UriFactory()->createUri('https://example.com/api');
 
 ## Use in Windwalker
 
-Windwalker applications usually obtain the PSR-17 factory from the DI
-container. The package does not register a service provider of its own.
-Depend on the PSR interface, so that the implementation bound by the
-application can change without touching your code:
+The Uri package does not register services in the DI container, so there
+is nothing to inject. Create a `Uri` where you need it and pass it on as
+a value. The same code works inside a Windwalker application and outside
+one:
 
 ```php
-use Psr\Http\Message\UriFactoryInterface;
+use Windwalker\Uri\Uri;
 
 class CallbackUrlBuilder
 {
-    public function __construct(
-        protected UriFactoryInterface $uriFactory
-    ) {
-    }
-
     public function build(string $token): string
     {
-        return (string) $this->uriFactory
-            ->createUri('https://example.com/callback')
+        $uri = new Uri('https://example.com/callback')
             ->withVar('token', $token);
+
+        return (string) $uri;
     }
 }
 ```
 
-The `HttpFactory` class in the `windwalker/http` package extends
-`UriFactory`, so it satisfies `UriFactoryInterface` as well. Which
-implementation the container provides is decided by the application.
+When a value may already be a PSR-7 URI, such as the URI of a request
+message, or may be `null`, pass it to `Uri::wrap()`. It returns the same
+instance for a `Uri` and converts other values:
 
-To obtain a `Uri` in code that does not use the factory, call the static
-helper `Uri::wrap()`. It accepts a string, a `Stringable`, a PSR-7 URI, or
-`null`, and returns a `Uri` instance.
+```php
+$uri = Uri::wrap($request->getUri());
+```
+
+If a library asks for a PSR-17 `UriFactoryInterface`, create a
+`UriFactory` directly with `new UriFactory()`.
 
 ## Core Concepts
 

@@ -260,7 +260,7 @@ echo $native->getPath();
 
 ::: info
 Both methods require the native URI extension. On PHP versions where the
-extension is not available, they fail. Code that must run on PHP 8.4
+extension is not available, they fail. Code that must run on PHP 8.4 or lower
 should not call them.
 :::
 

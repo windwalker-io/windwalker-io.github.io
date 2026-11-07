@@ -131,6 +131,25 @@ Protect them with the same care as the database:
 
 ## Robots
 
-For requests from known robots, the framework switches the default session to
-the `null` instance, which keeps nothing. Crawlers therefore do not create a
-stored session on every page they visit.
+Crawlers and bots can request many pages in a short time, and each new
+visit can create a session that is written to storage. This wastes storage
+and I/O. If your application detects bot requests, avoid starting the session
+for them, for example in a middleware:
+
+```php
+if ($isRobot) {
+    return $next->handle($request);
+}
+
+$session->start();
+
+return $next->handle($request);
+```
+
+Pages that do not touch the session never start it, so nothing is stored.
+
+::: tip
+Skip the session only for requests that do not need one, such as public
+content pages. Do not skip it for requests that must keep state, such as
+logins or carts.
+:::
