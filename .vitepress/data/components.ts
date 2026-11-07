@@ -134,22 +134,24 @@ export const groupedComponents: ComponentSet = {
     'authentication': {
       title: 'Authentication',
       description: 'A component to support multiple authenticate gateway.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/authentication'),
+      extra: {},
     },
     'authorization': {
       title: 'Authorization',
       description: 'Simple ACL component.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/authorization'),
+      extra: {},
     },
     'crypt': {
       title: 'Crypt',
       description: 'Openssl and libsodium encryption and password hashing adapters for PHP.',
-      extra: { 'wip': true },
+      extra: {},
     },
     'filter': {
       title: 'Filter',
       description: 'A set of filter / validate rules.',
-      extra: { 'wip': true },
+      extra: {},
     },
 
   },
