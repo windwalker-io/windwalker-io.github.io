@@ -13,14 +13,16 @@ Locating sources:
 
 Requirements:
 1. Write a manual, not an API reference. The reader should understand what the package is for, how its parts think and fit together, and how to assemble them. Explain the concepts and the design philosophy before the details. Introduce a domain term when a feature depends on it, and explain it briefly.
-2. Do not write a step-by-step tutorial, and do not write a spec. Use short, realistic examples that show a pattern or an assembly. Do not list every method, parameter, or option. Name the main classes and the methods a user normally calls, and point to the source for complete signatures.
-3. Include the pitfalls: common misunderstandings, traps, and security-sensitive behavior. State them plainly where they matter, not in a separate appendix. The page should read like the introduction chapter of a book, not like a dictionary.
-4. Decide page splits by the package's structure, not by length. Give a feature its own page when it is a subsystem, a domain concept, a separate topic the reader may look up on its own, or an optional add-on. Keep tightly coupled features on the same page, even if the page is long. A short page is acceptable when its topic is distinct.
-5. Verify every code sample, class name, method signature, and default against the source. Do not invent APIs. Mention a default only when it matters to the user.
-6. Write in fluent, native-sounding English, in the tone of a professional open-source project. Keep it neutral. Do not include internal links, IDE tutorials, personal remarks, or images.
-7. Use the site's page layout and frontmatter conventions: `layout: doc`, `title`, and `component: <name>` on every page of the component. Add the component to `.vitepress/data/components.ts` and its menu to `.vitepress/data/menu/components/<name>.ts` so the sidebar lists every page.
-8. Keep every line in code examples at 75 characters or fewer. When a line would exceed 75 characters, break it vertically: put each argument, array item, or chained call on its own line.
-9. Do not change framework or host app source code.
+1a. Give every topic page a complete narrative flow: its purpose and the problem it solves, the minimal enabling or assembly, a realistic showcase example that runs end to end, then the detailed features, and finally the pitfalls. Do not start a page with detailed features or with an API list.
+2. Decide new section pages by the split rules in `.github/instructions/documentation-style.instructions.md` (subsystem, domain concept, topic, or optional add-on, not length). When a split is unclear, ask the user before creating the page.
+3. Do not write a step-by-step tutorial, and do not write a spec. Use short, realistic examples that show a pattern or an assembly. Do not list every method, parameter, or option. Name the main classes and the methods a user normally calls, and point to the source for complete signatures.
+4. Include the pitfalls: common misunderstandings, traps, and security-sensitive behavior. State them plainly where they matter, not in a separate appendix. The page should read like the introduction chapter of a book, not like a dictionary.
+5. Decide page splits by the package's structure, not by length. Give a feature its own page when it is a subsystem, a domain concept, a separate topic the reader may look up on its own, or an optional add-on. Keep tightly coupled features on the same page, even if the page is long. A short page is acceptable when its topic is distinct.
+6. Verify every code sample, class name, method signature, and default against the source and the package's `tests/` folder. Do not invent APIs. Mention a default only when it matters to the user. Use tests for realistic usage patterns.
+7. Write in fluent, native-sounding English, in the tone of a professional open-source project. Keep it neutral. Do not include internal links, IDE tutorials, personal remarks, or images.
+8. Use the site's page layout and frontmatter conventions: `layout: doc`, `title`, and `component: <name>` on every page of the component. Add the component to `.vitepress/data/components.ts` and its menu to `.vitepress/data/menu/components/<name>.ts` so the sidebar lists every page.
+9. Keep every line in code examples at 75 characters or fewer. When a line would exceed 75 characters, break it vertically: put each argument, array item, or chained call on its own line.
+10. Do not change framework or host app source code.
 
 Success criteria:
 - The overview explains the package and its main parts, and each page covers its topic with concepts, usage, and pitfalls.

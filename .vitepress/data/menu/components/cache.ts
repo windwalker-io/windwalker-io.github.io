@@ -23,9 +23,5 @@ export default <ComponentMenu> {
       text: 'Serializers',
       link: 'serializers',
     },
-    {
-      text: 'CacheLock',
-      link: 'cache-lock',
-    },
   ]
 };

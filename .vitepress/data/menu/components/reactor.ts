@@ -20,8 +20,16 @@ export default <ComponentMenu> {
       link: 'websocket',
     },
     {
-      text: 'Memory Tables',
-      link: 'memory-tables',
+    text: 'Sub-servers and Protocols',
+    link: 'sub-servers',
     },
+  {
+    text: 'Coroutine Server',
+    link: 'coroutine-server',
+  },
+  {
+    text: 'Memory Tables',
+    link: 'memory-tables',
+  },
   ]
 };

@@ -6,19 +6,27 @@ component: reactor
 
 # WebSocket
 
-`SwooleWebsocketServer` dispatches events for the WebSocket handshake, connections, messages, and disconnections. Use
-the `Open` and `Message` events to receive data, and the message emitter to send it back.
+A WebSocket server sees each client as a connection, identified by a
+file descriptor (`fd`). The server dispatches events for the handshake,
+the connection, each incoming message, and the disconnection. You read
+messages in `MessageEvent` and send data back through the message
+emitter.
 
-## Connection Events
+## Event Sequence
 
-| Event                     | Purpose                                                                                          |
-|---------------------------|--------------------------------------------------------------------------------------------------|
-| `BeforeHandshakeResponse` | Runs before the handshake response is sent. Use it to change response headers.                   |
-| `Handshake`               | Runs during the handshake.                                                                       |
-| `Open`                    | A connection is established. `$event->request` is a `WebSocketRequest`, and `$event->swooleRequest` is the native request. |
-| `Message`                 | A frame is received. `$event->fd` is the connection ID and `$event->frame` holds the payload.    |
-| `Close`                   | The TCP connection is closed. Its `fd` property identifies the connection.                       |
-| `Disconnect`              | The WebSocket connection is disconnected.                                                        |
+| Event                     | When it runs                                       |
+|---------------------------|----------------------------------------------------|
+| `BeforeHandshakeResponse` | Before the handshake response is sent.             |
+| `Handshake`               | During the handshake.                              |
+| `Open`                    | After the connection is established.               |
+| `Message`                 | When a client sends a frame.                       |
+| `Close`                   | When the TCP connection closes.                    |
+| `Disconnect`              | When the WebSocket connection is removed.          |
+
+`OpenEvent` carries two requests. `$event->request` is a
+`WebSocketRequest`, and `$event->swooleRequest` is the native request
+with the handshake data. `MessageEvent::$fd` and `MessageEvent::$frame`
+identify the sender and the payload.
 
 ## Echo Example
 
@@ -30,11 +38,14 @@ use Windwalker\Reactor\Swoole\SwooleWebsocketServer;
 $server = new SwooleWebsocketServer();
 
 $server->onOpen(function (OpenEvent $event) {
-    echo "Connected: fd {$event->swooleRequest->fd}\n";
+    echo "Connected: {$event->swooleRequest->fd}\n";
 });
 
 $server->onMessage(function (MessageEvent $event) use ($server) {
-    $server->getMessageEmitter()->emit($event->fd, 'Echo: ' . $event->frame->getData());
+    $server->getMessageEmitter()->emit(
+        $event->fd,
+        'Echo: ' . $event->frame->getData(),
+    );
 });
 
 $server->listen('0.0.0.0', 9501);
@@ -42,27 +53,73 @@ $server->listen('0.0.0.0', 9501);
 
 ## Sending Messages
 
-`getMessageEmitter()` returns a `MessageEmitterInterface`. Its `emit(int $fd, string $data)` method sends text to a
-connection and returns `false` if the connection no longer exists.
+`getMessageEmitter()` returns a `MessageEmitterInterface`. Its
+`emit(int $fd, string $data)` method sends text to one connection. It
+returns `false` when the connection is gone, so check the result when
+delivery matters.
 
-The emitter is available only after the native server has been created, so call it inside listeners or after
-`listen()` has started. Calling it earlier throws a `RuntimeException`. Replace the default implementation with
-`setMessageEmitter()` if you need custom delivery.
+The emitter exists only after the native server has been created. Call
+it from listeners, not from code that runs before `listen()`. Calling it
+earlier throws `RuntimeException`.
 
-## Frames and Requests
+## Frames
 
-- `WebSocketFrame` holds the connection ID and payload. Use `getFd()` and `getData()`.
-- `WebSocketRequest` is the request stored for a connection. Use `getFd()`, `getFrame()`, and `getData()`.
-- A `MessageParserInterface` can convert the payload to structured data, which is then available with
-  `getParsedData()`.
+`MessageEvent::$frame` is a `WebSocketFrameInterface`. Inside the server
+it wraps Swoole's native `Swoole\WebSocket\Frame`. The interface exposes
+the sender's connection ID and the payload, which covers most handlers:
 
-## Application Class
+```php
+use Windwalker\Reactor\Swoole\Event\MessageEvent;
 
-The `swoole:websocket` installation generates `App\Web\WsApplication`. It extends the WebSocket application base class
-and provides `init()`, `started()`, `opening()`, and `closing()` hooks for your own code. The entry script calls them
-at startup, on connection open, and on connection close.
+$server->onMessage(function (MessageEvent $event) {
+    $fd = $event->frame->getFd();
+    $data = $event->frame->getData();
 
-## Rooms and Users
+    // Decode and handle $data here.
+});
+```
 
-Connections can be grouped into rooms and linked to user IDs. Rooms are stored in shared memory and are described in
+For the frame's opcode, such as text or binary, use the wrapper's
+native frame. Check the type first, because the interface does not
+provide it:
+
+```php
+use Windwalker\Reactor\Swoole\WebSocketFrameWrapper;
+
+$frame = $event->frame;
+
+if ($frame instanceof WebSocketFrameWrapper) {
+    $opcode = $frame->getFrame()->opcode;
+}
+```
+
+Binary payloads are also returned as a string. Do not assume the payload
+is JSON or UTF-8 text without checking the opcode.
+
+The plain `WebSocketFrame` class is a value object that the framework
+creates itself, for example in `CloseEvent::createWebSocketFrame()`.
+Its `withFd()` and `withData()` methods return a changed copy and leave
+the original frame unchanged.
+
+## Connections Are Not Users
+
+An `fd` identifies a socket, not a person. Swoole can reuse an `fd` after
+its connection closes, so never store an `fd` as a permanent identifier.
+To tie a connection to a user, see the mappings in
 [Memory Tables](./memory-tables).
+
+## Security
+
+Messages come from any client that can reach the port. Treat
+`$event->frame->getData()` as untrusted input. Validate it before you use
+it, and check authorization in `Open` or `Handshake` before the
+connection can send anything.
+
+## Framework Entry Script
+
+The `swoole:websocket` script generates `App\Web\WsApplication`. It
+extends the WebSocket application base class and provides `init()`,
+`started()`, `opening()`, and `closing()` hooks. The script calls `init()`
+at startup, `started()` when the server starts, `opening()` on each
+connection, and `closing()` when a connection closes. Put your
+application logic in these hooks rather than in the entry script.

@@ -337,18 +337,8 @@ $container->bind(LoggerInterface::class, fn () => new FileLogger());
 
 ## Tagged Services
 
-Tags allow multiple definitions to share the same service ID. Pass the same tag when retrieving the definition:
-
-```php
-$container->bind(LoggerInterface::class, FileLogger::class, tag: 'file');
-$container->bind(LoggerInterface::class, ConsoleLogger::class, tag: 'console');
-
-$fileLogger = $container->get(LoggerInterface::class, tag: 'file');
-$consoleLogger = $container->get(LoggerInterface::class, tag: 'console');
-```
-
-Tags can be strings or enum cases. Registration and retrieval methods such as `set()`, `bind()`, `prepareObject()`,
-`createObject()`, and `get()` accept a `tag` argument. A factory callback can receive the requested tag as an argument.
+Tags let multiple definitions share a service ID or let a factory build a variant from the requested tag. See
+[Tagged Services](./tagged-services) for preset and dynamic tag behavior.
 
 ## Service Providers and Configuration
 

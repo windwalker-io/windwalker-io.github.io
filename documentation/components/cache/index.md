@@ -33,7 +33,11 @@ $pool = new CachePool(
 
 $pool->set('user.1', ['name' => 'Alice'], 3600);
 
-$report = $pool->fetch('report.daily', fn () => generateReport(), ttl: 600);
+$report = $pool->fetch(
+    'report.daily',
+    fn () => generateReport(),
+    ttl: 600,
+);
 ```
 
 ## Use in Windwalker
@@ -89,7 +93,12 @@ use Windwalker\Cache\Storage\NullStorage;
 use Windwalker\Core\Attributes\ConfigModule;
 use Windwalker\Core\Factory\CacheFactory;
 
-return #[ConfigModule(name: 'cache', enabled: true, priority: 100, belongsTo: CachePackage::class)]
+return #[ConfigModule(
+    name: 'cache',
+    enabled: true,
+    priority: 100,
+    belongsTo: CachePackage::class,
+)]
 static fn() => [
     'no_cache' => env('CACHE_DISABLED'),
 
@@ -101,10 +110,21 @@ static fn() => [
 
     'factories' => [
         'instances' => [
-            'none' => static fn(): CachePool => new CachePool(new NullStorage()),
-            'global' => static fn() => CacheFactory::cachePoolFactory('file', PhpSerializer::class),
-            'html' => static fn() => CacheFactory::cachePoolFactory('file', RawSerializer::class),
-            'db' => static fn() => CacheFactory::cachePoolFactory('db', JsonAssocSerializer::class),
+            'none' => static fn(): CachePool => new CachePool(
+                new NullStorage(),
+            ),
+            'global' => static fn() => CacheFactory::cachePoolFactory(
+                'file',
+                PhpSerializer::class,
+            ),
+            'html' => static fn() => CacheFactory::cachePoolFactory(
+                'file',
+                RawSerializer::class,
+            ),
+            'db' => static fn() => CacheFactory::cachePoolFactory(
+                'db',
+                JsonAssocSerializer::class,
+            ),
         ],
         'storages' => [
             'file' => static fn() => CacheFactory::fileStorage(),
@@ -122,11 +142,10 @@ php windwalker cache:table [name]
 
 ## Reference
 
-- [CachePool](/documentation/components/cache/cache-pool): pool operations, read-through helpers, and `CacheItem`.
+- [CachePool](/documentation/components/cache/cache-pool): pool operations, read-through helpers, locking, and `CacheItem`.
 - [TaggedCachePool](/documentation/components/cache/tagged-pool): tag-based invalidation.
 - [Storages](/documentation/components/cache/storages): available storage backends.
 - [Serializers](/documentation/components/cache/serializers): available serializers and how to combine them.
-- [CacheLock](/documentation/components/cache/cache-lock): locking used by the read-through helpers.
 
 ## Related components
 

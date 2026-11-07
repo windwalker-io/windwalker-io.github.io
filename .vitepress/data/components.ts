@@ -73,8 +73,9 @@ export const groupedComponents: ComponentSet = {
     },
     'environment': {
       title: 'Environment',
-      description: 'A tool to provider runtime server and browser information.',
-      extra: { 'wip': true },
+      description: 'A tool to provide runtime server and browser information.',
+      menu: () => import('./menu/components/environment'),
+      extra: {},
     },
     'event': {
       title: 'Event',

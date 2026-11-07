@@ -6,13 +6,31 @@ component: reactor
 
 # Introduction
 
-Reactor is the Swoole integration package for Windwalker. It provides server classes built on Swoole's HTTP,
-WebSocket, and TCP servers. Incoming Swoole requests are converted to PSR-7 messages and passed through the same
-middleware and event flow as other Windwalker HTTP components. Reactor also includes memory tables and room mappings
-for sharing state between worker processes.
+Reactor connects Windwalker to Swoole. A Swoole server is a long-running
+PHP process: it boots once and then handles requests and WebSocket frames
+as events. This model is fast, but it changes how code behaves. Read the
+core concepts below before you write a server.
 
-Running a server requires the `swoole` PHP extension. Some helpers fall back to plain PHP behavior when the extension
-is not loaded.
+## Core Concepts
+
+**Long-running workers.** Each worker process boots the application once.
+Services, static properties, and globals survive from one request to the
+next. Code that is safe under PHP-FPM can leak state here. Keep request
+data in the request object. Use [memory tables](./memory-tables) only for
+state that must be shared between workers.
+
+**Events instead of callbacks.** Each Swoole callback is translated into a
+Windwalker event object, such as `RequestEvent` or `MessageEvent`.
+Listeners receive that object, can read it, and can change it. This is the
+same event model as the rest of Windwalker.
+
+**One server, one port.** A server listens on one port. A
+[sub-server](./sub-servers) adds another port with its own protocol.
+
+**Swoole is required to serve.** The `swoole` extension must be loaded to
+run a server. Some helpers and the memory factory fall back to plain PHP
+when it is missing. The fallback runs the code, but it does not serve
+requests and does not share memory between processes.
 
 ## Installation
 
@@ -29,23 +47,25 @@ Requirements:
 
 ## Use in Windwalker
 
-Installing the package registers two server entry scripts under the `swoole` engine: `swoole:website` for HTTP and
-`swoole:websocket` for WebSocket. Start them with the `server:start` command:
+Install the preset server scripts with `pkg:install` (see
+[Servers](./servers)). After that, they are available under the `swoole`
+engine: `swoole:website` for HTTP and `swoole:websocket` for WebSocket.
+Start one with the `server:start` command:
 
 ```bash
 php windwalker server:start swoole:website
-php windwalker server:start swoole:websocket
 ```
 
-The entry scripts share the running server instance in the container, so services can receive it by type-hint:
+Services in the same process can type-hint the running server:
 
 ```php
 use Windwalker\Reactor\Swoole\SwooleHttpServer;
 
 class ServerStatusService
 {
-    public function __construct(protected SwooleHttpServer $server)
-    {
+    public function __construct(
+        protected SwooleHttpServer $server,
+    ) {
     }
 
     public function status(): array
@@ -55,9 +75,15 @@ class ServerStatusService
 }
 ```
 
+The `swoole:websocket` script shares its server under the
+`SwooleHttpServer` key as well, but that instance is a
+`SwooleWebsocketServer`. Type-hint `SwooleServer` or
+`SwooleWebsocketServer` in WebSocket code.
+
 ## Use as Standalone Component
 
-Without the framework, create a server, attach listeners, and call `listen()`:
+Without the framework, create a server, attach a listener, and call
+`listen()`:
 
 ```php
 use Windwalker\Http\Event\RequestEvent;
@@ -66,10 +92,14 @@ use Windwalker\Reactor\Swoole\SwooleHttpServer;
 $server = new SwooleHttpServer();
 
 $server->onRequest(function (RequestEvent $event) use ($server) {
-    $event->response = $server->getHttpFactory()
+    $factory = $server->getHttpFactory();
+
+    $event->response = $factory
         ->createResponse(200)
         ->withHeader('Content-Type', 'text/plain')
-        ->withBody($server->getHttpFactory()->createStream('Hello, Reactor!'));
+        ->withBody(
+            $factory->createStream('Hello, Reactor!')
+        );
 });
 
 $server->listen('0.0.0.0', 9501);
@@ -77,7 +107,28 @@ $server->listen('0.0.0.0', 9501);
 
 ## Pages
 
-- **Servers**: server classes, the `server:start` command, configuration, sub-servers, and the coroutine server.
-- **HTTP**: request handling, middleware, and the HTTP event flow.
-- **WebSocket**: connection events, sending messages, and rooms.
-- **Memory Tables**: shared memory tables and the user and room mappings built on them.
+- [Servers](./servers): server classes, the `server:start` command,
+  configuration, lifecycle events, and runtime helpers.
+- [HTTP](./http): how requests become events, and how middleware and
+  responses fit together.
+- [WebSocket](./websocket): connection events, sending messages, and
+  working with connections.
+- [Sub-servers and Protocols](./sub-servers): serving several protocols
+  on several ports.
+- [Coroutine Server](./coroutine-server): the single-process coroutine
+  HTTP server.
+- [Memory Tables](./memory-tables): shared state between workers, and
+  the user and room mappings built on it.
+
+## Common Pitfalls
+
+- **Blocking code stalls the worker.** A slow synchronous call, such as a
+  `sleep()` or a blocking network request, delays every other request
+  that the same worker is handling.
+- **State leaks between requests.** A service that stores request data in
+  a property keeps that data for the next request in the same worker.
+- **Public binding.** Listening on `0.0.0.0` exposes the server to the
+  network. In production, bind to a specific address or put a reverse
+  proxy in front of the server.
+- **Runtime control from user input.** Do not pass user data into
+  `shutdown()`, `reload()`, or `stop()`.

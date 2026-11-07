@@ -6,32 +6,29 @@ component: reactor
 
 # HTTP
 
-HTTP servers convert each Swoole request into a PSR-7 `ServerRequestInterface`, run it through the middleware chain,
-and dispatch a `RequestEvent`. The listener that handles the event sets the response.
+An HTTP server turns each Swoole request into a PSR-7 request, runs it
+through the middleware chain, and then dispatches a `RequestEvent`. A
+listener on that event creates the response. The HTTP flow is the same
+as in other Windwalker HTTP components, so middleware and listeners
+work the same way.
 
 ## Request Flow
 
-For each request, the server:
+For every request, the server:
 
-1. Creates the PSR-7 request. The request has a `swoole` attribute that holds `fd`, `request`, `response`, `server`,
-   and `swooleServer`.
-2. Runs the middleware chain. The last step emits `RequestEvent`.
-3. Sends the response from `RequestEvent::$response`, then emits `ResponseEvent`.
-4. Emits `ErrorEvent` if an exception occurs. If the event is not stopped, the exception is rethrown.
+1. Creates the PSR-7 request. The request carries a `swoole` attribute
+   with the native request, response, connection ID (`fd`), and server.
+2. Runs the middleware chain. The last step dispatches `RequestEvent`.
+3. Sends `RequestEvent::$response` and dispatches `ResponseEvent`.
+4. Dispatches `ErrorEvent` if an exception is thrown.
 
-`RequestEvent` exposes these main properties:
-
-| Property     | Description                                                                 |
-|--------------|-----------------------------------------------------------------------------|
-| `request`    | The PSR-7 request.                                                          |
-| `output`     | The output object that sends the response. `SwooleOutput` by default.       |
-| `response`   | The response to send. Set it in a listener.                                 |
-| `endHandler` | An optional closure called after the response is sent.                      |
-| `attributes` | Custom values shared with later events.                                     |
+If no listener sets a response, the server sends an empty `200` response.
+That default hides mistakes, so check the response in tests.
 
 ## Handling Requests
 
-Attach a listener with `onRequest()`. The `RequestEvent` parameter is `Windwalker\Http\Event\RequestEvent`:
+`RequestEvent` is the main extension point. Its `request` is a PSR-7
+request, and its `response` is the response to send:
 
 ```php
 use Windwalker\Http\Event\RequestEvent;
@@ -41,30 +38,46 @@ $server = new SwooleHttpServer();
 
 $server->onRequest(function (RequestEvent $event) use ($server) {
     $path = $event->request->getUri()->getPath();
+    $factory = $server->getHttpFactory();
 
-    $event->response = $server->getHttpFactory()
+    $event->response = $factory
         ->createResponse(200)
-        ->withHeader('Content-Type', 'text/plain')
-        ->withBody($server->getHttpFactory()->createStream("You requested: $path"));
+        ->withBody(
+            $factory->createStream("Path: $path")
+        );
 });
 ```
 
-Use `onResponse()` to change or log the response, and `onError()` to handle exceptions. Call `$event->stopPropagation()`
-in an error listener to prevent the rethrow.
+The request is immutable. To pass data to other listeners, store it in
+`$event->attributes`. Add a response listener with `onResponse()` to
+change or log the response after it is built.
 
 ## Middleware
 
-Middleware are PSR-15 objects that implement `process(ServerRequestInterface $request, RequestHandlerInterface $handler)`.
-Add them with `middleware()`. A string is created through the DI container with the extra arguments you pass.
+Middleware are PSR-15 objects with a `process()` method. Each one receives
+the request and the next handler. It can change the request, return a
+response itself, or pass control on by calling the handler:
 
 ```php
 $server->middleware(MyAuthMiddleware::class);
 ```
 
-Middleware run in the order they are added. Each one can change the request, short-circuit with a response, or pass
-the request to the next handler.
+A string is created through the container, and any extra arguments are
+passed to its constructor. Middleware run in the order they are added.
+A middleware that returns a response without calling the handler stops
+the chain, so the request listener does not run.
+
+## Errors
+
+When a listener throws, the server dispatches `ErrorEvent`. If no
+listener stops propagation, the exception is rethrown and reaches
+Swoole's error handling. If a listener stops propagation, the exception
+is swallowed and the server sends nothing. Your listener must then write
+the response through `$event->output`.
 
 ## Output
 
-The default output object, `SwooleOutput`, writes the status line, headers, and body to the Swoole response. To change
-how responses are written, set a closure with `setOutputBuilder()`. The closure receives the native Swoole response.
+Responses are written by an output object. The default is
+`SwooleOutput`, which writes the status line, headers, and body to the
+native Swoole response. Replace it with `setOutputBuilder()` only if you
+need to change how responses are written.

@@ -22,6 +22,8 @@ This repository is a documentation site. The framework packages are installed in
 ## Reading the source
 
 - Read each package's source, `README.md`, and `docs/` folder under `vendor/`.
+- Look beyond `src/`. Each package's `tests/` folder is a rich source of verified, runnable usage examples. Check it for the setup, assembly, and call patterns of a feature, and for edge cases and documented behavior. Prefer test examples that match the public API over internal test helpers.
+- When a test and the source disagree, trust the source and note the discrepancy.
 - Before working on a package, read its own instructions file (for example `AGENTS.md` or `.github/copilot-instructions.md`).
 - Use `git log` in the package to see recent changes when needed.
 - Draft documents under `vendor/windwalker-io/*/docs/` describe new or major features. Treat them as leads and verify them against the code.

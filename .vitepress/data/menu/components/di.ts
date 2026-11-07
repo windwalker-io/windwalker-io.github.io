@@ -12,6 +12,10 @@ export default <ComponentMenu> {
       link: 'basic-usage',
     },
     {
+      text: 'Tagged Services',
+      link: 'tagged-services',
+    },
+    {
       text: 'Lazy Loading',
       link: 'lazy',
     },
