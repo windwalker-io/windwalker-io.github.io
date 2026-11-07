@@ -1,6 +1,6 @@
-# Component doc page template
+# Component doc Overview page template
 
-Use this template when writing first-time documentation for a component or package. It is a reference manual, not a step-by-step tutorial. Replace each bracketed placeholder and remove sections that do not apply.
+Use this template when writing the `Overview` page for a component or package. It is a reference manual, not a step-by-step tutorial. Replace each bracketed placeholder and remove sections that do not apply.
 
 ```md
 ---
@@ -16,13 +16,76 @@ title: [Component Name]
 
 [Composer command and the minimum PHP version, verified from `composer.json`.]
 
-## Standalone usage
+## Use as Standalone Component
 
 [How to use the package without the framework. Show the minimal construction and the main entry point.]
 
-## Usage in the framework
+Example code:
 
-[How the package is injected or registered in the framework: DI container, application, or service provider. Show the registration and the typical injection.]
+```php
+use Windwalker\Flower\Sakura;
+
+$sakura = new Sakura(
+    new SakuraDriver(),
+    new SakuraConfig()
+);
+
+$sakura->run();
+```
+
+And more...
+
+## Use in Windwalker Application
+
+[Assume the host app has already configured DI and the required environment. Do not create a new Container. Show how to obtain the component through the existing container or app (for example, container->get(), app->retrieve(), or app->make() for non-singletons), or declare it as a constructor dependency. Keep detailed configuration in the component's dedicated reference pages.]
+
+Inject in a constructor:
+
+```php
+class MyService
+{
+    public function __construct(
+        protected Sakura $sakura
+    ) {
+    }
+
+    public function handle(): void
+    {
+        $this->sakura->run();
+    }
+}
+```
+
+Inject by retrieving from the container:
+
+```php
+$sakura = $container->get(Sakura::class);
+$sakura->run();
+```
+
+Inject by retrieving from the app:
+
+```php
+$sakura = $app->retrieve(Sakura::class);
+$sakura->run();
+```
+
+### Configuration
+
+[If this service has it's own configuration files, show how to override them in the host app.]
+
+```php
+// /etc/packages/flower.config.php
+
+return #[ConfigModule(name: 'flower', enabled: true, priority: 100, belongsTo: FlowerPackage::class)]
+static fn() => [
+    // ...
+
+    'connections' => [
+        'local' => [ ... ]
+    ],
+];
+```
 
 ## [Feature area]
 

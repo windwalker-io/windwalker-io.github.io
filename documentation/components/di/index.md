@@ -7,16 +7,16 @@ component: di
 
 # Introduction
 
-Windwalker DI is a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) tools,
-it provides an [IoC](http://en.wikipedia.org/wiki/Inversion_of_control) container to manage objects and dependencies.
+Windwalker DI provides an [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) container for
+managing objects and their dependencies.
 
-We also support service provider to help developers build their service in a universal interface.
+It also provides service providers for registering services through a common interface.
 
-In 4.x, Windwalker DI has been totally rewrote.
+Windwalker DI 4.x includes a redesigned container API and requires PHP 8.4.6 or later.
 
 ## Installation
 
-Install via composer
+Install the package with Composer:
 
 ```bash
 composer require windwalker/di ^4.0
@@ -24,41 +24,40 @@ composer require windwalker/di ^4.0
 
 ## Use in Windwalker
 
-### Dependency Injection
+### Dependency injection
 
-DI Container is part of Windwalker, you don't need to use it directly. You can inject it in any service or custom class.
+Windwalker applications configure a DI container for the application. Constructor dependencies can be type-hinted in
+services and controllers.
 
 ```php
-class MyClass 
+class MyClass
 {
-    public function __construct(protected FooService $fooService) 
-    {
-    }
+    public function __construct(protected FooService $fooService) {}
 }
 ```
 
-Then, register it to `etc/di.php`:
+Register the classes in `etc/di.php`:
 
 ```php
-    // ...
-
-    [
-        'bindings' => [
-            FooService::class,
-            MyClass::class
-        ]   
-    ]
+return [
+    'bindings' => [
+        FooService::class,
+        MyClass::class,
+    ],
+];
 ```
 
-Now, you can inject your class in View or Controller:
+The application can then inject `MyClass` into a controller action:
 
 ```php
-#[Controller]
+use Windwalker\Core\Attributes\Controller;
+
+#[Controller()]
 class DashboardController
 {
     public function index(MyClass $myClass)
     {
-        //
+        // Use $myClass.
     }
 }
 ```
@@ -68,7 +67,8 @@ class DashboardController
 If you want to directly use Container, you can inject itself.
 
 ```php
-use \Windwalker\DI\Container;
+use Windwalker\Core\Attributes\Controller;
+use Windwalker\DI\Container;
 
 #[Controller]
 class DashboardController
@@ -83,7 +83,8 @@ class DashboardController
 Or use `AppContext`, it is a container wrapper:
 
 ```php
-use \Windwalker\Core\Application\AppContext;
+use Windwalker\Core\Application\AppContext;
+use Windwalker\Core\Attributes\Controller;
 
 #[Controller]
 class DashboardController
@@ -97,12 +98,15 @@ class DashboardController
 
 ## Use as Standalone Component
 
-If you want to use Container without Windwalker core, just create it.
+To use the container without Windwalker Core, create it directly:
 
 ```php
-$container = new \Windwalker\DI\Container();
+use Windwalker\DI\Container;
 
-$container->share(MyClass::class, new MyClass());
+$container = new Container();
 
-$myClass = $container->get(MyClass::class);
+class MyService {}
+
+$container->bind(MyService::class, MyService::class);
+$myService = $container->get(MyService::class);
 ```

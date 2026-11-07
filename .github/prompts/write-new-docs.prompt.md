@@ -8,7 +8,7 @@ Locating sources:
 - Follow `.github/skills/source-lookup/README.md` to locate the host app and read the package source, `README.md`, `docs/`, and the package's own instructions. Do not search the whole filesystem.
 
 - Follow `.github/instructions/documentation-style.instructions.md` for writing rules, and `.github/skills/templates/component-doc-page.md` for page structure.
-- Study the Getting Started sections of existing component pages under `documentation/components/` to match tone and layout.
+- Study the Overview sections of existing component pages under `documentation/components/` to match tone and layout.
 - Cover standalone usage (without the framework) and framework-injected usage (through DI, the application, or a service provider) for every component, where they apply.
 
 Requirements:

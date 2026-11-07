@@ -37,6 +37,39 @@ export const guidesSidebar = computed<DefaultTheme.Sidebar>(() => {
           link: `/${guideRoutePrefix}/mvc/admin`
         },
       ]
+    },
+    {
+      text: 'RAD with Unicorn',
+      items: [
+        {
+          text: 'Overview',
+          link: `/${guideRoutePrefix}/rad/`
+        },
+        {
+          text: 'Project Setup',
+          link: `/${guideRoutePrefix}/rad/project-setup`
+        },
+        {
+          text: 'Install the Unicorn Package',
+          link: `/${guideRoutePrefix}/rad/unicorn-installation`
+        },
+        {
+          text: 'Entities, Migrations and Seeders',
+          link: `/${guideRoutePrefix}/rad/modeling`
+        },
+        {
+          text: 'Admin Grid',
+          link: `/${guideRoutePrefix}/rad/admin-grid`
+        },
+        {
+          text: 'Advanced Grid Features',
+          link: `/${guideRoutePrefix}/rad/advanced-grid`
+        },
+        {
+          text: 'Edit Forms and Saving',
+          link: `/${guideRoutePrefix}/rad/edit-forms`
+        }
+      ]
     }
   ];
 });

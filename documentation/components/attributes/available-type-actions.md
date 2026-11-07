@@ -6,92 +6,102 @@ component: attributes
 
 # Available Types & Actions
 
-Currently, there has `7` types, You can use `registerAttribute()` to control attribute working scope.
+Use `registerAttribute()` to enable an attribute class for one or more resolver targets. Native targets use the corresponding PHP `Attribute::TARGET_*` bit; `CALLABLE` is an additional Windwalker target used by `AttributesResolver::call()`.
 
-- `AttributeType::CLASSES`: Same with `Attribute::TARGET_CLASS`
-- `AttributeType::CLASS_CONSTANTS`: Same with `Attribute::TARGET_CLASS_CONSTANT`
-- `AttributeType::METHODS`: Same with `Attribute::TARGET_METHOD`
-- `AttributeType::FUNCTIONS`: Same with `Attribute::TARGET_FUNCTION`
-- `AttributeType::CALLABLE`: **Special type only provided by `AttributeType`.**
-- `AttributeType::PROPERTIES`: Same with `Attribute::TARGET_PROPERTY`
-- `AttributeType::PARAMETERS`: Same with `Attribute::TARGET_PARAMETER`
+| Target | PHP attribute target | Resolver behavior |
+| --- | --- | --- |
+| `AttributeType::CLASSES` | `Attribute::TARGET_CLASS` | Decorates class creation or an existing object. |
+| `AttributeType::CLASS_CONSTANTS` | `Attribute::TARGET_CLASS_CONSTANT` | Runs handlers for attributed class constants when `resolveConstants()` is called. |
+| `AttributeType::METHODS` | `Attribute::TARGET_METHOD` | Runs handlers for attributed methods when `resolveMethods()` is called. |
+| `AttributeType::FUNCTIONS` | `Attribute::TARGET_FUNCTION` | Registration bit for function attributes. There is no separate function-scanning method; use `CALLABLE` to wrap a function invoked through `call()`. |
+| `AttributeType::PROPERTIES` | `Attribute::TARGET_PROPERTY` | Runs handlers for attributed properties when `resolveProperties()` is called. |
+| `AttributeType::PARAMETERS` | `Attribute::TARGET_PARAMETER` | Transforms the argument value while `call()` resolves callable arguments. |
+| `AttributeType::CALLABLE` | Windwalker-specific | Wraps an attributed method, function, closure, or other callable when `call()` is used. |
+| `AttributeType::ALL` | All resolver target bits | Combines all six native targets and the Windwalker `CALLABLE` target. |
 
-## Object & Classes
+`registerAttribute(string $attributeClass, int $target = Attribute::TARGET_ALL): static` is chainable. The default PHP target mask does not include Windwalker's custom `CALLABLE` bit; register `AttributeType::CALLABLE` explicitly when needed. Multiple calls for the same class add target bits.
 
 ```php
-use Windwalker\Attributes\AttributesResolver;
 use Windwalker\Attributes\AttributeType;
+use Windwalker\Attributes\AttributesResolver;
 
-// Work on Class and Object
-$attributes->registerAttribute(\Decorator::class, AttributeType::CLASSES);
-
-// Decorate existing object
-$object = $attributes->decorateObject($object);
-
-// Create object from class and decorate it.
-$object = $attributes->createObject(\Foo::class, ...$args);
+$resolver = new AttributesResolver();
+$resolver->registerAttribute(MyAttribute::class, AttributeType::METHODS);
+$resolver->registerAttribute(CallableAttribute::class, AttributeType::CALLABLE);
 ```
 
-## Function & Method
+## Class and object attributes
+
+Use `createObject()` to construct and decorate an instance, or `decorateObject()` to decorate an existing instance.
 
 ```php
-use Windwalker\Attributes\AttributesResolver;
-use Windwalker\Attributes\AttributeType;
+$resolver->registerAttribute(Decorator::class, AttributeType::CLASSES);
 
-// Work on method and function.
-$attributes->registerAttribute(\AOP::class, AttributeType::METHODS | AttributeType::FUNCTIONS);
-$object = $attributes->resolveMethods(new SomObject());
+$created = $resolver->createObject(Service::class, $constructorArgument);
+$decorated = $resolver->decorateObject($existingObject);
 ```
 
-## Callable
+## Methods and callables
 
-Callable type is a special type, allows `AttributesResolver` to call any callable and
-wrap the calling process. You can replace parameters or change the return value.
-
-This type works on methods, functions, closures and any callable.
+`resolveMethods()` invokes the registered method handlers; the wrapped value passed to each handler is the method callable. Use `call()` when a callable itself or its parameters need to be wrapped.
 
 ```php
-use Windwalker\Attributes\AttributesResolver;
-use Windwalker\Attributes\AttributeType;
+$resolver->registerAttribute(Listener::class, AttributeType::METHODS);
+$resolver->resolveMethods($subscriber);
 
-// Work on method, function, Closure or callable.
-$attributes->registerAttribute(\Autowire::class, AttributeType::CALLABLE);
-
-$result = $attributes->call($callable, ...$args);
+$resolver->registerAttribute(CallableAttribute::class, AttributeType::CALLABLE);
+$result = $resolver->call($callable, ['value' => 'input'], $context);
 ```
 
-## Properties
+The `$args` argument to `call()` is an array and may use positional or named keys. The optional context is bound to non-static closures before invocation.
+
+## Properties and parameters
+
+Property handlers can read or update the property through `AttributeHandler`. Parameter handlers transform the argument value passed to the callable.
 
 ```php
-use Windwalker\Attributes\AttributesResolver;
-use Windwalker\Attributes\AttributeType;
+$resolver->registerAttribute(PropertyAttribute::class, AttributeType::PROPERTIES);
+$resolver->resolveProperties($object);
 
-// Work on object properties
-$attributes->registerAttribute(\Inject::class, AttributeType::PROPERTIES);
-
-$object = new class {
-    #[\Inject]
-    protected ?\Foo $foo = null;
-};
-
-$object = $attributes->resolveProperties($object);
+$resolver->registerAttribute(ParameterAttribute::class, AttributeType::PARAMETERS);
+$result = $resolver->call($callable, ['flower']);
 ```
 
-## Parameters
+## Class constants
+
+Register the class-constant attribute with `AttributeType::CLASS_CONSTANTS`, then call `resolveConstants()` on the object whose class constants should be processed.
 
 ```php
-use Windwalker\Attributes\AttributesResolver;
+use Windwalker\Attributes\AttributeHandler;
+use Windwalker\Attributes\AttributeInterface;
 use Windwalker\Attributes\AttributeType;
+use Windwalker\Attributes\AttributesResolver;
 
-// Work on callable parameters.
-$attributes->registerAttribute(\StrUpper::class, AttributeType::PROPERTIES);
+#[\Attribute(\Attribute::TARGET_CLASS_CONSTANT)]
+final class DescribeConstant implements AttributeInterface
+{
+    public function __invoke(AttributeHandler $handler): callable
+    {
+        return function () use ($handler): mixed {
+            [$object, $constant] = $handler();
+            $object->constants[$constant->getName()] = $constant->getValue();
 
-$func = function (
-    #[\StrUpper]
-    $foo    
-) {
-    return $foo;
-};
+            return [$object, $constant];
+        };
+    }
+}
 
-$result = $attributes->call($func, ['flower'], /* $context to bind this */); // "FLOWER"
+final class ConstantCatalog
+{
+    public array $constants = [];
+
+    #[DescribeConstant]
+    public const VERSION = '1.0';
+}
+
+$resolver = new AttributesResolver();
+$resolver->registerAttribute(DescribeConstant::class, AttributeType::CLASS_CONSTANTS);
+
+$catalog = new ConstantCatalog();
+$resolver->resolveConstants($catalog);
 ```

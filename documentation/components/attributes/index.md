@@ -1,134 +1,104 @@
 ---
 layout: doc
-title: Introduction
+title: Attributes
 component: attributes
 ---
 
-# Introduction
+# Attributes
 
-This package provides a universal interface to manage [PHP8 Attributes](https://stitcher.io/blog/attributes-in-php-8)
-and help developers construct the attribute processors.
+The `windwalker/attributes` package provides `AttributesResolver` for registering PHP attributes and applying their handlers during object creation, callable execution, and method, property, or parameter resolution. `AttributeType` selects the targets to handle, while `AttributeInterface` and `AttributeHandler` define the handler contract and its context.
 
 ## Installation
 
-Install via composer.
-
 ```bash
-composer require windwaker/attributes ^4.0
+composer require windwalker/attributes ^4.0
 ```
 
-## Use in Windwalker
-
-In Windwalker framework, attributes works with DI Container.
-
-At `/etc/di.php`, you can register your own attributes:
-
-```php
-use Windwalker\Attributes\AttributeType;
-
-    // ...
-
-        'attributes' => [
-            MyAttribute::class => AttributeType::CLASSES
-        ]
-    ]
-
-    // ...
-```
-
-Then add it to your class:
-
-```php
-
-#[MyAttribute]
-class MyClass
-{
-    // ...
-}
-```
-
-Now you can inject this class or create it by container, attributes will auto work:
-
-```php
-// Make it
-$app->make(MyClass::class);
-
-$container->newInstance(MyClass::class);
-
-// Or inject it
-public function __construct(MyClass $my)
-{}
-```
-
+The package requires PHP 8.4.6 or later.
 
 ## Use as Standalone Component
 
-Just create `AttributesResolver` object and register attributes.
-
-```php
-use Windwalker\Attributes\AttributesResolver;
-use Windwalker\Attributes\AttributeType;
-
-$attributes = new AttributesResolver();
-$attributes->registerAttribute(\Wrapper::class, AttributeType::CLASSES);
-
-// Now, try to wrap an object.  
-#[\Wrapper] 
-class Foo {
-    
-}
-
-$foo = new \Foo();
-$foo = $attributes->decorateObject($foo);
-$foo instanceof \Wrapper;
-$foo->inner instanceof \Foo;
-```
-
-## Getting Started
-
-First, you must create your own Attributes. This is a simple example wrapper to wrap any object.
+Register an attribute class for its target, then use `AttributesResolver` to create or decorate an object. An attribute handler receives the previous handler and returns a callable that wraps it.
 
 ```php
 use Windwalker\Attributes\AttributeHandler;
 use Windwalker\Attributes\AttributeInterface;
+use Windwalker\Attributes\AttributeType;
+use Windwalker\Attributes\AttributesResolver;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Wrapper implements AttributeInterface
+final class Decorate implements AttributeInterface
 {
-    public object $inner;
     public function __invoke(AttributeHandler $handler): callable
     {
-        return function () use ($handler) {
-            $this->inner = $handler();
-            return $this;
-        };
+        return fn (...$args): DecoratedObject => new DecoratedObject($handler(...$args));
     }
 }
-```
 
-In `__invoke()`, always return a callback, you can do what you want in this callback.
-
-The `$handler()` will return the value which return by previous attribute handler.
-All callbacks will be added to a stack and run after all attributes processed. This is very similar
-to middleware handler.
-
-Then, register this attribute to resolver.
-
-```php
-use Windwalker\Attributes\AttributesResolver;
-use Windwalker\Attributes\AttributeType;
-
-$attributes = new AttributesResolver();
-$attributes->registerAttribute(\Wrapper::class, AttributeType::CLASSES);
-
-// Now, try to wrap an object.  
-#[\Wrapper] 
-class Foo {
-    
+final class DecoratedObject
+{
+    public function __construct(public object $inner)
+    {
+    }
 }
 
-$foo = new \Foo();
-$foo = $attributes->decorateObject($foo);
-$foo instanceof \Wrapper;
-$foo->inner instanceof \Foo;
+#[Decorate]
+final class Service
+{
+}
+
+$resolver = new AttributesResolver();
+$resolver->registerAttribute(Decorate::class, AttributeType::CLASSES);
+
+$decorated = $resolver->createObject(Service::class);
 ```
+
+For other target types and resolver operations, see [Available Types & Actions](./available-type-actions). To implement handlers, see [Write Your Own Attribute Handlers](./write-handlers).
+
+## Use in Windwalker Application
+
+Windwalker DI uses an `AttributesResolver` integrated with the application container. Register custom attribute classes in a DI configuration file; when the application loads that configuration, the container applies registered class attributes as it creates objects.
+
+For example, add the attribute from the standalone example to the application's DI configuration:
+
+```php
+// etc/di.config.php
+
+use Windwalker\Attributes\AttributeType;
+
+return [
+    // ...
+
+    'attributes' => [
+        Decorate::class => AttributeType::CLASSES,
+    ],
+];
+```
+
+Use the existing application container to create the object:
+
+```php
+#[Decorate]
+class Service
+{
+    // ...
+}
+
+$decorated = $container->newInstance(Service::class);
+```
+
+The container uses its configured resolver for object creation, so no separate `AttributesResolver` or `Container` needs to be instantiated.
+
+## Core API
+
+| API | Purpose |
+| --- | --- |
+| `AttributesResolver` | Registers attribute classes and applies their handlers to object creation, callable execution, and registered methods, properties, or parameters. |
+| `AttributeType` | Provides target flags, including the Windwalker-specific `CALLABLE` target. |
+| `AttributeInterface` | Defines the invokable attribute handler contract; `__invoke()` returns a callable. |
+| `AttributeHandler` | Exposes the previous handler, reflection target, associated object, resolver, and options to an attribute handler. |
+
+## Related components
+
+- [DI](../di/)
+- [Utilities](../utilities/)

@@ -34,6 +34,7 @@ $container->get('foo') !== $childContainer->get('foo');
 The Level N Container can also get object from parent. 
 
 ```php
+$parentContainer = new \Windwalker\DI\Container();
 $containerL2 = $parentContainer->createChild();
 $containerL3 = $containerL2->createChild();
 
@@ -43,3 +44,27 @@ $containerL3->get('foo') === $parentContainer->get('foo');
 $containerL3->getLevel(); // 3
 ```
 
+## Child Parameter Scopes
+
+Child containers inherit parameters from their parent. A child can override a nested value without changing the parent.
+When a parameter branch contains arrays, reads from the child retain inherited sibling values.
+
+```php
+$parentContainer->setParameters([
+    'user' => [
+        'enabled' => true,
+        'remember' => [
+            'enabled' => true,
+            'expires' => 3600,
+        ],
+    ],
+]);
+
+$childContainer = $parentContainer->createChild();
+$childContainer->getParameters()->setDeep('user.remember.expires', 600);
+
+$childContainer->getParam('user.remember');
+// ['enabled' => true, 'expires' => 600]
+
+$parentContainer->getParam('user.remember.expires'); // 3600
+```

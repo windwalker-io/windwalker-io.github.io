@@ -8,7 +8,7 @@ component: di
 
 ## Create A Container
 
-Just new an instance.
+Create a container with `Container`:
 
 ```php
 use Windwalker\DI\Container;
@@ -19,22 +19,40 @@ $container = new Container();
 Now we can store objects into it.
 
 ```php
-use Windwalker\DI\Container;
-
-$input = new Input();
+$input = new \stdClass();
 
 $container->set('input', $input);
 
 $input = $container->get('input');
 ```
 
+## DIOptions
+
+Pass `DIOptions` to container methods to configure a definition or object creation. Prefer named options over the
+deprecated integer flags.
+
+| Option | Effect |
+| --- | --- |
+| `shared` | Cache a stored definition's resolved value for reuse. |
+| `protected` | Prevent a stored definition from being replaced. |
+| `isolation` | Create a separate cached definition in child containers. |
+| `autowire` | Create unresolved dependencies automatically for object creation or callable invocation. |
+| `ignoreAttributes` | Skip all attribute handlers while creating an object or calling a method. |
+| `excludeAttributes` | Skip only the listed attribute handlers. |
+| `lazy` | Use PHP 8.4 lazy proxies for eligible objects. |
+| `providedIn` | Restrict a stored definition to container levels; accepts a level, a list of levels, or a callback. |
+
+Some options apply only to stored definitions, while others affect object creation. See the relevant sections for
+[`shared`](#shared-object-singleton), [`autowire`](#autowire), and [`lazy`](./lazy).
+
 ## Lazy Loading
 
-Sometimes we will hope not to create object instantly, we can use callback to create object.
+Register a closure to defer object creation until the service is requested:
 
 ```php
-// Set a closure into it
-$container->set('input', fn (Container $container) => new Input());
+use Windwalker\DI\Container;
+
+$container->set('input', fn (Container $container) => new \stdClass());
 
 // Will call this closure when we get it
 $input = $container->get('input');
@@ -43,20 +61,24 @@ $input = $container->get('input');
 $input !== $container->get('input');
 ```
 
+This defers the service factory until `get()` is called. To defer constructing an object until its first property
+access, use a PHP 8.4 lazy proxy; see [Lazy Loading](./lazy).
+
 ## Shared Object (Singleton)
 
 If we use `set()` method to set this callback, then every time we try to get it, Container will return a new object.
 
-Use `share('foo', $object)` to make an object singleton, we'll always get the same instance.
+Use `share()` or `DIOptions(shared: true)` to reuse the same instance.
 
 ```php
 use Windwalker\DI\Container;
+use Windwalker\DI\DIOptions;
 
 // Share a closure
-$container->share('input', fn (Container $container) => new Input());
+$container->share('input', fn (Container $container) => new \stdClass());
 
-// Which is same as:
-$container->set('input', fn (Container $container) => new Input(), Container::SHARED);
+// Equivalent options when using set()
+$container->set('input', fn (Container $container) => new \stdClass(), new DIOptions(shared: true));
 
 // We will always get same instance
 $input = $container->get('input');
@@ -67,27 +89,32 @@ $newInput = $container->get('input', true);
 
 ## Protect Object
 
-Use `protect()` to prevent others override your important object.
+Use `protect()` to prevent a service definition from being replaced.
 
 ```php
+use Windwalker\DI\Container;
+use Windwalker\DI\DIOptions;
+
 $container->protect(
     'input',
-    fn (Container $container) => new Input(),
-    Container::SHARED
+    fn (Container $container) => new \stdClass(),
+    new DIOptions(shared: true),
 );
 
 // We can still get this object
 $input = $container->get('input');
 
-// Trying to override this key, will throw OutOfBoundsException
+// Replacing this protected key throws DefinitionException.
 $container->set('input', $otherInput);
 ```
 
 ## Alias
 
-Set an alias to service ID that you can use alias to get service:
+Set an alias to a service ID:
 
 ```php
+$app = new \stdClass();
+
 $container->share('system.application', $app)
     ->alias('app', 'system.application');
 
@@ -95,11 +122,14 @@ $container->share('system.application', $app)
 $app = $container->get('app');
 ```
 
-Set alias by class name:
+Aliases can also use class names:
 
 ```php
-$container->prepareSharedObject(SystemApp::class)
-    ->alias(MainApp::class, SystemApp::class);
+class SystemApp {}
+class MainApp {}
+
+$container->prepareSharedObject(SystemApp::class);
+$container->alias(MainApp::class, SystemApp::class);
 
 // Same as `SystemApp::class`
 $app = $container->get(MainApp::class);
@@ -110,30 +140,22 @@ $app = $container->get(MainApp::class);
 
 ### New Instance
 
-Container can help us create object and automatic inject required arguments to constructor.
+The container can create objects and resolve registered constructor dependencies.
 
 ```php
-use Windwalker\IO\Input;
-use Windwalker\Structure\Structure;
+use Windwalker\DI\Container;
 
-// Prepare dependencies into container
-$container->share(Input::class, $input);
-$container->share(Collection::class, $config);
+class DatabaseConnection {}
 
-// Define a class
-class MyClass
+class Repository
 {
-    public function __construct(public Input $input, public Collection $config)
-    {
-    }
+    public function __construct(public DatabaseConnection $connection) {}
 }
 
-// And create it.
-$myObject = $container->newInstance(MyClass::class);
+$container->share(DatabaseConnection::class, new DatabaseConnection());
+$repository = $container->newInstance(Repository::class);
 
-// Now dependencies will be automatic injected
-$myObject->input; // Input
-$myObject->config; // Collection
+$repository->connection; // DatabaseConnection
 ```
 
 ### Autowire
@@ -152,18 +174,21 @@ class MyCar
 $container->newInstance(MyCar::class);
 ```
 
-You can add autowire flag to options, the dependency object will auto create and inject it.
+Enable autowiring with `DIOptions`. Dependencies not registered in the container can then be created automatically.
 
 ```php
-$car = $container->newInstance(MyCar::class, [], Container::AUTO_WIRE);
+use Windwalker\DI\DIOptions;
+
+$car = $container->newInstance(MyCar::class, options: new DIOptions(autowire: true));
 ```
 
 ### Create Object
 
-Create object will new an instance instantly and set this class into container, we can get new instance everytime
-when we get it by class name.
+`createObject()` creates an instance and registers its definition in the container:
 
 ```php
+class Sakura {}
+
 $sakura = $container->createObject(Sakura::class);
 
 // Now we can get this class with new instance from container
@@ -173,6 +198,11 @@ $sakura !== $container->get(Sakura::class);
 Use `createSharedObject()` to set object as singleton.
 
 ```php
+use Windwalker\DI\Container;
+
+$container = new Container();
+class Katana {}
+
 // Now this object is singleton 
 $katana = $container->createSharedObject(Katana::class);
 
@@ -181,40 +211,18 @@ $katana === $container->get(Katana::class); // Same
 
 ### Create with Custom Arguments
 
-If we have some constructor arguments without class hint, container will send the default value to constructor.
-We can override this un-hinted arguments:
-
-This is a constructor without default value and class hinted.
+Pass non-class constructor arguments by parameter name:
 
 ```php
 class AnotherClass
 {
-    public function _construct(ModelInterface $model, $config)
-    {
-        $bar = $config['foo']
-    }
+    public function __construct(public string $name, public array $config) {}
 }
 
-// Let's create this object with custom arguments:
-$container->newInstance(AnotherClass::class, ['config' => ['foo' => 'bar']]);
-```
-
-You can set multiple level arguments:
-
-```php
-use Windwalker\Model\ModelInterface;
-
-// ... AnotherClass
-
-$config = [
-    'config' => ['foo' => 'bar'],
-    'Windwalker\Model\ModelInterface' => [
-        'options' => $options,
-        'db' => DatabaseFactory::getDbo()
-    ]
-];
-
-$container->newInstance(AnotherClass::class, $config);
+$object = $container->newInstance(AnotherClass::class, [
+    'name' => 'primary',
+    'config' => ['debug' => true],
+]);
 ```
 
 
@@ -229,22 +237,27 @@ $container->prepareObject(MyClass::class);
 $myObject = $container->get(MyClass::class);
 ```
 
-Add second argument if you want to configure something after object created:
+Pass a callback to extend the object after it is created:
 
 ```php
-$container->prepareObject(MyClass::class, function (MyClass $myClass, Container $container) {
+class MyClass
+{
+    public bool $debug = false;
+}
+
+$container->prepareObject(MyClass::class, function (MyClass $myClass, \Windwalker\DI\Container $container) {
     $myClass->debug = true;
     
     return $myClass;
 });
 ```
 
-We can also prepare a shared object:
+Prepare a shared object with `prepareSharedObject()`:
 
 ```php
+class MyClass {}
 
-// This object will be singleton
-$container->prepareSharedObject(MyClass::class[, extending]);
+$container->prepareSharedObject(MyClass::class);
 ```
 
 ### Prepare Creating Arguments
@@ -252,9 +265,17 @@ $container->prepareSharedObject(MyClass::class[, extending]);
 We can prepare some named arguments which will be injected to constructor when object creating.
 
 ```php
+class MyModel
+{
+    public function __construct(public array $config, public object $db) {}
+}
+
+$config = ['debug' => true];
+$db = new \stdClass();
+
 // Set class meta
 $container->whenCreating(MyModel::class)
-    ->setArgumemt('config', $config)
+    ->setArgument('config', $config)
     ->setArgument('db', $db);
 
 // ...
@@ -265,78 +286,127 @@ $object = $container->newInstance(MyModel::class);
 Or just created it instantly:
 
 ```php
+class MyModel
+{
+    public function __construct(public array $config, public object $db) {}
+}
+
+$config = ['debug' => true];
+$db = new \stdClass();
+
 $container->whenCreating(MyModel::class)
-    ->setArgumemt('config', $config)
+    ->setArgument('config', $config)
     ->setArgument('db', $db)
-    ->newInstance();
+    ->newInstance($container);
 ```
 
 ## Binding Classes
 
-Sometimes when we are creating object, we may want to inject particular class which wer want, and different 
-from origin dependencies.
+Bind an interface to a concrete class when a dependency should resolve to a specific implementation.
 
-For example: Here is a class which dependent to `ModelInterface`, we can bind a subclass to container then container 
-will use `MyModel` class to be an instance of `ModelInterface` and inject it to `MyClass`.
+The container uses `FileLogger` when creating `ReportService`:
 
 ```php
-use Windwalker\Model\ModelInterface;
-use Windwalker\Data\Collection;
+interface LoggerInterface {}
 
-class MyClass
+class FileLogger implements LoggerInterface {}
+
+class ReportService
 {
-    public function __construct(public ModelInterface $model, public Collection $config)
+    public function __construct(public LoggerInterface $logger) {}
+}
+
+$container->bind(LoggerInterface::class, FileLogger::class);
+
+$reportService = $container->createObject(ReportService::class);
+
+$reportService->logger; // FileLogger
+```
+
+Use `bindShared()` to bind a class as a shared service:
+
+```php
+$container->bindShared(LoggerInterface::class, FileLogger::class);
+```
+
+`bind()` also accepts a factory callback:
+
+```php
+$container->bind(LoggerInterface::class, fn () => new FileLogger());
+```
+
+## Tagged Services
+
+Tags allow multiple definitions to share the same service ID. Pass the same tag when retrieving the definition:
+
+```php
+$container->bind(LoggerInterface::class, FileLogger::class, tag: 'file');
+$container->bind(LoggerInterface::class, ConsoleLogger::class, tag: 'console');
+
+$fileLogger = $container->get(LoggerInterface::class, tag: 'file');
+$consoleLogger = $container->get(LoggerInterface::class, tag: 'console');
+```
+
+Tags can be strings or enum cases. Registration and retrieval methods such as `set()`, `bind()`, `prepareObject()`,
+`createObject()`, and `get()` accept a `tag` argument. A factory callback can receive the requested tag as an argument.
+
+## Service Providers and Configuration
+
+Implement `ServiceProviderInterface` to register definitions in one place:
+
+```php
+use Windwalker\DI\Container;
+use Windwalker\DI\ServiceProviderInterface;
+
+class AppServiceProvider implements ServiceProviderInterface
+{
+    public function register(Container $container): void
     {
-        
+        $container->share(Clock::class, fn () => new Clock());
     }
 }
 
-class MyModel implements ModelInterface
-{
-}
-
-// Bind MyModel as ModelInterface
-$container->share(ModelInterface::class, fn () => new MyModel());
-
-$myObject = $container->createObject(MyClass::class);
-
-$myObject->model; // MyModel
+$container->registerServiceProvider(new AppServiceProvider());
 ```
 
-Use `bind()` to quickly bind a class without callback, container will use `newInstance()` to create it when needed.
+`registerByConfig()` accepts an array or a PHP file returning an array. It registers attributes, bindings, providers,
+aliases, and service extensions:
 
 ```php
-$container->bind(ModelInterface::class, MyModel::class);
-
-// `MyModel` will auto created because we bind it to `ModelInterface`
-$container->createObject(MyClass::class);
+$container->registerByConfig([
+    'attributes' => [
+        \Windwalker\DI\Attributes\Decorator::class
+            => \Windwalker\DI\Attributes\AttributeType::CLASSES,
+    ],
+    'bindings' => [
+        LoggerInterface::class => FileLogger::class,
+    ],
+    'providers' => [
+        AppServiceProvider::class,
+    ],
+    'aliases' => [
+        'logger' => LoggerInterface::class,
+    ],
+]);
 ```
 
-Use `bindShared()` to bind a class as singleton:
-
-```php
-$container->bindShared(ModelInterface::class, MyModel::class);
-```
-
-You can add callback as second argument, this way is totally same as `share()` and `set()`:
-
-```php
-$container->bind(ModelInterface::class, fn () => new MyObject());
-```
+Class-string bindings in this configuration are registered as shared services. Providers implementing
+`BootableProviderInterface` are booted after registration through `registerByConfig()`.
 
 ## Extending
 
-Container allows you to extend an object, the new instance or closure will wrap the original one and you can do more
-extending configuration, this is a sample:
+Use `extend()` to modify a service after its factory returns it:
 
 ```php
-// Create an object first
-$container->share('flower', function() {
-    // Create an empty object
-    return new Flower();
-});
+class Flower
+{
+    public string $name = '';
+}
 
-$container->extend('flower', function(Flower $flower, Container $container) {
+// Create an object first
+$container->share('flower', fn () => new Flower());
+
+$container->extend('flower', function (Flower $flower, \Windwalker\DI\Container $container) {
     // Set a property to this object
     $flower->name = 'sakura';
 
@@ -350,36 +420,39 @@ $flower->name; // sakura
 
 ## Calling Function
 
-Container can execute any callable:
+The container can invoke a callable and resolve its dependencies:
 
 ```php
 $result = $container->call($closure);
 
 $result = $container->call([$object, 'method']);
 
-$result = $container->call($invokalbeObject);
+$result = $container->call($invokableObject);
 ```
 
 You can also add arguments:
 
 ```php
+use Windwalker\DI\DIOptions;
+
+class Sakura {}
+$container->prepareSharedObject(Sakura::class);
+
 $closure = function (Sakura $sakura, int $numbers = 3) {
-    
+    return $numbers;
 };
 
 // Add argument with name
 $result = $container->call($closure, [
     'sakura' => new Sakura(),
-    'numbers' => 5
+    'numbers' => 5,
 ]);
 
 // Add argument with class type, and ignore optional argument.
 $result = $container->call($closure, [
-    Sakura::class => new Sakura()
+    Sakura::class => new Sakura(),
 ]);
 
-// Use Autowire
-$result = $container->call($closure, [], Container::AUTO_WIRE);
+// Enable autowiring for unresolved dependencies.
+$result = $container->call($closure, options: new DIOptions(autowire: true));
 ```
-
-

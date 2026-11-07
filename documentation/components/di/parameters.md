@@ -8,13 +8,27 @@ component: di
 
 Container can create a parameters structure to resolve object and dependencies.
 
+## Load Parameters
+
+Use `loadParameters()` to merge an array of configuration values into the container's current parameters:
+
+```php
+$container->loadParameters([
+    'cache' => [
+        'enabled' => true,
+        'ttl' => 300,
+    ],
+]);
+```
+
+The method returns the container's `Parameters` instance. Use `setParameters()` when replacing the current parameter
+structure instead of merging more values into it.
+
 ## Resolve Factories
 
 This is a sample parameters, we set a class name as param: `car`, then we can use `resolve()` to create it.
 
 ```php
-use Windwalker\DI\Parameters;
-
 $container->setParameters(
     [
         'car' => MyCar::class
@@ -35,10 +49,10 @@ Most of all, object may have some constructor arguments, we can use `\Windwalker
 with some custom arguments.
 
 ```php
-use Windwalker\DI\Parameters;
-
+use Windwalker\DI\Container;
 use function Windwalker\DI\create;
 
+$container = new Container();
 $container->setParameters(
     [
         // Define factory by create()
@@ -74,27 +88,33 @@ class CachePool
 }
 ```
 
-There are 2 ways to handle dependencies, one is use callback:
+There are two ways to provide dependencies. One is to use a callback:
 
 ```php
+use Windwalker\DI\Container;
+use function Windwalker\DI\create;
+
 [
     'cache' => create(
         fn (Container $container) => new CachePool(
             // Also handle FileStorage's dependencies
             $container->newInstance(
                 FileStorage::class,
-                path: '/path/to/storage/cache',
-                ttl: 300
+                args: [
+                    'path' => '/path/to/storage/cache',
+                    'ttl' => 300,
+                ],
             )
         )
     )
 ]
 ```
 
-The second is use configuration with `ref()`, `ref()` is a wrapper to make `Container::getParams()` direct to another 
-position:
+The second is to use `ref()` to resolve another parameter path:
 
 ```php
+use function Windwalker\DI\create;
+
 [
     'cache' => create(
         CachePool::class,
@@ -109,13 +129,18 @@ position:
 Or a callback of argument, the first level closure will resolve as argument factory:
 
 ```php
+use Windwalker\DI\Container;
+use function Windwalker\DI\create;
+
 [
     'cache' => create(
         CachePool::class,
-        storage: fn (Container $container) => ->newInstance(
+        storage: fn (Container $container) => $container->newInstance(
             FileStorage::class,
-            path: '/path/to/storage/cache',
-            ttl: 300
+            [
+                'path' => '/path/to/storage/cache',
+                'ttl' => 300,
+            ],
         )
     )
 ]
@@ -124,6 +149,8 @@ Or a callback of argument, the first level closure will resolve as argument fact
 If you want to set a pure closure into it, use `\Windwalker\raw()` to wrap it.
 
 ```php
+use function Windwalker\DI\create;
+
 create(
     Runner::class,
     // Use raw() to wrap closure
@@ -143,6 +170,8 @@ to handle dependencies:
 Below is not work:
 
 ```php
+use function Windwalker\DI\create;
+
 [
     'log' => create(
         Logger::class,
@@ -164,6 +193,9 @@ Below is not work:
 Use this instead.
 
 ```php
+use Windwalker\DI\Container;
+use function Windwalker\DI\create;
+
 [
     'log' => create(
         Logger::class,
@@ -195,9 +227,7 @@ $container->resolve(SomeClass::class);
 
 // Send a definition object, will resolve this definition.
 $container->resolve(
-    new \Windwalker\DI\Definition\StoreDefinition(
-        SomeClass::class
-    )
+    \Windwalker\DI\create(SomeClass::class)
 );
 
 // Send a callback, will call it as factory.
@@ -212,6 +242,48 @@ $container->resolve(\Windwalker\ref('foo.bar.classname'));
 $container->resolveParam('foo.bar.classname');
 ```
 
+## Child Parameter Views
+
+Reads from a child container combine local parameter arrays with inherited parent values. `extract()` returns a detached
+snapshot of the merged branch. Use `proxy()` when you need a view that writes to the child scope:
+
+```php
+use Windwalker\DI\Container;
+
+$parentContainer = new Container();
+$parentContainer->setParameters([
+    'cache' => [
+        'enabled' => true,
+        'ttl' => 300,
+    ],
+]);
+
+$childContainer = $parentContainer->createChild();
+$childContainer->getParameters()->setDeep('cache.ttl', 60);
+
+$snapshot = $childContainer->getParameters()->extract('cache');
+$snapshot->dump(); // ['ttl' => 60, 'enabled' => true]
+
+$cache = $childContainer->getParameters()->proxy('cache');
+$cache->set('ttl', 90);
+
+$childContainer->getParam('cache.ttl'); // 90
+$parentContainer->getParam('cache.ttl'); // 300
+```
+
+Associative array branches merge recursively, and list values concatenate. A local scalar overrides its inherited
+value; an empty local array does not clear an inherited array. A `null` leaf retains the normal fallback behavior,
+while a branch snapshot can preserve explicit `null` entries as `dump()` does.
+
+Merged arrays returned by reads, dumps, and inherited iteration are computed snapshots, not writable references. Use
+`set()` or `setDeep()` to write local values, or use a proxy for a live branch view. A proxy writes to the child scope,
+includes only its selected branch when dumped or iterated, and continues to see parent updates that are not overridden
+locally. `extract($path, true)` is equivalent to `proxy($path)`.
+
+By default, iterating child parameters includes inherited values and yields merged keys once. Pass `false` to
+`getIterator()` to iterate only the child's local values. References are resolved after inheritance lookup, so an
+inherited reference can observe an override in the child scope.
+
 ## Merge
 
 You may merge a config array to an exists position.
@@ -225,22 +297,26 @@ $container->mergeParameters(
 );
 ```
 
-By default, `mergeParameters()` won't override exists values, only merge values not exists in Container.
-If you want to override them, add flag:
+By default, `mergeParameters()` keeps existing values when keys overlap. Pass `MergeOptions(override: true)` to let the
+new values override them:
 
 ```php
+use Windwalker\DI\MergeOptions;
+
 $container->mergeParameters(
     'foo.bar',
     [
         'yoo' => 'The data you want to merge'
     ],
-    $container::MERGE_OVERRIDE
+    new MergeOptions(override: true),
 );
 ```
 
-Also supports recursive:
+Use `MergeOptions(recursive: true)` to merge nested arrays recursively:
 
 ```php
+use Windwalker\DI\MergeOptions;
+
 $container->mergeParameters(
     'foo.bar',
     [
@@ -248,6 +324,6 @@ $container->mergeParameters(
             'goo' => 'The data you want to merge'
         ]
     ],
-    $container::MERGE_RECURSIVE
+    new MergeOptions(recursive: true),
 );
 ```

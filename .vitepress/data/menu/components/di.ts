@@ -12,6 +12,10 @@ export default <ComponentMenu> {
       link: 'basic-usage',
     },
     {
+      text: 'Lazy Loading',
+      link: 'lazy',
+    },
+    {
       text: 'Attributes',
       link: 'attributes',
     },
