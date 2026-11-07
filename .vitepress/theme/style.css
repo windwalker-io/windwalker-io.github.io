@@ -137,10 +137,10 @@
  * -------------------------------------------------------------------------- */
 
 :root {
-  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-border: color-mix(in srgb, var(--vp-c-brand-3) 40%, transparent);
   --vp-custom-block-tip-text: var(--vp-c-text-1);
-  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
-  --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-tip-bg: color-mix(in srgb, var(--vp-c-brand-3) 14%, transparent);
+  --vp-custom-block-tip-code-bg: color-mix(in srgb, var(--vp-c-brand-3) 20%, transparent);
 }
 
 /**
