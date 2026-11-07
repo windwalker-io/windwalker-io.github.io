@@ -80,12 +80,14 @@ export const groupedComponents: ComponentSet = {
     'event': {
       title: 'Event',
       description: 'PSR-14 compatible event dispatchers.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/event'),
+      extra: {},
     },
     'filesystem': {
       title: 'Filesystem',
       description: 'Simple library to provide a fluent interface for file operations.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/filesystem'),
+      extra: {},
     },
     'queue': {
       title: 'Queue',

@@ -9,7 +9,7 @@ Locating sources:
 
 - Follow `.github/instructions/documentation-style.instructions.md` for writing rules, and `.github/skills/templates/component-doc-page.md` for page structure.
 - Study the Overview sections of existing component pages under `documentation/components/` to match tone and layout.
-- Cover standalone usage (without the framework) and framework-injected usage (through DI, the application, or a service provider) for every component, where they apply.
+- Focus on standalone usage (without the framework) for every component. In the Overview, include the main framework entry point (DI examples are allowed there). On topic pages, mention framework-level behavior only briefly as background, for example when a config setting can control it. Do not write large DI, service provider, or command-line examples on topic pages; those belong to their own dedicated section.
 
 Requirements:
 1. Write a manual, not an API reference. The reader should understand what the package is for, how its parts think and fit together, and how to assemble them. Explain the concepts and the design philosophy before the details. Introduce a domain term when a feature depends on it, and explain it briefly.
