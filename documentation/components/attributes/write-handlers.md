@@ -1,4 +1,4 @@
-      ---
+---
 layout: doc
 title: Write Your Own Attribute Handlers
 component: attributes
