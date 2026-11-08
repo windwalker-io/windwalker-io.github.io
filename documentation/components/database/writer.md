@@ -150,7 +150,7 @@ $db->getTable('page_views')->create(
         $schema->varchar('page')->length(255);
         $schema->integer('views')->defaultValue(0);
 
-        $schema->addUniqueKey(['page'], 'uq_page_views_page');
+        $schema->addUniqueKey(['page']);
     },
 );
 ```

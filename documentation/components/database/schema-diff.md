@@ -27,7 +27,7 @@ $define = static function (Schema $schema) {
     $schema->primary('id');
     $schema->varchar('title')->length(255)->defaultValue('');
     $schema->varchar('subtitle')->defaultValue('');
-    $schema->addIndex(['title'], 'idx_articles_title');
+    $schema->addIndex(['title']);
 };
 
 $table = $db->getTable('articles');

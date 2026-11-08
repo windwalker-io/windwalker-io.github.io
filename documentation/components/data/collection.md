@@ -16,10 +16,11 @@ change, and copy any part of it with a path string such as
 `order.customer.name`. The same object also gives you a way to load data
 from a string or a file, and to convert it back into a format.
 
-`Collection` extends the `ArrayObject` class of `windwalker/scalars`. It
-therefore keeps the array helpers of that class, such as `column()`,
-`map()`, `filter()`, and `sum()`. The methods described here add the
-deep-path and loading features.
+`Collection` extends the `ArrayObject` class of `windwalker/scalars`, so it
+also has every array helper of that class, such as `column()`, `map()`,
+`filter()`, and `sum()`. The methods described here add the deep-path and
+loading features. The inherited methods are listed in
+[Inherited Methods](#inherited-methods) at the end of this page.
 
 ## Creating a Collection
 
@@ -234,3 +235,165 @@ echo $order->toXml();
 
 Format-specific options and the dependencies they need are described on
 the [Formats](/documentation/components/data/formats) page.
+
+## Inherited Methods
+
+`Collection` inherits the public methods of `ArrayObject` from
+`windwalker/scalars`. Each method below links to its explanation in the
+[Array Object](/documentation/components/scalars/array-object) page of the
+Scalars component. Methods that return a new object leave the original
+unchanged, and methods marked there as in-place change the object.
+
+### Creating and Wrapping
+
+- [`create()`](/documentation/components/scalars/array-object#creating-an-arrayobject)
+- [`explode()`](/documentation/components/scalars/array-object#creating-an-arrayobject)
+- [`range()`](/documentation/components/scalars/array-object#creating-an-arrayobject)
+- [`fillWith()`](/documentation/components/scalars/array-object#creating-an-arrayobject)
+- [`fillKeys()`](/documentation/components/scalars/array-object)
+- [`wrap()`](/documentation/components/scalars/array-object#wrapping-items)
+- [`tryWrap()`](/documentation/components/scalars/array-object#wrapping-items)
+- [`unwrap()`](/documentation/components/scalars/array-object#wrapping-items)
+- [`wrapAll()`](/documentation/components/scalars/array-object#wrapping-items)
+- [`dump()`](/documentation/components/scalars/array-object#wrapping-items)
+- [`as()`](/documentation/components/scalars/array-object)
+- [`mapAs()`](/documentation/components/scalars/array-object)
+- [`reset()`](/documentation/components/scalars/array-object)
+
+### Immutable Updates
+
+- [`with()`](/documentation/components/scalars/array-object#immutable-updates)
+- [`withDef()`](/documentation/components/scalars/array-object#immutable-updates)
+- [`withRemove()`](/documentation/components/scalars/array-object#immutable-updates)
+- [`withReset()`](/documentation/components/scalars/array-object#immutable-updates)
+
+### Changing the Object in Place
+
+- [`set()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`fill()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`bind()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`transform()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`push()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`unshift()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`pop()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`shift()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`takeout()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+- [`splice()`](/documentation/components/scalars/array-object#methods-that-change-the-object-in-place)
+
+### Reading Values
+
+- [`first()`](/documentation/components/scalars/array-object#reading-values)
+- [`last()`](/documentation/components/scalars/array-object#reading-values)
+- [`findFirst()`](/documentation/components/scalars/array-object#reading-values)
+- [`search()`](/documentation/components/scalars/array-object#reading-values)
+- [`indexOf()`](/documentation/components/scalars/array-object#reading-values)
+- [`contains()`](/documentation/components/scalars/array-object#reading-values)
+- [`keyExists()`](/documentation/components/scalars/array-object#reading-values)
+- [`keys()`](/documentation/components/scalars/array-object#reading-values)
+- [`values()`](/documentation/components/scalars/array-object#reading-values)
+- [`isEmpty()`](/documentation/components/scalars/array-object)
+- [`notEmpty()`](/documentation/components/scalars/array-object)
+- [`isNull()`](/documentation/components/scalars/array-object)
+- [`notNull()`](/documentation/components/scalars/array-object)
+
+### Looping and Transforming
+
+- [`each()`](/documentation/components/scalars/array-object)
+- [`walk()`](/documentation/components/scalars/array-object)
+- [`walkRecursive()`](/documentation/components/scalars/array-object)
+- [`find()`](/documentation/components/scalars/array-object)
+- [`query()`](/documentation/components/scalars/array-object)
+- [`filter()`](/documentation/components/scalars/array-object#transforming-values)
+- [`reject()`](/documentation/components/scalars/array-object#transforming-values)
+- [`partition()`](/documentation/components/scalars/array-object#partitioning)
+- [`map()`](/documentation/components/scalars/array-object#transforming-values)
+- [`mapRecursive()`](/documentation/components/scalars/array-object)
+- [`mapWithKeys()`](/documentation/components/scalars/array-object)
+- [`flatMap()`](/documentation/components/scalars/array-object#flat-mapping)
+- [`reduce()`](/documentation/components/scalars/array-object#transforming-values)
+- [`apply()`](/documentation/components/scalars/array-object)
+- [`unique()`](/documentation/components/scalars/array-object#transforming-values)
+- [`implode()`](/documentation/components/scalars/array-object)
+- [`countValues()`](/documentation/components/scalars/array-object)
+
+### Columns, Grouping, and Paging
+
+- [`column()`](/documentation/components/scalars/array-object#columns-and-records)
+- [`setColumn()`](/documentation/components/scalars/array-object#columns-and-records)
+- [`group()`](/documentation/components/scalars/array-object#grouping-and-keying)
+- [`groupBy()`](/documentation/components/scalars/array-object#grouping-and-keying)
+- [`groupByPath()`](/documentation/components/scalars/array-object#grouping-and-keying)
+- [`keyBy()`](/documentation/components/scalars/array-object#grouping-and-keying)
+- [`chunk()`](/documentation/components/scalars/array-object#chunking-and-paging)
+- [`page()`](/documentation/components/scalars/array-object#chunking-and-paging)
+- [`flatten()`](/documentation/components/scalars/array-object#flattening-nested-data)
+- [`collapse()`](/documentation/components/scalars/array-object#flattening-nested-data)
+
+### Aggregation
+
+- [`sum()`](/documentation/components/scalars/array-object#aggregation)
+- [`avg()`](/documentation/components/scalars/array-object#aggregation)
+
+### Sorting
+
+- [`sort()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`sortDesc()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`sortKeys()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`sortKeysDesc()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`sortBy()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`natureSort()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`natureSortCaseInsensitive()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`natureSortKeys()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`shuffle()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`rand()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+- [`reverse()`](/documentation/components/scalars/array-object#sorting-and-ordering)
+
+### Combining Arrays
+
+- [`merge()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`mergeRecursive()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`replace()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`replaceRecursive()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`union()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`combine()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`diff()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`diffKeys()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`intersect()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`intersectKey()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`crossJoin()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`only()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`except()`](/documentation/components/scalars/array-object#combining-arrays)
+- [`flip()`](/documentation/components/scalars/array-object)
+
+### Adding and Padding Items
+
+- [`concat()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`concatStart()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`append()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`prepend()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`insertAfter()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`insertBefore()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`pad()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`leftPad()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`rightPad()`](/documentation/components/scalars/array-object#adding-and-padding-items)
+- [`removeFirst()`](/documentation/components/scalars/array-object)
+- [`removeLast()`](/documentation/components/scalars/array-object)
+- [`slice()`](/documentation/components/scalars/array-object)
+
+### Pipelines and Macros
+
+These helpers come from `windwalker/utilities`, and the Scalars page does
+not cover them:
+
+- `pipe()`, `pipeIf()`: pass the object through a callback and use its
+  result.
+- `tap()`, `tapIf()`: call a callback with the object and keep the object.
+- `macro()`, `hasMacro()`, `clearMarco()`, `do()`: register and call
+  custom methods for the class.
+
+### Array Access and Iteration
+
+`Collection` implements `ArrayAccess`, `IteratorAggregate`, and `Countable`
+through the array base class. Use `$collection['key']`, `foreach`, and
+`count()` on any collection. Magic property access such as `$collection->key`
+works through `__get()` and `__set()`.
