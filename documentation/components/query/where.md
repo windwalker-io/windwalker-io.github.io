@@ -128,10 +128,25 @@ $query->whereIn('id', $ids)
     ->whereNotLike('title', '%draft%');
 ```
 
-::: info
-An empty array becomes `IN ()`. Databases differ on it: MySQL rejects it as a
-syntax error, and SQLite accepts it and matches no rows. Check the list before
-you pass it, as the showcase does with `!empty()`.
+::: warning
+`where()` with the `in` operator and `whereIn()` do not check the list. An
+empty array renders `IN ()`, which MySQL rejects with a syntax error, so the
+statement fails at runtime. SQLite accepts it and matches no rows. The builder
+does not fill in a default for you, so check the type and the content of the
+value before you build the condition. Use one of these two patterns:
+
+```php
+// Skip the query when there is nothing to match.
+if ($ids !== []) {
+    $query->whereIn('id', $ids);
+}
+
+// Or pass a placeholder that matches no row.
+$query->whereIn('id', $ids ?: [0]);
+```
+
+The placeholder `[0]` is safe only when no row has the ID `0`. Skipping the
+query is the clearer choice when the empty list means "no result".
 :::
 
 ## Array Conditions

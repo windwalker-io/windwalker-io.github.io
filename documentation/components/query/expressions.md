@@ -100,7 +100,7 @@ function hotPosts(DatabaseAdapter $db, int $minDays): Collection
 ## Raw Methods
 
 Each raw method takes the text, followed by optional template arguments or
-named bindings. The methods are:
+named bindings. The template is processed by [`format()`](/documentation/components/query/expressions#format). The methods are:
 
 - `selectRaw()` for a select expression.
 - `whereRaw()` and `havingRaw()` for a condition.
@@ -119,37 +119,223 @@ Never build the text of a raw method from request data. Put values in
 bindings or template arguments instead.
 :::
 
-## Template Tokens
-
-The raw methods accept a template. Each `%` token takes the next argument
-and formats it according to its type:
-
-- `%n` quotes the argument as a name, such as a column.
-- `%q` quotes the argument as a string value, with escaping.
-- `%a` writes the argument as a number. A value that is not numeric throws
-  an exception, which protects the statement from injected text.
-- `%%` writes a literal percent sign.
-
-```php
-$query->whereRaw('%n > MONTH(%q)', 'date', '2025-03-02');
-// WHERE `date` > MONTH('2025-03-02')
-
-$query->whereRaw('%n = %a', 'stock', 0);
-// WHERE `stock` = 0
-```
-
 ## format()
 
-`format()` applies the same template tokens to a string, and returns the
-formatted string without adding it to a clause. Use it to build a piece of SQL
-text that a raw method will receive later:
+`format()` is the template engine behind the raw methods. It takes a string
+with `%` tokens and the values for them, and returns the formatted text. It
+does not add anything to a clause, so its result can be passed to a raw method
+later:
 
 ```php
 $text = $query->format('%n = %q', 'title', "It's");
 // `title` = 'It\'s'
+
+$query->whereRaw($query->format('created < %t'));
+```
+
+::: warning
+A raw method formats its text only when it receives arguments. With no
+arguments, `whereRaw('created < %t')` and `whereRaw('title LIKE %%')` keep the
+tokens as written, and the statement contains `%t` or `%%`. Build the text with
+`format()` first, as the last line above does, or pass an argument.
+:::
+
+### Token Table
+
+Each row links to the section that describes the token. The date tokens
+come in lowercase and uppercase pairs. The lowercase token takes a value, and
+the uppercase one takes a column name.
+
+| Token | Writes | Details |
+|-------|--------|---------|
+| `%n` | Name, a column or table | [`%n`](#token-n) |
+| `%q` | Quoted, escaped string | [`%q`](#token-q) |
+| `%e` | Escaped value, no quotes | [`%e`](#token-e) |
+| `%a` | Number, no quotes | [`%a`](#token-a) |
+| `%b` | `true` or `false` | [`%b`](#token-b) |
+| `%r` | Value as it is | [`%r`](#token-r) |
+| `%%` | Literal `%` | [`%%`](#token-percent) |
+| `%y` / `%Y` | `year()` | [Year](#token-y) |
+| `%m` / `%M` | `month()` | [Month](#token-m) |
+| `%d` / `%D` | `day()` | [Day](#token-d) |
+| `%h` / `%H` | `hour()` | [Hour](#token-h) |
+| `%i` / `%I` | `minute()` | [Minute](#token-i) |
+| `%s` / `%S` | `second()` | [Second](#token-s) |
+| `%t` | Current timestamp | [`%t`](#token-t) |
+| `%z` / `%Z` | Null date, unquoted or quoted | [`%z`](#token-z) |
+
+### How Arguments Are Consumed
+
+- A value token takes the next argument, from left to right.
+- A token with a position, such as `%2$n`, takes that argument. It does not
+  move the counter of the tokens that follow.
+- A missing argument becomes an empty string. `format('%q %q', 'only')`
+  returns `'only' ''`.
+- An array is written as a comma-separated list, and each element is formatted
+  with the same token:
+
+```php
+$query->format('%2$n = %1$q', 'x', 'col');
+// `col` = 'x'
+
+$query->format('%n IN (%a)', 'id', [1, 2, 3]);
+// `id` IN (1, 2, 3)
+
+$query->format('%n', ['a', 'b']);
+// `a`, `b`
+```
+
+### Value Tokens
+
+#### `%n` Name {#token-n}
+
+Writes a name, such as a column or a table. A dotted name is split, and each
+part is quoted. A JSON path is written as a JSON function call:
+
+```php
+$query->format('%n', 'users.name');
+// `users`.`name`
+
+$query->format('%n', 'data->a->b');
+// JSON_EXTRACT(`data`, '$.a.b')
+```
+
+#### `%q` Quoted string {#token-q}
+
+Writes a string value, escaped and wrapped in quotes:
+
+```php
+$query->format('%q', "It's");
+// 'It\'s'
+```
+
+#### `%e` Escaped value {#token-e}
+
+Writes an escaped value without quotes. Put the quotes in the text:
+
+```php
+$query->format("title = '%e'", "It's");
+// title = 'It\'s'
+```
+
+#### `%a` Number {#token-a}
+
+Writes a number without quotes. A value that is not numeric throws a
+`CastingException`, which keeps injected text out of the statement:
+
+```php
+$query->format('stock = %a', '12');
+// stock = 12
+```
+
+#### `%b` Boolean {#token-b}
+
+Writes `true` or `false`. It accepts only a real boolean. A string such as
+`'1'`, or the integer `0`, throws a `CastingException`:
+
+```php
+$query->format('active = %b', true);
+// active = true
+```
+
+#### `%r` Raw {#token-r}
+
+Writes the value as it is, with no quoting and no escaping. Use it for SQL
+text that the builder has already produced or has been checked:
+
+```php
+$query->format('%r', 'CASE WHEN 1 THEN 2 END');
+// CASE WHEN 1 THEN 2 END
+```
+
+::: warning
+`%r` copies the value into the statement unchanged. Never pass request data to
+`%r`, and never put user input in the text of a format string.
+:::
+
+#### `%%` Literal percent {#token-percent}
+
+Writes a single `%`. Use it in text that also contains tokens, such as a
+pattern for `LIKE`. It has no effect unless the text is formatted, see the
+warning above.
+
+### Date Tokens
+
+The date tokens wrap a value in a call to a function named after the unit.
+The lowercase form takes a date value and quotes it. The uppercase form takes a
+column name and writes it as a name.
+
+#### `%y` / `%Y` Year {#token-y}
+
+Writes `year()`. Lowercase `%y` takes a date value, uppercase `%Y` takes a
+column name:
+
+```php
+$query->format('%d', '2025-01-02');
+// day('2025-01-02')
+
+$query->format('%Y = %a', 'created', 2025);
+// year(`created`) = 2025
+```
+
+#### `%m` / `%M` Month {#token-m}
+
+Writes `month()`. `%m` takes a date value, `%M` takes a column name:
+
+```php
+$query->format('%m', '2025-01-02');
+// month('2025-01-02')
+```
+
+#### `%d` / `%D` Day {#token-d}
+
+Writes `day()`. `%d` takes a date value, `%D` takes a column name.
+
+#### `%h` / `%H` Hour {#token-h}
+
+Writes `hour()`. `%h` takes a date value, `%H` takes a column name.
+
+#### `%i` / `%I` Minute {#token-i}
+
+Writes `minute()`. `%i` takes a date value, `%I` takes a column name.
+
+#### `%s` / `%S` Second {#token-s}
+
+Writes `second()`. `%s` takes a date value, `%S` takes a column name.
+
+::: info
+The date tokens write generic function names, such as `year()`. Not every
+database provides these names. PostgreSQL has no `year()` function, so use
+`%r` with the native expression, such as `EXTRACT(YEAR FROM ...)`.
+:::
+
+### Constant Tokens
+
+These tokens take no argument, and they do not move the argument counter.
+
+#### `%t` Current timestamp {#token-t}
+
+Writes the current timestamp expression, such as `current_timestamp()` on
+MySQL:
+
+```php
+$query->format('expires > %t');
+// expires > current_timestamp()
+```
+
+#### `%z` / `%Z` Null date {#token-z}
+
+Writes the null date of the grammar. `%z` writes it unquoted, and `%Z` writes
+it quoted. The value depends on the dialect: MySQL uses `1000-01-01 00:00:00`,
+and PostgreSQL uses `1970-01-01 00:00:00`:
+
+```php
+$query->format('deleted = %Z');
+// deleted = '1000-01-01 00:00:00'
 ```
 
 ## Named Bindings
+
 
 A named argument becomes a bound parameter. Use `:name` in the text and pass
 the value as a named argument. The value is bound, and its placeholder is
@@ -174,6 +360,10 @@ $query->whereRaw('id IN(:...ids)', ids: $ids);
 An empty array in `:...name` produces `IN()`. MySQL rejects it as a syntax
 error, and SQLite matches no rows. Check the list before you bind it, as shown
 on the [Conditions](/documentation/components/query/where) page.
+
+```php
+$query->whereRaw('id IN(:...ids)', ids: $ids ?: [0]);
+```
 :::
 
 The named argument form is supported by [`whereRaw()`](/documentation/components/query/expressions#raw-methods), [`selectRaw()`](/documentation/components/query/expressions#raw-methods),

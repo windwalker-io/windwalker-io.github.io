@@ -87,6 +87,8 @@ $db->createQuery()
     ->update('posts')
     ->set('state', 0)
     ->set('title', 'Draft')
+    // Or JSON
+    ->setJson('params -> seo -> title', 'Draft')
     ->where('id', 10)
     ->execute();
 ```

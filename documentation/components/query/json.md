@@ -160,6 +160,34 @@ Server reject it. Change different columns in one statement, or run separate
 statements for the same column.
 :::
 
+## Methods
+
+The JSON methods are listed below. Each one is also available in the
+[Method Index](/documentation/components/query/methods). The `having` variants
+take the same arguments as their `where` counterparts.
+
+| Method | Purpose |
+|--------|---------|
+| `jsonSelector()` | Builds the expression of a JSON path, for use in a clause. |
+| `selectJsonLength()` | Selects the length of a JSON array, with an optional alias. |
+| `whereJsonContains()` | Filters rows whose JSON array contains a value. |
+| `whereJsonContainsAll()` | Filters rows whose JSON array contains all the values. |
+| `whereJsonNotContains()` | Filters rows whose JSON array does not contain a value. |
+| `whereJsonNotContainsAll()` | Filters rows where not all the values are in the array. |
+| `whereJsonLength()` | Compares the length of a JSON array with a value. |
+| `whereJsonExists()` | Filters rows where a JSON path exists. |
+| `whereJsonNotExists()` | Filters rows where a JSON path does not exist. |
+| `havingJsonContains()` | `HAVING` version of `whereJsonContains()`. |
+| `havingJsonContainsAll()` | `HAVING` version of `whereJsonContainsAll()`. |
+| `havingJsonNotContains()` | `HAVING` version of `whereJsonNotContains()`. |
+| `havingJsonNotContainsAll()` | `HAVING` version of `whereJsonNotContainsAll()`. |
+| `havingJsonExists()` | `HAVING` version of `whereJsonExists()`. |
+| `havingJsonNotExists()` | `HAVING` version of `whereJsonNotExists()`. |
+| `jsonSet()` | Returns an expression that sets a JSON path, for a `set()` value. |
+| `jsonRemove()` | Returns an expression that removes a JSON path, for a `set()` value. |
+| `setJson()` | Sets a JSON path of a column in an `UPDATE`. |
+| `setJsonRemove()` | Removes a JSON path of a column in an `UPDATE`. |
+
 ## Platform Notes
 
 - **MySQL** uses `JSON_EXTRACT`, `JSON_SET` and `JSON_CONTAINS_PATH`.

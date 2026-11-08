@@ -172,7 +172,8 @@ export const groupedComponents: ComponentSet = {
     'orm': {
       title: 'ORM',
       description: 'An ORM component with DataMapper / Entity pattern.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/orm'),
+      extra: {},
     },
     'pool': {
       title: 'Pool',

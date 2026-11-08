@@ -189,6 +189,7 @@ function markdownExportPlugin(): Plugin {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  srcExclude: ['tmp/**'],
   vite: {
     plugins: [markdownExportPlugin()],
   },
@@ -249,6 +250,10 @@ export default defineConfig({
     //     ]
     //   }
     // ],
+
+    search: {
+      provider: 'local',
+    },
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/windwalker-io/framework/' }

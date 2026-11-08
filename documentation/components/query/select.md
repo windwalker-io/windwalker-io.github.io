@@ -131,19 +131,30 @@ as written.
 
 ## Ordering
 
-`order()` takes a column and an optional direction. The direction is a
-string such as `'DESC'`, or a `SortDirection` enum case:
+`order()` takes a column and an optional direction. The direction can be a
+string, `'ASC'` or `'DESC'`, or a `SortDirection` enum case:
 
 ```php
 $query->order('created', 'DESC');
+
+$query->order('created', SortDirection::Descending);
 ```
+
+Every argument that takes a direction accepts both forms. That includes the
+pairs in a list passed to `order()`, the direction of `orderByField()`, and
+the directions of a `CursorPaginate` definition.
+
+::: info
+`SortDirection` is a PHP 8.6 enum. Windwalker Query installs
+`symfony/polyfill-php86`, which provides the enum on earlier PHP versions.
+:::
 
 To sort by several columns, pass a list of pairs. Each pair is a column
 and its direction:
 
 ```php
 $query->order([
-    ['state', 'DESC'],
+    ['state', SortDirection::Descending],
     ['id', 'ASC'],
 ]);
 ```
@@ -157,7 +168,8 @@ value is read as a column name, so the statement becomes
 Other ordering helpers:
 
 - `orderByField()` sorts by a list of values, in the order given. Values not
-  in the list are placed after the listed ones.
+  in the list are placed after the listed ones. An optional third argument
+  sets the direction, as `'ASC'`, `'DESC'`, or a `SortDirection` case.
 - `orderByRandom()` sorts randomly. Each dialect uses its own function, for
   example `RAND()` on MySQL.
 - [`orderRaw()`](/documentation/components/query/expressions#raw-methods) takes an expression, as shown in

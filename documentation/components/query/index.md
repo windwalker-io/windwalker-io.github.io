@@ -237,6 +237,8 @@ explains the difference.
   SQL text, the bound values and the PDO form.
 - [Grammars and Escaper](/documentation/components/query/grammars): the
   dialects, quoting, and how the builder reaches a connection.
+- [Method Index](/documentation/components/query/methods): every public
+  method and magic call, grouped by topic, with links to the pages.
 
 ## Related components
 

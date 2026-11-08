@@ -51,5 +51,9 @@ export default <ComponentMenu> {
       text: 'Grammars and Escaper',
       link: 'grammars',
     },
+    {
+      text: 'Method Index',
+      link: 'methods',
+    },
   ]
 };
