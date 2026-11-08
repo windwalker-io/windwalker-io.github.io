@@ -12,6 +12,10 @@ export default <ComponentMenu> {
       link: 'select',
     },
     {
+      text: 'Joins',
+      link: 'join',
+    },
+    {
       text: 'Conditions',
       link: 'where',
     },

@@ -70,7 +70,7 @@ $query->selectAs('u.name', 'author_name');
 ```
 
 Expressions such as functions, arithmetic and literals are not column
-names. Pass them to `selectRaw()`, which keeps the text unchanged:
+names. Pass them to [`selectRaw()`](/documentation/components/query/expressions#raw-methods), which keeps the text unchanged:
 
 ```php
 $query->selectRaw('COUNT(*) AS total');
@@ -81,7 +81,7 @@ $query->selectRaw('1');
 ::: info
 A string passed to `select()` is always quoted. `select('COUNT(*)')` and
 `select('1')` produce a quoted identifier, which the database reads as a
-column name and rejects. Use `selectRaw()` for every expression.
+column name and rejects. Use [`selectRaw()`](/documentation/components/query/expressions#raw-methods) for every expression.
 :::
 
 ## Tables and Aliases
@@ -110,49 +110,16 @@ $query = $db->createQuery()
 
 ## Joins
 
-The join methods are named after their type. `leftJoin()`, `rightJoin()`,
-`innerJoin()` and `outerJoin()` take the table, its alias and the join
-condition. The condition is a pair of columns in the simplest case:
+Joins read related rows from other tables in the same statement. The
+`leftJoin()`, `rightJoin()` and `innerJoin()` methods take the table, its
+alias and the condition. See [Joins](/documentation/components/query/join)
+for the join types, the condition forms, and the rules for filtering a
+joined table.
 
 ```php
 $query->leftJoin('users', 'u', 'u.id', 'p.user_id');
 // LEFT JOIN `users` AS `u` ON `u`.`id` = `p`.`user_id`
 ```
-
-Pass an array of conditions for several keys. A bare value in a join
-condition is a column name, so wrap a value in `val()`:
-
-```php
-use function Windwalker\Query\val;
-
-$query->leftJoin(
-    'categories',
-    'c',
-    [
-        ['c.id', 'p.category_id'],
-        ['c.state', '>', val(0)],
-    ]
-);
-```
-
-For full control, pass a closure that receives the join clause:
-
-```php
-use Windwalker\Query\Clause\JoinClause;
-use function Windwalker\Query\val;
-
-$query->leftJoin(
-    'categories',
-    'c',
-    function (JoinClause $join) {
-        $join->on('c.id', 'p.category_id');
-        $join->on('c.state', val(1));
-    }
-);
-```
-
-The generic `join()` takes the join type as its first argument, for
-example `'INNER'` or `'CROSS'`.
 
 ::: info
 Once a query has a joined table, an unqualified column in `where()` gets the
@@ -160,6 +127,7 @@ alias of the `FROM` table. `where('state', 1)` becomes `p`.`state` when the
 `FROM` table is `posts AS p`. A column that already contains a dot is left
 as written.
 :::
+
 
 ## Ordering
 
@@ -192,7 +160,7 @@ Other ordering helpers:
   in the list are placed after the listed ones.
 - `orderByRandom()` sorts randomly. Each dialect uses its own function, for
   example `RAND()` on MySQL.
-- `orderRaw()` takes an expression, as shown in
+- [`orderRaw()`](/documentation/components/query/expressions#raw-methods) takes an expression, as shown in
   [Raw SQL and Bindings](/documentation/components/query/expressions).
 
 ```php
@@ -201,7 +169,7 @@ $query->orderByField('state', [2, 1, 0]);
 
 ## Grouping
 
-`group()` adds a `GROUP BY` clause. Combine it with `selectRaw()` for
+`group()` adds a `GROUP BY` clause. Combine it with [`selectRaw()`](/documentation/components/query/expressions#raw-methods) for
 aggregates. Conditions on aggregates belong in `having()`, which is covered
 on the [Conditions](/documentation/components/query/where#having) page:
 
@@ -248,7 +216,9 @@ $db->transaction(function (DatabaseAdapter $db) {
 });
 ```
 
-Locks have no effect outside a transaction. See
+Locks are held until the transaction ends. Outside a transaction, the
+statement runs in autocommit mode and the lock is released at once, so the
+locks only protect the work when the query runs inside one. See
 [Transactions](/documentation/components/database/queries#transactions) in
 the database package.
 

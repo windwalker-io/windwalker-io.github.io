@@ -98,8 +98,7 @@ $query = $db->createQuery()
 ```
 
 The first `unionAll()` or `union()` decides the union type for the whole
-CTE body. The list of column names in the third argument is optional, but it
-fixes the column order and names for the recursive part.
+CTE body. The list of column names in the third argument is optional.
 
 If any CTE in a query is recursive, the whole `WITH` clause is written as
 `WITH RECURSIVE`. `with()` also accepts a `$recursive` argument, which is what

@@ -19,8 +19,9 @@ job:
 
 - `(string) $query` or `__toString()` returns the SQL with named placeholders
   such as `:wqp__1`. The values are not included.
-- `render()` returns the same SQL, and fills an optional array with the bound
-  values, keyed by the placeholder names.
+- `render()` returns the same SQL. The optional array argument receives the
+  bound parameters, keyed by the placeholder names. Each entry holds the
+  value and its data type.
 - `render(true)` returns the SQL with the values written in, escaped for the
   dialect. It is meant for reading.
 - `forPDO()` returns the SQL with `?` positional placeholders. The values
@@ -86,9 +87,8 @@ $logger->debug('Posts query', [
 ]);
 ```
 
-`getMergedBounded()` returns the values of the whole query, including the
-values of subqueries and common table expressions. The keys match the
-placeholders in `render()`.
+`getMergedBounded()` returns the values of the whole query, and its keys match
+the placeholders in `render()`.
 
 ## Debug Output
 
@@ -136,7 +136,7 @@ by the database adapter instead.
 
 ## Placeholders in Raw Text
 
-A placeholder inside a raw method, such as `:days` in `whereRaw()`, is part of
+A placeholder inside a raw method, such as `:days` in [`whereRaw()`](/documentation/components/query/expressions#raw-methods), is part of
 the same binding system. It appears in `render()` output, and its value is
 written in by `render(true)`. The rules for raw placeholders are described on
 the [Raw SQL and Bindings](/documentation/components/query/expressions) page.

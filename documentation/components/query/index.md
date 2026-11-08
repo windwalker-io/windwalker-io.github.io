@@ -42,9 +42,14 @@ Windwalker Query 4.x requires PHP 8.4.6 or later.
 
 ## Use as Standalone Component
 
-Pass a PDO connection and a grammar to the constructor. The query renders
-the SQL with `?` placeholders, and `forPDO()` returns the values in the
-same order:
+`Query` does not depend on Windwalker Database. It renders SQL for any
+database library, and the caller executes it. Use `forPDO()` with PDO, or
+`render()` with any other database interface.
+
+### With PDO
+
+Pass a PDO connection and a grammar. The query renders the SQL with `?`
+placeholders, and `forPDO()` returns the values in the same order:
 
 ```php
 use Windwalker\Query\Grammar\MySQLGrammar;
@@ -59,8 +64,10 @@ $query = (new Query($pdo, new MySQLGrammar()))
     ->order('id', 'DESC')
     ->limit(10);
 
+// Render to SQL and get the bound values for PDO.
 $sql = $query->forPDO($bounded);
 
+// Send to PDO.
 $stmt = $pdo->prepare($sql);
 $stmt->execute($bounded);
 
@@ -78,9 +85,66 @@ the next call that needs to quote a value throws
 `UnexpectedValueException`. See [Grammars and Escaper](/documentation/components/query/grammars).
 :::
 
-A standalone query cannot fetch rows. Calling `get()`, `all()` or `result()`
-without a `DatabaseAdapter`, driver or `ORM` throws a
-`BadMethodCallException`. Run the SQL through PDO, as shown above, or use
+### With Any Other Database Interface
+
+For a database library without PDO, use `render()`. It returns the SQL with
+named placeholders, such as `:wqp__17`, and fills the array with the bound
+parameters. Each entry holds its value under `value`. Bind them with the
+library's own method:
+
+```php
+use Windwalker\Query\Grammar\MySQLGrammar;
+use Windwalker\Query\Query;
+
+$query = (new Query(null, new MySQLGrammar()))
+    ->select('id', 'title')
+    ->from('posts')
+    ->where('state', 1)
+    ->where('id', [1, 3]);
+
+$sql = $query->render(false, $bounded);
+
+$client = $otherDb->prepare($sql);
+
+foreach ($bounded as $name => $param) {
+    $client->bind($name, $param['value']);
+}
+
+$rows = $client->execute()->fetchAll();
+```
+
+Each `IN` element gets its own placeholder, so the loop binds all of them.
+
+Some libraries accept no named placeholders, or only inline values. For
+those, `render(true)` emulates a prepared statement. It writes each value
+into the SQL, quoted by the escaper:
+
+```php
+$escaper = fn(string $value, callable $strip) => str_replace(
+    "'",
+    "''",
+    $value,
+);
+
+$sql = (new Query($escaper, new MySQLGrammar()))
+    ->select('*')
+    ->from('posts')
+    ->where('title', "O'Reilly")
+    ->render(true);
+// SELECT * FROM `posts` WHERE `title` = 'O''Reilly'
+```
+
+::: warning
+`render(true)` is only as safe as the escaper. Pass a callable that uses the
+quoting rules of your database library, as the example does. With `null` as
+the escaper, the grammar's built-in rules apply, and they are not a
+replacement for the library's escaping. Prefer bound parameters whenever the
+library supports them.
+:::
+
+A standalone query cannot fetch rows itself. Calling `get()`, `all()`,
+`result()` or `execute()` without a `DatabaseAdapter`, driver or `ORM` throws
+a `BadMethodCallException`. Execute the rendered SQL with your library, or use
 the database package.
 
 ## Use in Windwalker Application
@@ -145,15 +209,16 @@ $drafts->where('state', 0);
 Values and SQL text are kept apart. A value passed to `where()`, `set()` or
 `values()` is bound as a parameter and never copied into the SQL string.
 Text enters the statement only through an explicit helper, such as
-`raw()`, `whereRaw()` or `selectRaw()`. The
+`raw()`, [`whereRaw()`](/documentation/components/query/expressions#raw-methods) or [`selectRaw()`](/documentation/components/query/expressions#raw-methods). The
 [Raw SQL and Bindings](/documentation/components/query/expressions) page
 explains the difference.
 
 ## Topic Pages
 
 - [Selecting Data](/documentation/components/query/select): columns, tables
-  and aliases, joins, ordering, grouping, limits, locks and combined
-  queries.
+  and aliases, ordering, grouping, limits, locks and combined queries.
+- [Joins](/documentation/components/query/join): join types, conditions,
+  subquery sources, and filtering a joined table.
 - [Conditions](/documentation/components/query/where): `where()`, nested
   groups, `having()`, operators, `NULL`, `IN` and `EXISTS`.
 - [Writing Data](/documentation/components/query/writing): inserts, updates

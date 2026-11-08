@@ -86,12 +86,26 @@ same way as in a select:
 $db->createQuery()
     ->update('posts')
     ->set('state', 0)
-    ->set(['title' => 'Draft'])
+    ->set('title', 'Draft')
     ->where('id', 10)
     ->execute();
 ```
 
-To change a column from its own value, use `setRaw()`. The text is
+Passing an array to `set()` is an alternative for several columns at once.
+It produces the same statement:
+
+```php
+$db->createQuery()
+    ->update('posts')
+    ->set([
+        'state' => 0,
+        'title' => 'Draft',
+    ])
+    ->where('id', 10)
+    ->execute();
+```
+
+To change a column from its own value, use [`setRaw()`](/documentation/components/query/expressions#raw-methods). The text is
 written as given, so it can refer to other columns:
 
 ```php

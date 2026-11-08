@@ -129,8 +129,9 @@ $query->whereIn('id', $ids)
 ```
 
 ::: info
-An empty array becomes `IN ()`, which the database rejects. Check the list
-before you pass it, as the showcase does with `!empty()`.
+An empty array becomes `IN ()`. Databases differ on it: MySQL rejects it as a
+syntax error, and SQLite accepts it and matches no rows. Check the list before
+you pass it, as the showcase does with `!empty()`.
 :::
 
 ## Array Conditions
@@ -188,7 +189,7 @@ The parenthesized group is always joined to the preceding conditions with
 `AND`, even when it was added with `orWhere()`. The method name controls
 the join inside the group only. The builder has no top-level `OR` between
 two conditions. To express `a OR (b AND c)`, write that part with
-`whereRaw()` and bound values:
+[`whereRaw()`](/documentation/components/query/expressions#raw-methods) and bound values:
 
 ```php
 $query->where('published', 1)
@@ -216,7 +217,7 @@ $query = $db->createQuery()
     ->having('total', '>', 10);
 ```
 
-Use `havingRaw()` for an aggregate expression that the builder should not
+Use [`havingRaw()`](/documentation/components/query/expressions#raw-methods) for an aggregate expression that the builder should not
 quote, such as `COUNT(id) > 10`.
 
 ## Exists
@@ -243,7 +244,7 @@ See [Raw SQL and Bindings](/documentation/components/query/expressions).
 
 ## Raw Conditions
 
-`whereRaw()` and `havingRaw()` add the SQL text as written. They are the
+[`whereRaw()`](/documentation/components/query/expressions#raw-methods) and [`havingRaw()`](/documentation/components/query/expressions#raw-methods) add the SQL text as written. They are the
 right tool for a condition that uses a database function, and they are
 covered with their placeholder syntax on the
 [Raw SQL and Bindings](/documentation/components/query/expressions) page.

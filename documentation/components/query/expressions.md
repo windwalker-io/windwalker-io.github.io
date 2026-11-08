@@ -99,13 +99,14 @@ function hotPosts(DatabaseAdapter $db, int $minDays): Collection
 
 ## Raw Methods
 
-Each raw method has the same signature shape: the text, followed by optional
-arguments for the template tokens or the named bindings. The methods are:
+Each raw method takes the text, followed by optional template arguments or
+named bindings. The methods are:
 
 - `selectRaw()` for a select expression.
 - `whereRaw()` and `havingRaw()` for a condition.
 - `setRaw()` for the value of an update.
 - `orderRaw()` and `groupRaw()` for sorting and grouping.
+- `onRaw()` for a join condition, see [Joins](/documentation/components/query/join).
 
 ```php
 $query->setRaw('hits = hits + %a', 1);
@@ -137,8 +138,11 @@ $query->whereRaw('%n = %a', 'stock', 0);
 // WHERE `stock` = 0
 ```
 
-The same tokens work with `format()`, which returns the formatted string
-without adding it to a clause:
+## format()
+
+`format()` applies the same template tokens to a string, and returns the
+formatted string without adding it to a clause. Use it to build a piece of SQL
+text that a raw method will receive later:
 
 ```php
 $text = $query->format('%n = %q', 'title', "It's");
@@ -167,16 +171,16 @@ $query->whereRaw('id IN(:...ids)', ids: $ids);
 ```
 
 ::: info
-An empty array in `:...name` produces `IN()`, which the database rejects.
-Check the list before you bind it, as shown on the
-[Conditions](/documentation/components/query/where) page.
+An empty array in `:...name` produces `IN()`. MySQL rejects it as a syntax
+error, and SQLite matches no rows. Check the list before you bind it, as shown
+on the [Conditions](/documentation/components/query/where) page.
 :::
 
-The named argument form is supported by `whereRaw()`, `selectRaw()`,
+The named argument form is supported by [`whereRaw()`](/documentation/components/query/expressions#raw-methods), [`selectRaw()`](/documentation/components/query/expressions#raw-methods),
 `setRaw()`, `orderRaw()`, and `groupRaw()`.
 
 ::: warning
-`havingRaw()` does not replace named bindings. A `:name` placeholder passed
+[`havingRaw()`](#raw-methods) does not replace named bindings. A `:name` placeholder passed
 to it stays in the SQL unchanged. Build a `HAVING` condition with
 `having()` and the operator helpers instead, or use a positional template
 argument with `%a` or `%q` for values.
