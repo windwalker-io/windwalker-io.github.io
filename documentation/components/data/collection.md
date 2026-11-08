@@ -22,6 +22,36 @@ also has every array helper of that class, such as `column()`, `map()`,
 loading features. The inherited methods are listed in
 [Inherited Methods](#inherited-methods) at the end of this page.
 
+## Collection Methods
+
+The table lists the methods that `Collection` declares itself. Each row
+links to the section of this page that explains it. The methods it
+inherits from `ArrayObject` are listed in
+[Inherited Methods](#inherited-methods).
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| [`from()`](#creating-a-collection) | Static | Creates a collection from data and an optional format. |
+| [`extract()`](#proxies) | Static | Returns a copy of a sub-tree, or a proxy when `$reference` is `true`. |
+| [`proxy()`](#proxies) | Static | Returns a proxy to a sub-tree; same as `extract($path, true)`. |
+| [`isProxy()`](#proxies) | `bool` | Whether the object is a proxy to a parent collection. |
+| [`mapProxy()`](#mapping-a-column) | `MapProxy` | Applies a change to each item, by column or by method. |
+| [`getDeep()`](#deep-paths) | Mixed | Reads a value by path; returns by reference. |
+| [`setDeep()`](#deep-paths) | Static | Writes a value by path; changes the object. |
+| [`hasDeep()`](#deep-paths) | `bool` | Whether a path exists. |
+| [`removeDeep()`](#deep-paths) | Static | Removes a value by path; changes the object. |
+| [`withDeep()`](#immutable-copies) | Static | Copy with a value set at a path. |
+| [`withRemoveDeep()`](#immutable-copies) | Static | Copy without the value at a path. |
+| [`load()`](#loading-data) | Static | Merges data from an array or string into the object. |
+| [`loadFile()`](#loading-data) | Static | Merges data from a file into the object. |
+| [`withLoad()`](#loading-data) | Static | Copy with data merged in. |
+| [`toString()`](#converting-back-to-a-string) | `string` | Dumps the data in the given format; JSON by default. |
+| [`toStringObject()`](#converting-back-to-a-string) | `StringObject` | Same as `toString()`, returned as a `StringObject`. |
+| [`toJson()`, `toXml()`, and other `to*()`](#converting-back-to-a-string) | `string` | Shortcuts for `toString()` with a fixed format. |
+| [`getFormatRegistry()`](/documentation/components/data/formats#registering-formats) | `FormatRegistry` | Returns the registry this object uses. |
+| [`setFormatRegistry()`](/documentation/components/data/formats#registering-formats) | Static | Sets a shared registry for this object. |
+| [`__toString()`](#converting-back-to-a-string) | `string` | Same as `toString()` with the default format. |
+
 ## Creating a Collection
 
 Use the constructor for an array, `collect()` as a short helper, or
@@ -308,7 +338,7 @@ unchanged, and methods marked there as in-place change the object.
 - [`partition()`](/documentation/components/scalars/array-object#partitioning)
 - [`map()`](/documentation/components/scalars/array-object#transforming-values)
 - [`mapRecursive()`](/documentation/components/scalars/array-object)
-- [`mapWithKeys()`](/documentation/components/scalars/array-object)
+- [`mapWithKeys()`](/documentation/components/scalars/array-object#mapping-to-new-keys)
 - [`flatMap()`](/documentation/components/scalars/array-object#flat-mapping)
 - [`reduce()`](/documentation/components/scalars/array-object#transforming-values)
 - [`apply()`](/documentation/components/scalars/array-object)

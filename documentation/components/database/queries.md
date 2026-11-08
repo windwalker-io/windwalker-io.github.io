@@ -103,6 +103,32 @@ must be constructible without any arguments, and the hydrator writes the
 row values to its properties afterwards.
 :::
 
+Hydration uses `SimpleHydrator` by default. It writes to properties through
+reflection, so `private` and `protected` properties receive values too.
+Declare a property for every selected column:
+
+```php
+class Post
+{
+    public int $id;
+
+    public string $title;
+
+    private string $state;
+}
+```
+
+::: tip
+A column without a matching declared property creates a dynamic property on
+the object. PHP 8.2 and later report this as a deprecation. Declare each
+column, or select only the columns the class declares.
+:::
+
+Objects that implement `AccessorAccessibleInterface` are hydrated through
+their accessors, and `ArrayAccess` objects receive the values as array keys.
+To replace the hydrator for a driver, call `setHydrator()` on the driver with
+any object that implements `HydratorInterface`.
+
 ### Iterating Large Results
 
 `getIterator()` yields one hydrated row at a time, so a large table can be
@@ -227,6 +253,92 @@ be reverted; run such work after the transaction returns.
 ::: tip
 Keep transactions short. A long transaction holds locks and keeps a
 connection busy, which matters most when a connection pool is in use.
+:::
+
+## Quoting and Escaping
+
+Values should always be bound as parameters. Quoting is needed only when SQL
+is built from text that cannot be a parameter, such as a column name chosen
+at runtime, or a literal inside a fixed expression:
+
+- `quote()`: wraps a value in quotes and escapes it for the platform.
+- `quoteName()`: quotes an identifier, such as a table or column name.
+- `escape()`: escapes a value without adding quotes.
+
+```php
+$db->quote("O'Reilly"); // 'O''Reilly'
+
+$db->quoteName('title'); // `title` on MySQL
+```
+
+A dotted name is split into parts, and each part is quoted separately. Pass
+`true` as the second argument to keep the dot inside one quoted name:
+
+```php
+$db->quoteName('users.name');       // ['`users`', '`name`']
+
+$db->quoteName('users.name', true); // `users.name`
+```
+
+::: warning
+Quoting does not protect an identifier that comes from user input. Check
+column and table names against a whitelist before you put them in SQL.
+:::
+
+## Handling Errors
+
+Every error raised by the package extends `DatabaseException`, so one
+`catch` block covers them all. The more specific classes help when the
+handling differs:
+
+- `DatabaseQueryException`: a query failed. With `debug` enabled, its
+  message includes the SQL. The original driver error is available through
+  `getPrevious()`.
+- `StatementException`: an error raised by a statement operation.
+- `DatabaseConnectException`: a connection could not be opened, for drivers
+  that report it as this type.
+
+```php
+use Windwalker\Database\Exception\DatabaseException;
+use Windwalker\Database\Exception\DatabaseQueryException;
+
+try {
+    $db->execute('UPDATE posts SET state = ? WHERE id = ?', [1, 10]);
+} catch (DatabaseQueryException $e) {
+    $logger->error($e->getMessage(), ['previous' => $e->getPrevious()]);
+}
+```
+
+::: tip
+Catch `DatabaseException` when the reason for the failure does not matter,
+such as in a retry loop. Inspect `getPrevious()` for the driver's own error
+code.
+:::
+
+## Dates and NULL Values
+
+Each platform stores dates in its own format and uses its own placeholder
+for an empty date. Read these values from the adapter instead of hard-coding
+them:
+
+- `getDateFormat()`: the format for date and time values, such as
+  `Y-m-d H:i:s`.
+- `getNullDate()`: the placeholder for an empty date. The value depends on
+  the platform, for example `1000-01-01 00:00:00` on MySQL.
+- `isNullDate()`: `true` when a value means "no date". It accepts `null`,
+  an empty string, the platform's null date, and a `DateTimeInterface`.
+
+```php
+$date = $row->created;
+
+if ($db->isNullDate($date)) {
+    $date = null;
+}
+```
+
+::: info
+`isNullDate()` does not accept an integer timestamp. Convert timestamps to a
+string or a `DateTime` before you pass them in.
 :::
 
 ## Counting Rows

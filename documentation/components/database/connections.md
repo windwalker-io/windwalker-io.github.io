@@ -58,9 +58,11 @@ main options are:
 - `host`, `port`, `dbname`, `user`, `password`: the server address and
   credentials.
 - `prefix`: the table prefix that replaces `#__` in SQL.
-- `charset`, `collation`: the default character set.
+- `charset`: the character set of the connection.
 - `dsn`: a full DSN string, which overrides the value built from `host`
   and `dbname`.
+- `file`: the database file path for SQLite. `dbname` works as well.
+- `unixSocket`: the socket path for MySQL, used instead of `host`.
 - `driverOptions`: extra options passed to the underlying PDO or native
   driver.
 - `afterConnect`: a SQL string, a closure that receives the driver, or an
@@ -99,7 +101,7 @@ with `$db->getDbType()` or `$db->getPlatform()`.
 ```php
 use Windwalker\Database\Platform\DbPlatform;
 
-$db->getPlatform(); // MySqlPlatform class
+$db->getPlatform(); // MySQLPlatform object
 
 $type = $db->getDbType(); // DbPlatform::MySQL
 
@@ -140,6 +142,34 @@ $type = DbPlatform::wrap('postgresql'); // same case
 - `sqlsrv` and `sqlserver` are `SQLServer`.
 - `oracle` and `oci` are `Oracle`.
 
+## Strict Mode
+
+MySQL can silently change invalid data unless its SQL mode is strict. The
+standalone package does not enable strict mode by itself. Call the MySQL
+platform method after connecting:
+
+```php
+use Windwalker\Database\Platform\MySQLPlatform;
+
+$platform = $db->getPlatform();
+
+if ($platform instanceof MySQLPlatform) {
+    $platform->enableStrictMode();
+
+    // Or set your own list of modes:
+    $platform->setModes([
+        'STRICT_TRANS_TABLES',
+        'NO_ZERO_DATE',
+    ]);
+}
+```
+
+::: warning
+Without strict mode, MySQL truncates oversized strings and converts invalid
+dates to zero values, and it reports no error. Enable it unless the
+application depends on the lenient behavior.
+:::
+
 ## Table Prefix
 
 Set `prefix` to share one database between several applications, or to
@@ -166,6 +196,34 @@ The replacement applies to SQL strings, and to `Query` objects built with
 Text inside quoted strings is not changed. A value such as `'#__posts'`
 stays as written.
 :::
+
+## Connection Lifecycle
+
+The driver opens a connection on first use and returns it to a pool when
+it is released. Most code never manages this directly, but long-running
+workers and tests sometimes need to.
+
+- `getConnection(true)`: obtains a connection and keeps it for later
+  queries, which keeps a transaction on one connection.
+- `releaseKeptConnection()`: returns the kept connection to the pool.
+- `dropConnection()`: closes the connection instead of returning it.
+- `disconnect()`: closes the current connection. The next query opens a new
+  one.
+- `ping()`: returns `true` when the database responds.
+
+```php
+$driver = $db->getDriver();
+
+$driver->getConnection(true);
+
+// Now always use same connection even if connection poll enabled
+$db->prepare('SELECT 1')->execute();
+
+$driver->releaseKeptConnection();
+```
+
+`isSupported()` on the driver reports whether the PHP extension for it is
+installed.
 
 ## Lost Connections
 

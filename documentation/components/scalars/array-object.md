@@ -75,7 +75,7 @@ section below that explains them.
 | [`reject()`](#transforming-values) | New object | Drops items that match a callback. |
 | [`map()`](#transforming-values) | New object | Maps each value and keeps the keys. |
 | `mapRecursive()` | New object | Maps values recursively. |
-| `mapWithKeys()` | New object | Maps each item to a key and value. |
+| [`mapWithKeys()`](#mapping-to-new-keys) | New object | Builds new keys and values from each item. |
 | [`flatMap()`](#flat-mapping) | New object | Maps each item and merges the returned keys. |
 | `apply()` | New object | Passes the storage to a callback. |
 | [`unique()`](#transforming-values) | New object | Removes duplicate values. |
@@ -315,6 +315,204 @@ Returned keys are merged across all items. When two items return the same
 key, the later value overwrites the earlier one, and no error is raised.
 Give each returned key a unique name, or use `map()` when every item needs
 its own key.
+:::
+
+## Mapping to New Keys
+
+`mapWithKeys()` rebuilds the list as a map. The callback receives each
+value and its key, and returns an array of `new key => new value` pairs.
+It is useful for building a lookup table from records, where the record's
+field becomes the key:
+
+```php
+$users = arr([
+    ['id' => 7, 'name' => 'Ann', 'role' => 'admin'],
+    ['id' => 9, 'name' => 'Ben', 'role' => 'editor'],
+]);
+
+$names = $users->mapWithKeys(
+    fn (array $user) => [$user['id'] => $user['name']]
+);
+// [7 => 'Ann', 9 => 'Ben']
+```
+
+The callback can return several pairs for one item. Each pair adds one
+entry to the result:
+
+```php
+$users->mapWithKeys(
+    fn (array $user) => [
+        $user['name'] => $user['id'],
+        $user['role'] => $user['id'],
+    ]
+);
+// ['Ann' => 7, 'admin' => 7, 'Ben' => 9, 'editor' => 9]
+```
+
+Callbacks can use the original key too. Because the original key is
+available, the same callback can rebuild a keyed map:
+
+```php
+arr(['a' => 'x', 'b' => 'y'])->mapWithKeys(
+    fn (string $value, string $key) => [$key => strtoupper($value)]
+);
+// ['a' => 'X', 'b' => 'Y']
+```
+
+The callback must return an array or a generator. Returning a scalar raises
+a `TypeError`.
+
+### Using a Generator
+
+A generator lets the callback produce pairs with `yield` instead of building
+an array. The callback runs once per item, and each `yield` adds one entry
+to the result. The examples below use the same records:
+
+```php
+$records = arr([
+    ['id' => 7, 'name' => 'Ann', 'role' => 'admin'],
+    ['id' => 9, 'name' => 'Ben', 'role' => 'editor'],
+]);
+```
+
+A keyed `yield` stores the value under the key you give it:
+
+```php
+$names = $records->mapWithKeys(function (array $user) {
+    yield $user['name'] => $user['id'];
+});
+// ['Ann' => 7, 'Ben' => 9]
+```
+
+A `null` key is allowed in a generator. This is similar to push(), the value is appended to the end of
+the result, and PHP gives it the next numeric key:
+
+```php
+$list = $records->mapWithKeys(function (array $user) {
+    yield null => $user['name'];
+});
+// ['Ann', 'Ben']
+```
+
+::: info
+Returning an array with a `null`  key (`[null => $value]`) is not allowed.
+Only supports `yield null => $value` in a generator when you need an appended value.
+:::
+
+#### Several Yields and Conditional Yields
+
+One item can yield several pairs, and the callback can skip an item by
+yielding nothing. Use this to build an index from one record, or to choose
+the value for each item with `if`/`else`:
+
+```php
+$index = $records->mapWithKeys(function (array $user) {
+    yield $user['name'] => $user['id'];
+    yield $user['role'] => $user['id'];
+});
+// ['Ann' => 7, 'admin' => 7, 'Ben' => 9, 'editor' => 9]
+
+$status = $records->mapWithKeys(function (array $user) {
+    if ($user['role'] === 'admin') {
+        yield $user['name'] => 'admin';
+    } else {
+        yield $user['name'] => 'member';
+    }
+});
+// ['Ann' => 'admin', 'Ben' => 'member']
+
+$admins = $records->mapWithKeys(function (array $user) {
+    // Same as filter()
+    if ($user['role'] === 'admin') {
+        yield $user['name'] => $user['id'];
+    }
+});
+// ['Ann' => 7]
+```
+
+Mixing null and keyed yields is also valid. Each `yield null` appends one
+value after the keyed entries:
+
+```php
+$audit = $records->mapWithKeys(function (array $user) {
+    yield $user['name'] => $user['role'];
+    yield null => 'checked';
+});
+// ['Ann' => 'admin', 0 => 'checked', 'Ben' => 'editor', 1 => 'checked']
+```
+
+#### Yield Without a Key
+
+::: warning
+A `yield` without a key gets an automatic key from the generator, starting
+at `0`, and that counter is not per item. Every item then uses the same
+key, so the default mode keeps only the last value. The `GROUP_TYPE_ARRAY`
+and `GROUP_TYPE_MIX` modes group every value under `0` instead. No error is
+raised in any mode.
+
+```php
+// Wrong: every item is stored under key 0.
+$records->mapWithKeys(function (array $user) {
+    yield $user['name'];
+});
+// [0 => 'Ben']
+
+// Right: each name is its own key.
+$records->mapWithKeys(function (array $user) {
+    yield $user['name'] => $user['id'];
+});
+// ['Ann' => 7, 'Ben' => 9]
+```
+:::
+
+
+### Handling Duplicate Keys
+
+Several items can produce the same new key. The second argument of
+`mapWithKeys()` chooses how the values are combined. It takes one of the
+`ArrayObject::GROUP_TYPE_*` constants:
+
+- `GROUP_TYPE_KEY_BY` (default): the last value wins.
+- `GROUP_TYPE_ARRAY`: every value is collected into an array.
+- `GROUP_TYPE_MIX`: a key holds a single value, and it becomes an array only
+  when a second value arrives.
+
+```php
+$byRole = fn (array $user) => [$user['role'] => $user['name']];
+
+$users->mapWithKeys($byRole);
+// ['admin' => 'Ann', 'editor' => 'Ben']
+
+$users->mapWithKeys($byRole, ArrayObject::GROUP_TYPE_ARRAY);
+// ['admin' => ['Ann'], 'editor' => ['Ben']]
+
+$users->mapWithKeys($byRole, ArrayObject::GROUP_TYPE_MIX);
+// ['admin' => 'Ann', 'editor' => 'Ben']
+```
+
+With three records, two of which are admins, the outputs differ:
+
+```php
+$users = arr([
+    ['name' => 'Ann', 'role' => 'admin'],
+    ['name' => 'Ben', 'role' => 'editor'],
+    ['name' => 'Cy', 'role' => 'admin'],
+]);
+
+$users->mapWithKeys($byRole);
+// ['admin' => 'Cy', 'editor' => 'Ben']
+
+$users->mapWithKeys($byRole, ArrayObject::GROUP_TYPE_ARRAY);
+// ['admin' => ['Ann', 'Cy'], 'editor' => ['Ben']]
+
+$users->mapWithKeys($byRole, ArrayObject::GROUP_TYPE_MIX);
+// ['admin' => ['Ann', 'Cy'], 'editor' => 'Ben']
+```
+
+::: warning
+The default `GROUP_TYPE_KEY_BY` drops every earlier value that shares a key,
+and it raises no error. Use `GROUP_TYPE_ARRAY` or `GROUP_TYPE_MIX` whenever
+the new keys might repeat.
 :::
 
 ## Grouping and Keying

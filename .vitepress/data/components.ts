@@ -166,7 +166,8 @@ export const groupedComponents: ComponentSet = {
     'query': {
       title: 'Query',
       description: 'A QueryBuilder component, can use without any framework.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/query'),
+      extra: {},
     },
     'orm': {
       title: 'ORM',

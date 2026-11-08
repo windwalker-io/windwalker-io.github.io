@@ -162,6 +162,8 @@ the calling code stays the same.
 - [Schema Diff](/documentation/components/database/schema-diff): comparing a
   desired table definition with the database, and applying or previewing
   the changes.
+- [Databases and Schemas](/documentation/components/database/databases-and-schemas):
+  creating and dropping databases, and inspecting schemas.
 - [Events](/documentation/components/database/events): query and hydration
   events.
 

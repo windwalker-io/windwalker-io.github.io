@@ -563,16 +563,5 @@ becomes the schema, and the rest becomes the table name:
 $table->setName('reporting.posts');
 ```
 
-## Databases and Schemas
-
-Work at the database level through `getDatabase()` on the adapter, and at the
-schema level through `getSchema()` on the adapter:
-
-```php
-$db->getDatabase('app_archive')->create(ifNotExists: true);
-
-$tables = $db->getSchema()->getTables();
-```
-
-`listTables()` and `listDatabases()` on the adapter return plain names,
-without loading table metadata.
+For managing databases and inspecting schemas, see
+[Databases and Schemas](/documentation/components/database/databases-and-schemas).
