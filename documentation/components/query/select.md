@@ -205,8 +205,75 @@ $query->limit(20)->offset(40);
 ::: info
 `OFFSET` pagination still reads and discards the skipped rows, so later
 pages cost more than early pages. For a large table, use cursor pagination
-as described in [Iteration](/documentation/components/query/iteration).
+as described below.
 :::
+
+## Cursor Pagination
+
+Query Builder supports cursor pagination, you can simply pass an array with columns, direction and last seen values to `withCursor()`, when directly use `withCursor()` you must set limit value manually.
+
+```php
+$query->select('*')
+    ->from('posts')
+    ->limit(500)
+    ->withCursor('id', 'ASC', $lastSeenId)
+    ->all();
+
+// Or multiple columns:
+$query->select('*')
+    ->from('posts')
+    ->limit(500)
+    ->withCursor(
+        [
+            ['created', 'DESC', $lastSeenCreated],
+            ['id', 'DESC', $lastSeenId],
+        ]
+    )
+    ->all();
+```
+
+If you have a `CursorPaginate` object, pass it to `withCursor()` to add the
+conditions and the `LIMIT` will auto added for the next page. (`withCursor()` will return a new query, the original query is not changed.)
+
+```php
+$cursor = Query::cursorPaginate(500, 'id');
+
+$query->select('*')
+    ->from('posts')
+    // limit() will auto added by CursorPaginate
+    ->withCursor($cursor, ['id' => 1000]);
+
+// fetch once
+$db->prepare($query)->all();
+
+// In loop
+do {
+    // Always return new query, the original query is not changed.
+    $cursoredQuery = $query->withCursor($cursor, $lastItem);
+
+    $rows = $db->prepare($cursoredQuery)->all();
+  
+    $lastItem = end($rows);
+} while (count($rows) < $cursor->length);
+```
+
+`CursorPaginate` also supports multiple columns, and it can be used directly in `withCursor()`, the `$lastItem` in second argument can be an array of values or an object with properties.:
+
+```php
+$cursor = Query::cursorPaginate(
+    500, 
+    [
+        'created' => 'DESC', 
+        'id' => \SortDirection::Descending, // Also works with enum
+    ]
+);
+
+/** @var array{ 'created': string, 'id': int } $lastItem */
+/** @var object{ 'created': string, 'id': int } $lastItem */
+$query = $query->withCursor($cursor, $lastItem);
+```
+
+CursorPaginate can also use on iteration, see [Iteration - Cursor Paginate](/documentation/components/query/iteration#cursor-paginate) for the details.
 
 ## Row Locks
 

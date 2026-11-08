@@ -161,6 +161,7 @@ Details: [Iteration](/documentation/components/query/iteration).
 | `iterateWhile()` | Repeats the same query until no row is returned. |
 | `iterateBatchWhile()` | Repeats the query, and loads each batch in full. |
 | `cursorPaginate()` | Static. Creates a cursor definition for keyset paging. |
+| `withCursor()` | Returns a new query with a cursor applied. The original query is not changed. |
 
 ## Rendering and Bindings
 
