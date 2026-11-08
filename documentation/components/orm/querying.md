@@ -373,6 +373,33 @@ the Query component, it provides:
 - `groupByJoins()`, which groups the joined columns under the alias of each
   joined table.
 
+The table indexes the query-level methods that the ORM query uses most. The
+methods come from the Query component, unless the table says otherwise. The
+links go to the description in this page or in the Query component.
+
+| Method | Use it to |
+| --- | --- |
+| [from](#starting-a-select) | set the table of the query |
+| [select](#starting-a-select) | start a SELECT with columns |
+| [selectRaw](#starting-a-select) | start a SELECT with an expression |
+| [where](/documentation/components/query/where) | add a condition |
+| [whereRaw](#raw-conditions) | add a raw SQL condition |
+| [orWhere](#grouping-or-conditions) | add a grouped OR condition |
+| [join](#joins) | join another table, with or without `ON` |
+| [leftJoin](#automatic-on-conditions) | left join, with the `ON` built from the entities |
+| [groupByJoins](#automatic-selections-and-grouped-joins) | select the joined columns, grouped by alias |
+| [autoSelections](#automatic-selections-and-grouped-joins) | select the columns of every table in the query |
+| [withCursor](/documentation/components/query/cursor-pagination#single-query-with-withcursor) | page through rows with a keyset cursor |
+| [all](/documentation/components/query/methods#execution) | fetch every row, as a `Collection` |
+| [get](/documentation/components/query/methods#execution) | fetch the first row |
+| [loadColumn](/documentation/components/query/methods#execution) | fetch the values of the first column |
+| [result](#findresult) | fetch one value of the first row |
+| [getIterator](#iterating-large-results) | read the rows through one cursor |
+| [iterateBatched](#iterating-large-results) | read the rows in batches, one query each |
+| [iterateChunks](#iterating-large-results) | read the batches as collections |
+| [iterateWhile](#iterating-large-results) | repeat a query until no rows match |
+| [iterateBatchWhile](#iterating-large-results) | repeat a batch query until no rows match |
+
 ### Starting a SELECT
 
 `select()` and `selectRaw()` start a query of the SELECT type. Unlike the

@@ -44,6 +44,10 @@ export default <ComponentMenu> {
       link: 'iteration',
     },
     {
+      text: 'Cursor Pagination',
+      link: 'cursor-pagination',
+    },
+    {
       text: 'Rendering and Debugging',
       link: 'rendering',
     },

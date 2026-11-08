@@ -35,5 +35,13 @@ export default <ComponentMenu> {
       text: 'Energize',
       link: 'energize',
     },
+    {
+      text: 'UUID',
+      link: 'uuid',
+    },
+    {
+      text: 'Custom Mappers',
+      link: 'mappers',
+    },
   ]
 };

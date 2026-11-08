@@ -40,8 +40,8 @@ rows can repeat or be skipped between batches.
 
 Each batch costs more than the one before it, because the database still reads
 the rows that the `OFFSET` skips. On a large table, the last batches are slow.
-[CursorPaginate](#cursor-paginate) avoids this cost. It is described at the end
-of this page.
+[CursorPaginate](/documentation/components/query/cursor-pagination) avoids this cost.
+It is described on the Cursor Pagination page.
 
 ::: warning
 The iterate methods require a Windwalker `DatabaseAdapter`, driver or `ORM`.
@@ -211,7 +211,8 @@ The `offset()` of the query is the starting point of the first page, and the
 
 ::: info
 Pages use `OFFSET`, so later pages cost more. For a large table, a
-[CursorPaginate](#cursor-paginate) avoids this. Rows that are inserted or
+[CursorPaginate](/documentation/components/query/cursor-pagination) avoids this.
+Rows that are inserted or
 deleted during the loop shift the later pages. Use a cursor, or a stable
 `ORDER BY`, for a loop that runs for a long time.
 :::
@@ -333,236 +334,25 @@ selection as they are processed, or the loop never ends.
 :::
 
 
-## CursorPaginate {#cursor-paginate}
+## Cursor Pagination
 
-Integer paging is simple, but it reads and discards every row before the
-offset. Each later batch therefore costs more than the one before it. A cursor
-avoids this. It remembers the sort key of the last row read, and asks the
-database for the rows after that key, so every batch costs about the same.
+Integer batches read every row before the `OFFSET`, so later batches cost more.
+A cursor avoids this. Pass a `CursorPaginate` to the iterate methods in place of
+the batch size: `iterateBatched()`, `iterateChunks()`, `getPaginatedIterator()`
+and `getIterator(paginate:)`. `iterateWhile()` and `iterateBatchWhile()` take
+only a batch length, because they do not page.
 
-A `CursorPaginate` is created with the static factory `Query::cursorPaginate()`.
-It takes the batch size and the cursor definition:
-
-```php
-use Windwalker\Query\Query;
-
-$cursor = Query::cursorPaginate(500, 'id');
-```
-
-The cursor definition, `$cursorBy`, takes one of three forms:
-
-- A string names one column, sorted ascending, as in the example above.
-- An array maps columns to directions. The order of the keys is the sort
-  priority. A direction can be `'ASC'`, `'DESC'`, `SortDirection::Ascending`
-  or `SortDirection::Descending`:
-
-  ```php
-  use Windwalker\Query\Query;
-
-  $cursor = Query::cursorPaginate(
-      500,
-      ['created' => 'DESC', 'id' => 'DESC'],
-  );
-  ```
-
-  A plain list of columns, such as `['created', 'id']`, sorts ascending.
-
-- A closure builds the condition for the rows after the last item. It
-  receives the query and the last item, which is a `Collection` by default,
-  and it returns the query:
-
-  ```php
-  use Windwalker\Query\Query;
-
-  $cursor = Query::cursorPaginate(
-      500,
-      fn(Query $query, object $item) => $query
-          ->where('id', '>', $item->id)
-          ->order('id'),
-  );
-  ```
-
-Use the closure when the sort order is more complex than a list of columns.
-
-`iterateBatched()`, `iterateChunks()`, `getPaginatedIterator()` and
-`getIterator(paginate:)` accept a `CursorPaginate`. `iterateWhile()` and
-`iterateBatchWhile()` take only a batch length, because they do not page.
-
-The cursor object holds no state of its own, so one cursor can drive several
-loops. Each loop keeps its own position.
-
-Here is the export from the showcase, paged by a cursor instead of an
-integer. Only the iterator argument changes:
-
-```php
-$cursor = Query::cursorPaginate(500, ['id' => 'ASC']);
-
-$rows = $db->createQuery()
-    ->select('id', 'title', 'created')
-    ->from('posts')
-    ->where('state', 1)
-    ->iterateBatched($cursor);
-```
-
-### Rules for a Cursor
-
-- The cursor columns must make the order unique. Put the primary key last, so
-  that rows with the same sort value keep a stable order.
-- The query's `ORDER BY` must match the cursor. The cursor sends the rows
-  after the last item, so a query sorted in the other direction repeats rows.
-  In a test with a query sorted `DESC` and a cursor on `id` ascending, the
-  result was `5, 4, 5`.
-
-::: warning
-A cursor cannot follow a nullable column. A `NULL` value never matches the
-comparison that the cursor uses, so rows with `NULL` in a cursor column can be
-skipped. Use cursor columns that are `NOT NULL`.
-:::
+The cursor definitions, `withCursor()` for a single query, and the rules for
+unique and matching sort orders are described on the
+[Cursor Pagination](/documentation/components/query/cursor-pagination) page.
+The cursor object holds no state of its own, so one definition can drive several
+loops.
 
 ### Single Query with withCursor() {#with-cursor}
 
-`withCursor()` applies a cursor to one query, without an iterator. Use it in an
-API that returns one page per request. The client sends back the last row it
-has seen, and the server asks the database for the rows after it. Unlike
-`OFFSET`, the database does not read the skipped rows, and new rows inserted
-before the cursor do not shift the next page.
-
-`limit()` keeps its normal meaning, so the page size is set with `limit()`:
-
-```php
-use Windwalker\Data\Collection;
-use Windwalker\Database\DatabaseAdapter;
-
-function listArticles(DatabaseAdapter $db, ?int $lastId): Collection
-{
-    $query = $db->createQuery()
-        ->select('*')
-        ->from('articles')
-        ->where('state', 1)
-        ->order('id', 'DESC')
-        ->limit(20);
-
-    if ($lastId !== null) {
-        $query = $query->withCursor('id', 'DESC', $lastId);
-    }
-
-    return $query->all();
-}
-```
-
-On the first request, `$lastId` is `null`, and the query returns the first 20
-rows. On the next request, the cursor adds a condition on `id`:
-
-```sql
-SELECT * FROM `articles`
-WHERE `state` = 1 AND `id` < 5
-ORDER BY `id` DESC LIMIT 20
-```
-
-`withCursor()` replaces the `ORDER BY` of the query with the cursor columns, so
-the first page and the later pages use the same order.
-
-#### Immutable Queries
-
-`withCursor()` returns a new query, and the query it was called on is not
-changed. Build the base query once, and derive each page from it:
-
-```php
-$base = $db->createQuery()
-    ->select('*')
-    ->from('articles')
-    ->where('state', 1)
-    ->order('id', 'DESC')
-    ->limit(20);
-
-$page = $base->withCursor('id', 'DESC', $lastId);
-```
-
-::: warning
-Each call to `withCursor()` adds another keyset condition. Calling it on a
-page that already has a cursor stacks the conditions, so the page is filtered
-by both. The following code returns only the rows below 5, because `id < 8`
-and `id < 5` must both hold:
-
-```php
-$page = $base->withCursor('id', 'DESC', 8)
-    ->withCursor('id', 'DESC', 5);
-// id < 8 AND id < 5
-```
-
-Derive every page from the base query, never from a previous page.
-:::
-
-#### Forms of the Cursor
-
-A string takes the column, the direction and the last value. A list takes one
-`[column, direction, value]` tuple per column. The first column is the main sort
-key, and the list is one composite cursor:
-
-```php
-$page = $base->withCursor([
-    ['created', 'DESC', $lastCreated],
-    ['id', 'DESC', $lastId],
-]);
-```
-
-```sql
-WHERE ((`created` < ?) OR (`created` = ? AND `id` < ?))
-ORDER BY `created` DESC, `id` DESC
-```
-
-A value can also be a raw expression, which compares the column with another
-value in the database. Wrap it in `raw()`:
-
-```php
-use function Windwalker\raw;
-
-$page = $base->withCursor(
-    'id',
-    'DESC',
-    raw('(SELECT MAX(id) FROM articles WHERE state = 1)'),
-);
-```
-
-A `CursorPaginate` definition holds the batch size and the sort order. It is
-useful when the same order is used in several places. Pass no item for the
-first page, and the last row, or its values, for the next pages:
-
-```php
-use Windwalker\Query\Query;
-
-$paging = Query::cursorPaginate(20, ['created' => 'DESC', 'id' => 'DESC']);
-
-// First page: sets LIMIT 20 and the cursor order.
-$page = $base->withCursor($paging);
-
-// Next pages: pass the last row, or an array of its values.
-$page = $base->withCursor($paging, [
-    'created' => $lastCreated,
-    'id' => $lastId,
-]);
-```
-
-The values are read by column name. Table aliases are removed, so `'a.id'`
-reads the key `id`.
-
-#### Behaviors
-
-- **Directions** are `'ASC'` or `'DESC'`, in any letter case, or a
-  `SortDirection` enum case.
-- **Conditions** are added to the `WHERE` clause with `AND`.
-- **Order** is replaced by the cursor columns.
-
-::: warning
-A `null` value throws an `InvalidArgumentException`, and nullable columns are
-not supported by keyset pagination. A `CursorPaginate` built with a closure
-cannot read values from an item, so it throws when it is passed an item.
-:::
-
-::: warning
-The order must be unique. Put the primary key last in the list. Rows with
-equal cursor values can otherwise be skipped or repeated.
-:::
+The single-query use of a cursor is described on the
+[Cursor Pagination](/documentation/components/query/cursor-pagination#single-query-with-withcursor)
+page.
 
 ## Without Windwalker Database
 

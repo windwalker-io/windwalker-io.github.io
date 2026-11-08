@@ -649,7 +649,56 @@ The `num` argument must be positive. Use `decrement()` to subtract.
 `incrementOrCreate()` always runs in a transaction. It accepts the same
 `$initData` callable as `findOneOrCreate()` for the row it creates.
 
-## Transactions
+## ORMOptions
+
+Most write and find methods accept an `ORMOptions` object as their last
+argument. Its properties change how one call works. The defaults are:
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `updateNulls` | `false` | an array write sends `NULL` values. An entity always does. |
+| `ignoreEvents` | `false` | the save and delete events are not dispatched. |
+| `ignoreOldData` | `false` | the stored row is not loaded before an update. |
+| `transaction` | `false` | the call runs in a transaction, where the method supports it. |
+| `optimisticLock` | `true` | the version check of [Optimistic Locking](./optimistic-lock) runs. |
+| `forUpdate` | `false` | the rows are read with a `FOR UPDATE` lock. |
+| `forShare` | `false` | the rows are read with a `FOR SHARE` lock. |
+
+```php
+use Windwalker\ORM\ORMOptions;
+
+$orm->updateOne(
+    Sakura::class,
+    ['id' => 1, 'note' => null],
+    options: new ORMOptions(updateNulls: true),
+);
+
+$orm->deleteBatch(
+    Sakura::class,
+    ['state' => 0],
+    options: new ORMOptions(ignoreEvents: true),
+);
+```
+
+The options also accept integer flags, for compatibility with older code. New
+code should use `ORMOptions`.
+
+### ignoreEvents
+
+::: warning
+With `ignoreEvents`, the listeners of the save and delete events do not run.
+A cascade that deletes related rows in an `AfterDeleteEvent` listener is
+skipped, and the related rows remain. The hooks of the mapper still run, see
+[Custom Mappers](./mappers#hooks).
+:::
+
+### ignoreOldData
+
+An update normally loads the stored row first, so that the events can compare
+the old values with the new ones. `ignoreOldData` skips that query. Use it when
+the old values are not needed, such as an import that writes many rows, and
+the events then receive no old data.
+
 
 `transaction()` runs a callback inside a database transaction and returns
 the callback's result. Use it when several writes must succeed or fail

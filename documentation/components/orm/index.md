@@ -131,6 +131,9 @@ Event subscribers for the ORM are listed under `ORM::class` in the
 - [Nested Sets](./nested-set): storing and moving trees with `#[NestedSet]`.
 - [Energize](./energize): attaching services to entities that the ORM
   creates.
+- [UUID](./uuid): UUID attributes, binary storage, and version choice.
+- [Custom Mappers](./mappers): subclassing the mapper of an entity, and the
+  hooks it offers.
 
 ## Related components
 

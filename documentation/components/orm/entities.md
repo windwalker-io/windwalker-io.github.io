@@ -48,6 +48,25 @@ class Sakura implements EntityInterface
 The ORM creates entity objects before it fills them with data. Keep the
 constructor free of required parameters.
 
+### Table Arguments
+
+`#[Table]` takes four arguments, in this order:
+
+- `name`: the table name.
+- `alias`: the alias that queries use for the table. It defaults to the
+  singular form of the table name, so `categories` gets `category`.
+- `mapperClass`: a custom mapper class. See [Custom Mappers](./mappers).
+- `options`: an array of options for the mapper, such as the property names of
+  the nested set relations.
+
+```php
+#[Table('sakuras', 'sakura')]
+class Sakura implements EntityInterface
+{
+    // ...
+}
+```
+
 ## Showcase
 
 The sections below extend the `Sakura` entity from the minimal setup. The
@@ -193,6 +212,36 @@ public ?Address $address = null;
 When a value needs more than one conversion, stack several casts. They run
 in the order in which they are declared.
 
+### Built-in Casts
+
+Some casts are registered by name, so the attribute needs no class:
+
+- `datetime`: a `DATETIME` string, hydrated to a `DateTimeImmutable`.
+- `timestamp`: a `DATETIME` string, hydrated to a Unix timestamp. The value is
+  stored back as a `Y-m-d H:i:s` string, formatted in UTC.
+- `json`: a JSON string, decoded to an array or an object.
+- `uuid`: a UUID string, hydrated to a `UuidInterface`. See [UUID](./uuid).
+- `uuid_bin`: a 16-byte binary UUID, hydrated to a `UuidInterface`.
+
+```php
+#[Column('published_at')]
+#[CastNullable('datetime', 'datetime')]
+public ?DateTimeImmutable $publishedAt = null;
+```
+
+Every cast accepts a set of option flags as its third argument. The flags
+decide whether the caster runs at all:
+
+- `Cast::NULLABLE` keeps a `null` value as `null`, and the caster is skipped.
+- `Cast::EMPTY_STRING_TO_NULL` converts an empty string to `null` first.
+- `Cast::DEFAULT_IF_NULL` runs the caster only when the value is `null`.
+- `Cast::DEFAULT_IF_EMPTY` runs the caster only when the value is empty.
+- `Cast::USE_CONSTRUCTOR` and `Cast::USE_HYDRATOR` choose how a class cast
+  builds the object.
+
+`CastNullable` sets `NULLABLE` and `EMPTY_STRING_TO_NULL` for you. Write the
+flags yourself only when the default behavior of a cast does not fit.
+
 ### JSON Columns
 
 `#[JsonArray]` stores an array as a JSON list. `#[JsonObject]` keeps empty
@@ -247,6 +296,38 @@ public ?DateTimeImmutable $modified = null;
 #[CurrentTime(onlyUpdate: false)]
 public ?DateTimeImmutable $touched = null;
 ```
+
+### Truncating Strings
+
+`#[AutoTruncate]` cuts a string value to the length of its column when the row
+is saved. The length is read from the table definition. Pass `maxLength` to
+use a different length:
+
+```php
+use Windwalker\ORM\Attributes\AutoTruncate;
+
+#[Column('title')]
+#[AutoTruncate]
+public string $title = '';
+
+#[Column('summary')]
+#[AutoTruncate(maxLength: 120)]
+public string $summary = '';
+```
+
+The cut is made by characters, not bytes. A `null` value, a value that is not
+a string, and a column with no length limit are left unchanged.
+
+The `TruncateValueSubscriber` applies the same cut to every string column of
+every entity. Register it in the `listeners` section of the database
+configuration, under `ORM::class`. It does nothing when the database driver
+is in debug mode.
+
+::: warning
+Truncation is silent. The stored value is shorter than the value the code set,
+and no error is raised. Use it where a shorter value is acceptable. Validate
+the length first for values that must not change, such as a code or a slug.
+:::
 
 ## Virtual Properties
 

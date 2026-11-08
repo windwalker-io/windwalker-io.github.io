@@ -232,7 +232,9 @@ explains the difference.
 - [Common Table Expressions](/documentation/components/query/cte): `WITH`
   and recursive queries.
 - [Iteration](/documentation/components/query/iteration): processing large
-  result sets, and cursor pagination.
+  result sets, with the iterator methods and their connection types.
+- [Cursor Pagination](/documentation/components/query/cursor-pagination):
+  keyset paging for an API page, and for the iterators.
 - [Rendering and Debugging](/documentation/components/query/rendering): the
   SQL text, the bound values and the PDO form.
 - [Grammars and Escaper](/documentation/components/query/grammars): the
