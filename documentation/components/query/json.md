@@ -50,6 +50,15 @@ function seoArticles(DatabaseAdapter $db): Collection
 
 The result is a `Collection` of rows, as with any other select.
 
+The same path works in `where()`, `select()`, and in the `%n` token of a raw
+template. In a `where()` condition, the path is compared as a value:
+
+```php
+$query->where('foo -> bar ->> yoo', 'YOOOO');
+
+$query->whereRaw('%n = 123', 'foo -> bar ->> yoo');
+```
+
 ## Cast Suffix
 
 A value read from JSON is text on most platforms, so `'100' < '20'` is true.
@@ -104,17 +113,58 @@ $query->orWhere(function (Query $q) {
 
 ## Comparing Arrays
 
-`whereJsonContains()` checks whether a JSON array contains a value.
-`whereJsonContainsAll()` checks that it contains every value of a list:
+`whereJsonContainsAll()` checks that a JSON array contains every value that is
+passed. A scalar checks one value, and a list checks each of its elements. The
+values are joined with `AND`:
 
 ```php
-$query->whereJsonContains('tags', 'php');
+$query->whereJsonContainsAll('tags', 'php');
 
 $query->whereJsonContainsAll('tags', ['php', 'json']);
+// The array must contain both 'php' and 'json'.
 ```
 
-The negated forms are `whereJsonNotContains()` and
-`whereJsonNotContainsAll()`. Each has a `having` version.
+For `OR`, put each condition in an `orWhere()` group. The group is joined to
+the rest of the `WHERE` clause with `AND`, as described on the
+[Conditions](/documentation/components/query/where#nested-groups) page:
+
+```php
+$query->where('state', 1)
+    ->orWhere(function (Query $q) {
+        $q->whereJsonContainsAll('tags', 'php')
+            ->whereJsonContainsAll('tags', 'json');
+    });
+// state = 1 AND (tags contains 'php' OR tags contains 'json')
+```
+
+The negated form is `whereJsonNotContainsAll()`. Each method has a `having`
+version.
+
+::: info
+`whereJsonContains()`, `whereJsonNotContains()`, `havingJsonContains()` and
+`havingJsonNotContains()` are deprecated. They keep the earlier behavior, and
+take a single value as a string. Use the `ContainsAll` methods in new code.
+:::
+
+### Raw JSON Text
+
+When a JSON value is built with `json_encode()`, pass the text through `%q`.
+The following example uses MySQL's `JSON_CONTAINS()` directly:
+
+```php
+$query->whereRaw(
+    'JSON_CONTAINS(`foo`, %q)',
+    json_encode(['這是中文'], JSON_UNESCAPED_UNICODE),
+);
+```
+
+::: warning
+Encode the JSON with `JSON_UNESCAPED_UNICODE` when it holds non-ASCII text.
+Without the flag, `json_encode()` writes escapes such as `\u9019`. MariaDB
+does not match these escapes against the stored text, and the query returns no
+rows and no error. Raw `JSON_CONTAINS()` also works only on MySQL and MariaDB.
+:::
+
 
 ## Updating a Value
 
@@ -160,6 +210,25 @@ Server reject it. Change different columns in one statement, or run separate
 statements for the same column.
 :::
 
+### Empty Values
+
+`whereJsonLength()` compares the number of elements in a JSON array or object.
+The generated SQL uses `IFNULL()`, so a `NULL` column counts as length 0. One
+condition therefore finds all three cases:
+
+```php
+// NULL, an empty array, or an empty object
+$query->whereJsonLength('params', 0);
+
+// Arrays with more than two elements
+$query->whereJsonLength('params', '>', 2);
+```
+
+::: warning
+SQLite does not provide JSON length in this package. `whereJsonLength()` throws
+a `LogicException` on SQLite, so check the empty case in PHP there.
+:::
+
 ## Methods
 
 The JSON methods are listed below. Each one is also available in the
@@ -170,16 +239,16 @@ take the same arguments as their `where` counterparts.
 |--------|---------|
 | `jsonSelector()` | Builds the expression of a JSON path, for use in a clause. |
 | `selectJsonLength()` | Selects the length of a JSON array, with an optional alias. |
-| `whereJsonContains()` | Filters rows whose JSON array contains a value. |
+| `whereJsonContains()` | Deprecated. Use `whereJsonContainsAll()`. |
 | `whereJsonContainsAll()` | Filters rows whose JSON array contains all the values. |
-| `whereJsonNotContains()` | Filters rows whose JSON array does not contain a value. |
+| `whereJsonNotContains()` | Deprecated. Use `whereJsonNotContainsAll()`. |
 | `whereJsonNotContainsAll()` | Filters rows where not all the values are in the array. |
 | `whereJsonLength()` | Compares the length of a JSON array with a value. |
 | `whereJsonExists()` | Filters rows where a JSON path exists. |
 | `whereJsonNotExists()` | Filters rows where a JSON path does not exist. |
-| `havingJsonContains()` | `HAVING` version of `whereJsonContains()`. |
+| `havingJsonContains()` | Deprecated. `HAVING` version of `whereJsonContains()`. |
 | `havingJsonContainsAll()` | `HAVING` version of `whereJsonContainsAll()`. |
-| `havingJsonNotContains()` | `HAVING` version of `whereJsonNotContains()`. |
+| `havingJsonNotContains()` | Deprecated. `HAVING` version of `whereJsonNotContains()`. |
 | `havingJsonNotContainsAll()` | `HAVING` version of `whereJsonNotContainsAll()`. |
 | `havingJsonExists()` | `HAVING` version of `whereJsonExists()`. |
 | `havingJsonNotExists()` | `HAVING` version of `whereJsonNotExists()`. |

@@ -100,7 +100,8 @@ The following events are dispatched around the write operations:
   inserts.
 - `EntitySetupEvent` runs while the entity metadata is built. The
   `setup()` method receives it.
-- `EnergizeEvent` runs when an entity is energized by the ORM.
+- `EnergizeEvent` runs when an entity is energized by the ORM. See
+  [Energize](./energize).
 
 ::: info
 Bulk writes dispatch only the bulk-level events. A bulk update does not

@@ -128,6 +128,9 @@ Event subscribers for the ORM are listed under `ORM::class` in the
   are attached through the entity metadata.
 - [Optimistic Locking](./optimistic-lock): detecting concurrent updates
   with a version column.
+- [Nested Sets](./nested-set): storing and moving trees with `#[NestedSet]`.
+- [Energize](./energize): attaching services to entities that the ORM
+  creates.
 
 ## Related components
 

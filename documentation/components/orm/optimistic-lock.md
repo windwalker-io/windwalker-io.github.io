@@ -86,16 +86,35 @@ the value, so the next update fails against the value that was stored.
 ### Custom Next Value
 
 Pass a callable as `nextHandler` to generate the next value yourself. It
-receives the current value.
+receives the current value and returns the next one.
+
+PHP attribute arguments must be constant expressions, so a closure or an
+arrow function cannot be used here. Refer to a `public static` method with a
+callable array, using `self::class` for the class that declares the
+property:
 
 ```php
+use Windwalker\ORM\Attributes\Column;
 use Windwalker\ORM\Attributes\OptimisticLock;
 
-#[OptimisticLock(
-    nextHandler: fn (mixed $value) => hash('sha256', uniqid()),
-)]
-public string $hash = '';
+class Article
+{
+    #[Column('hash')]
+    #[OptimisticLock(nextHandler: [self::class, 'nextHash'])]
+    public string $hash = '';
+
+    public static function nextHash(mixed $value): string
+    {
+        return hash('sha256', uniqid());
+    }
+}
 ```
+
+::: warning
+The method must be `public static`. It receives the current value and must
+return the next value. A closure or an arrow function in the attribute is a
+fatal error when the class is loaded.
+:::
 
 ## How the Check Works
 

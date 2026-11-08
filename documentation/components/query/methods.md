@@ -120,16 +120,16 @@ Details: [JSON](/documentation/components/query/json).
 | Method | Description |
 |--------|-------------|
 | `jsonSelector()` | Builds the expression of a JSON path. |
-| `whereJsonContains()` | Filters rows whose JSON array contains a value. |
+| `whereJsonContains()` | Deprecated. Use `whereJsonContainsAll()`. |
 | `whereJsonContainsAll()` | Filters rows whose JSON array contains all values. |
-| `whereJsonNotContains()` | Filters rows whose JSON array does not contain a value. |
+| `whereJsonNotContains()` | Deprecated. Use `whereJsonNotContainsAll()`. |
 | `whereJsonNotContainsAll()` | Negated `whereJsonContainsAll()`. |
 | `whereJsonExists()` | Filters rows where a JSON path exists. |
 | `whereJsonNotExists()` | Filters rows where a JSON path does not exist. |
 | `whereJsonLength()` | Filters rows by the length of a JSON array. |
-| `havingJsonContains()` | `HAVING` version of `whereJsonContains()`. |
+| `havingJsonContains()` | Deprecated. `HAVING` version of `whereJsonContains()`. |
 | `havingJsonContainsAll()` | `HAVING` version of `whereJsonContainsAll()`. |
-| `havingJsonNotContains()` | `HAVING` version of `whereJsonNotContains()`. |
+| `havingJsonNotContains()` | Deprecated. `HAVING` version of `whereJsonNotContains()`. |
 | `havingJsonNotContainsAll()` | `HAVING` version of `whereJsonNotContainsAll()`. |
 | `havingJsonExists()` | `HAVING` version of `whereJsonExists()`. |
 | `havingJsonNotExists()` | `HAVING` version of `whereJsonNotExists()`. |

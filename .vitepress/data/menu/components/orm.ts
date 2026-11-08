@@ -27,5 +27,13 @@ export default <ComponentMenu> {
       text: 'Optimistic Locking',
       link: 'optimistic-lock',
     },
+    {
+      text: 'Nested Sets',
+      link: 'nested-set',
+    },
+    {
+      text: 'Energize',
+      link: 'energize',
+    },
   ]
 };
