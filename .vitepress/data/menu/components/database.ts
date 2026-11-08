@@ -16,6 +16,10 @@ export default <ComponentMenu> {
       link: 'queries',
     },
     {
+      text: 'Hydrators',
+      link: 'hydrators',
+    },
+    {
       text: 'Writer',
       link: 'writer',
     },

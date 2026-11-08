@@ -285,3 +285,10 @@ clauses, such as an `ORDER BY` or a join, put it in a
 [common table expression](/documentation/components/query/cte) and select
 from that name.
 :::
+
+## Related Pages
+
+- [Queries](/documentation/components/database/queries): running a built
+  select on a connection.
+- [ORM Querying](/documentation/components/orm/querying): the same builder
+  through `from()` and `select()` on the ORM, with entity results.

@@ -311,3 +311,10 @@ in every mode.
 Keep the pool size below the database server's connection limit, and
 account for every worker process when choosing `maxSize`.
 :::
+
+## Related Pages
+
+- [Queries](/documentation/components/database/queries): running statements
+  on a connection.
+- [Grammars and Escaper](/documentation/components/query/grammars): how the
+  query builder uses the platform of a connection to quote identifiers.

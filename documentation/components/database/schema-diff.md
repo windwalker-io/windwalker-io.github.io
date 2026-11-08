@@ -168,3 +168,8 @@ constraint and add it again.
 each platform still apply. For example, SQLite cannot modify columns or add
 constraints to an existing table in every case. A diff that works on MySQL
 may need a different approach on SQLite.
+
+## Related Pages
+
+- [Tables](/documentation/components/database/tables): building the table
+  definitions that a diff compares.

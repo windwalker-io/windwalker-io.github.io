@@ -7,9 +7,10 @@ component: query
 # Upsert
 
 An upsert inserts a row, or updates the existing row when a unique key
-already exists. It removes the read-then-write step from application code,
-which is racy when two requests write the same key at once. Typical uses are
-cache tables, counters and "save the latest value" records.
+already exists, in a single statement. Typical uses are cache tables,
+counters and "save the latest value" records. For why this avoids the race of
+a separate read and write, see the
+[ORM Upsert](/documentation/components/orm/persisting#upsert) section.
 
 ## Basic Usage
 
@@ -170,4 +171,5 @@ The database writer offers the same operation for one array row, and it also
 resolves the ID on every platform. Its behavior is described on the
 [Writer](/documentation/components/database/writer#upsert) page of the
 database package. Use the builder when the statement needs custom update
-expressions, and the writer for a plain row.
+expressions, and the writer for a plain row. For entity records, see
+[Upsert](/documentation/components/orm/persisting#upsert) in the ORM.

@@ -162,7 +162,8 @@ $data = $orm->extractEntity($sakura);
 ```
 
 Hydrating into an existing entity merges the array into it. Call it again
-with another array to overwrite the fields that it contains.
+with another array to overwrite the fields that it contains. See
+[Hydration](./hydration) for the pipeline behind these calls.
 
 For a single conversion, use `toEntity()` or `tryEntity()`:
 
@@ -182,6 +183,9 @@ fields that the user is allowed to change.
 :::
 
 ## Casting
+
+For the complete list of casts, the built-in conversion rules, and how to write
+a cast, see [Casting](./casting).
 
 Casts convert a value when it is loaded into an entity and when it is
 saved. The first argument of `#[Cast]` is the conversion used on load, and

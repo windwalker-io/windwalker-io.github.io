@@ -361,7 +361,11 @@ only inside a transaction. See [Persisting Data](./persisting#transactions).
 `from()` and `select()` on the ORM start a `SelectorQuery`. The builder
 methods, such as `where()`, `order()`, and `limit()`, are the same as in
 the [Query component](/documentation/components/query/). The ORM adds the
-entity class as the result type.
+entity class as the result type. The clauses are described on the pages
+[Selecting Data](/documentation/components/query/select),
+[Joins](/documentation/components/query/join),
+[Conditions](/documentation/components/query/where) and
+[Raw SQL and Bindings](/documentation/components/query/expressions).
 
 The ORM query is an advanced `SelectorQuery`. In addition to the methods of
 the Query component, it provides:

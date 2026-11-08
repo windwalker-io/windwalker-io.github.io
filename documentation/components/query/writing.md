@@ -162,4 +162,5 @@ The database package offers a writer for common insert, update, upsert and
 delete operations, which works on plain arrays. Use the query builder when
 you need the conditions and expressions shown here, and the writer when a
 single row is written from an array. See
-[Writer](/documentation/components/database/writer) for details.
+[Writer](/documentation/components/database/writer) for details. For entity
+writes, see [Persisting Data](/documentation/components/orm/persisting).

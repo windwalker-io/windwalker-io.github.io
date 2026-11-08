@@ -428,3 +428,12 @@ read.
 
 The rows read by an iterator are not held by the builder. Batched methods keep
 only the current batch in memory.
+
+## Related Pages
+
+- [Queries](/documentation/components/database/queries#iterating-large-results):
+  the iterator methods of the adapter, with a short example.
+- [Querying](/documentation/components/orm/querying#iterating-large-results):
+  the same methods on ORM entity queries.
+- [Cursor Pagination](/documentation/components/query/cursor-pagination): a
+  keyset cursor for these iterators.

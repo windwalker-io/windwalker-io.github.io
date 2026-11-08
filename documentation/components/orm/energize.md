@@ -87,11 +87,13 @@ if ($sakura->can('edit')) {
 }
 ```
 
-The parameters after the event are type-hinted services. The ORM resolves
-them through its attributes resolver. In a Windwalker application, the
-resolver is the one of the container, so any service in the container can
-be requested. In standalone use, provide a resolver that can create the
-services with `ORM::setAttributesResolver()`.
+The parameters after the event are type-hinted services. This works only inside
+a Windwalker application, where the ORM uses the attributes resolver of the
+container, so any service in the container can be requested. Outside
+Windwalker, the ORM passes only the event. A standalone project can extend the
+resolver to inject services. See
+[Injecting Services Into Callables](/documentation/components/attributes/write-handlers#injecting-services-into-callables).
+Otherwise, create the services in your own code, and store them with `store()`.
 
 ::: info
 Energize runs for entities that the ORM creates or hydrates. These include

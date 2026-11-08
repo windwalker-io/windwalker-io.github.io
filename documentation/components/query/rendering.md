@@ -140,3 +140,10 @@ A placeholder inside a raw method, such as `:days` in [`whereRaw()`](/documentat
 the same binding system. It appears in `render()` output, and its value is
 written in by `render(true)`. The rules for raw placeholders are described on
 the [Raw SQL and Bindings](/documentation/components/query/expressions) page.
+
+## Related Pages
+
+- [Queries](/documentation/components/database/queries): the adapter that
+  runs a rendered statement.
+- [Events](/documentation/components/database/events): query events for
+  logging the statement that runs.

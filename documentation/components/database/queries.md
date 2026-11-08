@@ -146,6 +146,11 @@ foreach ($logs as $log) {
 `result(true)` throws an exception when no row is found, instead of
 returning `null`. Use it when a missing value is an error.
 
+The iterator methods, batching and cursor pagination are described in
+[Iteration](/documentation/components/query/iteration). The ORM offers the
+same methods on its entity queries, see
+[Iterating Large Results](/documentation/components/orm/querying#iterating-large-results).
+
 ## Query Builder
 
 `createQuery()` returns a `Query` object bound to the adapter's platform,

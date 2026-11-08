@@ -565,3 +565,6 @@ $table->setName('reporting.posts');
 
 For managing databases and inspecting schemas, see
 [Databases and Schemas](/documentation/components/database/databases-and-schemas).
+
+To compare a table definition with the database before changing it, see
+[Schema Diff](/documentation/components/database/schema-diff).

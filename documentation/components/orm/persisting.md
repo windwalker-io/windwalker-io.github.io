@@ -197,9 +197,21 @@ another request. It is the safe choice for counters, caches, and
 "create or update" records. The ORM method builds the row from an entity or
 an array, and it returns the entity with its ID.
 
-For why the statement is safer than a separate check and write, and for the
-differences between databases, see the [Upsert](/documentation/components/database/writer#upsert)
-section of the Database component. The statement itself is described in the
+The common alternative is a check-then-write sequence: `SELECT` the row,
+then `INSERT` it if missing, otherwise `UPDATE` it. Two requests can both
+see no row and both insert, which causes a duplicate-key error, or both
+read the same counter value and lose an increment. `upsert()` removes the
+gap between the check and the write, because the database decides between
+insert and update in a single statement.
+
+::: tip
+Use `upsert()` for "insert or update" logic in web requests and workers.
+Avoid running the check and the write as separate statements.
+:::
+
+For the differences between databases and the lower-level writer, see the
+[Upsert](/documentation/components/database/writer#upsert) section of the
+Database component. The statement itself is described in the
 [Upsert](/documentation/components/query/upsert) page of the Query component.
 
 ### Minimal Setup
@@ -381,6 +393,10 @@ The row keeps its old value, and the update appears to succeed. Use
 
 The ORM offers two ways to update many rows. They differ in how the rows are
 written, and that choice decides whether the row events run.
+
+For writing many plain arrays without entities, the writer's
+[Bulk Operations](/documentation/components/database/writer#bulk-operations)
+skips the entity layer and its events.
 
 #### Batch: updateBatch
 

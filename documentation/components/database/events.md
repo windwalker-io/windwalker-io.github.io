@@ -107,3 +107,10 @@ light. Heavy work per row slows large result sets noticeably.
 Enable the `debug` option to append the executed SQL to query error
 messages. This is useful during development. It is not a logging system, so
 use the query events for logs and metrics.
+
+## Related Pages
+
+- [Queries](/documentation/components/database/queries): the statements
+  that emit these events.
+- [ORM Events](/documentation/components/orm/events): lifecycle events of
+  entities, which are separate from the query and fetch events here.

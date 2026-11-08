@@ -41,13 +41,11 @@ When the row is saved and `$uuid` is empty, the ORM assigns a new UUID.
 ## Showcase
 
 The following article keeps an auto-increment primary key for joins, and a
-UUID for public links. The UUID is an object in PHP, so the entity wraps the
-value in its setter and returns the object from its getter:
+UUID for public links. The `set` hook wraps the value into a UUID object:
 
 ```php
 use Ramsey\Uuid\UuidInterface;
 use Windwalker\ORM\Attributes\AutoIncrement;
-use Windwalker\ORM\Attributes\CastNullable;
 use Windwalker\ORM\Attributes\Column;
 use Windwalker\ORM\Attributes\PK;
 use Windwalker\ORM\Attributes\Table;
@@ -64,32 +62,26 @@ class Article implements EntityInterface
     public ?int $id = null;
 
     #[Column('uuid')]
-    #[CastNullable('uuid', 'uuid')]
     #[UUID]
-    protected ?UuidInterface $uuid = null;
-
-    public function getUuid(): ?UuidInterface
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(UuidInterface|string|null $uuid): static
-    {
-        $this->uuid = UUID::tryWrap($uuid);
-
-        return $this;
+    public ?UuidInterface $uuid {
+        set (UuidInterface|string|null $value) {
+            $this->uuid = UUID::tryWrap($value);
+        }
     }
 }
 ```
 
 After `$orm->createOne($article)`, the public link can use `(string)
-$article->getUuid()`, and the route can look the article up with
+$article->uuid`, and the route can look the article up with
 `$orm->findOne(Article::class, ['uuid' => $uuid])`.
+
+The `set` hook accepts a string, a UUID object, or `null`. It stores the
+object, so `$article->uuid = $request->get('uuid');` is enough to assign it.
 
 ::: info
 `#[UUID]` also implements the cast interface, so it converts the value on
-hydrate and extract. The generator runs for every empty value, including
-`null`. Add `CastNullable('uuid', 'uuid')` to keep a `null` value as `null`.
+hydrate and extract. The generator runs for every empty value on save. See
+[NULL Values](#null-values) for a column that may be `NULL`.
 :::
 
 ## Binary Storage
@@ -103,20 +95,16 @@ use Windwalker\ORM\Attributes\Column;
 use Windwalker\ORM\Attributes\UUIDBin;
 
 #[Column('uuid')]
-#[CastNullable('uuid_bin', 'uuid_bin')]
 #[UUIDBin]
-protected ?UuidInterface $uuid = null;
-
-public function setUuid(UuidInterface|string|null $uuid): static
-{
-    $this->uuid = UUIDBin::tryWrap($uuid);
-
-    return $this;
+public ?UuidInterface $uuid {
+    set (UuidInterface|string|null $value) {
+        $this->uuid = UUIDBin::tryWrap($value);
+    }
 }
 ```
 
 `wrap()` returns a `UuidInterface` and does not accept `null`. Use
-`tryWrap()` for a value that can be `null`, as in the setter above.
+`tryWrap()` for a value that can be `null`, as in the `set` hook above.
 
 ### Binary Primary Key
 
@@ -125,14 +113,111 @@ small, and an ordered UUID version keeps the inserts close together:
 
 ```php
 #[Column('id'), PK]
-#[CastNullable('uuid_bin', 'uuid_bin')]
 #[UUIDBin]
-protected ?UuidInterface $id = null;
+public ?UuidInterface $id = null;
 ```
 
 The key is assigned during the save. Use `createOne()` for new rows and
 `updateOne()` for existing rows, rather than `saveOne()`, so that the method
 is chosen by you and not by the key value.
+
+## NULL Values
+
+On save, the generator runs for every property that is empty, and `null` is
+empty. An attribute on a property therefore assigns a UUID where you might
+expect `NULL`. Choose the form by the column:
+
+- A binary column that may be `NULL`: pass `UUIDBin::NULLABLE` as the option.
+  A `null` value is then kept as `NULL` on save, and a `NULL` from the database
+  is hydrated as `null`.
+- A text column that may be `NULL`: `#[UUID]` always assigns a value on save.
+  Leave the attribute off, keep the column nullable with `#[CastNullable]`,
+  and assign the value in a listener when it is needed.
+
+```php
+use Ramsey\Uuid\UuidInterface;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\UUIDBin;
+
+#[Column('uuid')]
+#[UUIDBin(options: UUIDBin::NULLABLE)]
+public ?UuidInterface $uuid {
+    set (UuidInterface|string|null $value) {
+        $this->uuid = UUIDBin::tryWrap($value);
+    }
+}
+```
+
+```php
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
+use Windwalker\ORM\Attributes\CastNullable;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Event\BeforeSaveEvent;
+
+#[Column('uuid')]
+#[CastNullable('uuid', 'uuid')]
+public ?UuidInterface $uuid = null;
+
+#[BeforeSaveEvent]
+public static function beforeSave(BeforeSaveEvent $event): void
+{
+    if ($event->isCreate && empty($event->data['uuid'])) {
+        $event->data['uuid'] = Uuid::uuid7()->toString();
+    }
+}
+```
+
+## NOT NULL Columns and NIL
+
+A `NOT NULL` column cannot keep `NULL`, so an empty value on save must become
+something else. By default the generator creates a new UUID for it. Setting
+the version to `NIL` changes that: the empty value becomes the all-zero UUID,
+`00000000-0000-0000-0000-000000000000`, and the row is saved with it.
+
+This is a workaround, not a recommended design. Every row that gets the NIL
+value has the same identifier, so a `UNIQUE` index on the column rejects the
+second such row. Use it only to fill a small number of legacy rows that were
+saved without a UUID, and assign a real UUID to new rows yourself:
+
+```php
+use Ramsey\Uuid\UuidInterface;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\UUID;
+
+#[Column('uuid')]
+#[UUID(version: UUID::NIL)]
+public string $uuid = '';
+```
+
+For a binary column, use the same version on `UUIDBin`:
+
+```php
+use Ramsey\Uuid\UuidInterface;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\UUIDBin;
+
+#[Column('uuid')]
+#[UUIDBin(version: UUIDBin::NIL)]
+public ?UuidInterface $uuid = null;
+```
+
+The NIL value is written only when the property is empty. A UUID that is
+already set is saved unchanged.
+
+::: warning
+A NIL value on a column with a `UNIQUE` or primary key index causes a
+duplicate-key error for the second row that gets it. Do not use this version
+on such a column unless the table holds at most one row with the empty value.
+Assign a real UUID before the save instead, for example in a `BeforeSaveEvent`
+listener, as shown in [NULL Values](#null-values).
+:::
+
+::: info
+The NIL value is also a valid UUID, so reading it back works like any other
+value. The database index on the column is not optimized for it, because all
+such rows share one value.
+:::
 
 ## Choosing the Version
 
@@ -167,25 +252,40 @@ use `uuid4`.
 
 ## Querying by UUID
 
-A UUID in the table is stored in its binary form when the column is binary, so
-a query must convert the value too. The `uuid2bin()` function does this, and
-it accepts a string, a UUID object, or an array of them:
+A binary column holds the 16-byte form, so a condition must use that form too.
+When the column is declared with `#[UUIDBin]`, the ORM converts the value for
+you. This applies to the conditions of the ORM query, the finder methods, and
+the write methods that take conditions:
+
+```php
+$article = $orm->findOne(Article::class, ['uuid' => $uuidString]);
+
+$articles = $orm->from(Article::class)
+    ->where('uuid', $uuid)
+    ->all(Article::class);
+```
+
+The conversion accepts a string, a UUID object, or an array of them, and it
+also applies to `where()` with an operator, such as `IN`.
+
+The ORM can convert the value only when it knows the column. It finds the
+column through the table of the query, or through the joined table with its
+alias. The conversion does not apply to:
+
+- A column in `whereRaw()` or in other raw SQL.
+- A query that the database adapter builds without an entity.
+- A text column declared with `#[UUID]`, which is compared as a string.
+
+In these cases, convert the value yourself with the `uuid2bin()` function
+from the Query component. For example, a query on the table without an entity:
 
 ```php
 use function Windwalker\Query\uuid2bin;
 
-$article = $orm->findOne(
-    Article::class,
-    ['uuid' => uuid2bin($uuidString)],
-);
-```
-
-The same function works in `where()` for the query builder:
-
-```php
-$articles = $orm->from(Article::class)
+$row = $db->createQuery()
+    ->from('articles')
     ->where('uuid', uuid2bin($uuid))
-    ->all(Article::class);
+    ->get();
 ```
 
 ::: tip

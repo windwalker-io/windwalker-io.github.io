@@ -134,6 +134,12 @@ Event subscribers for the ORM are listed under `ORM::class` in the
 - [UUID](./uuid): UUID attributes, binary storage, and version choice.
 - [Custom Mappers](./mappers): subclassing the mapper of an entity, and the
   hooks it offers.
+- [Hydration](./hydration): the pipeline from a row to an entity, and how to
+  replace the entity hydrator.
+- [Attributes](./attributes): the attributes the ORM provides, and how to add
+  new ones.
+- [Casting](./casting): the cast and cast-for-save attributes, the built-in
+  conversion rules, and how to write your own casts.
 
 ## Related components
 

@@ -155,6 +155,8 @@ the calling code stays the same.
   names, options, read-only mode, reconnects and connection pools.
 - [Queries](/documentation/components/database/queries): executing SQL,
   fetching results, hydration and transactions.
+- [Hydrators](/documentation/components/database/hydrators): converting rows
+  to objects, and writing a custom hydrator.
 - [Writer](/documentation/components/database/writer): inserting, updating,
   upserting and deleting rows.
 - [Tables](/documentation/components/database/tables): creating and changing

@@ -1,4 +1,4 @@
-      sderff vbc2qw3---
+      ---
 layout: doc
 title: Write Your Own Attribute Handlers
 component: attributes
@@ -139,6 +139,95 @@ $resolver = new AttributesResolver();
 $container = new Container();
 $resolver->setBuilder(
     static fn (string $class, ...$args): object => $container->newInstance($class, $args)
+);
+```
+
+## Injecting Services Into Callables
+
+`AttributesResolver::call()` fills the parameters of a callable from the
+arguments it is given. A parameter that is not given gets its default value,
+or `null`. The base resolver does not create services. The container-backed
+resolver of Windwalker overrides `call()` and asks the container instead.
+
+Outside Windwalker, extend the resolver and supply the services yourself:
+
+```php
+use Closure;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionNamedType;
+use Windwalker\Attributes\AttributesResolver;
+
+class ServiceResolver extends AttributesResolver
+{
+    public function __construct(protected array $services = [])
+    {
+        parent::__construct();
+    }
+
+    public function resolveCallArguments(mixed $ref, array $args): array
+    {
+        $resolved = parent::resolveCallArguments($ref, $args);
+
+        if (!$ref instanceof ReflectionFunctionAbstract) {
+            $ref = new ReflectionFunction(Closure::fromCallable($ref));
+        }
+
+        foreach ($ref->getParameters() as $param) {
+            $name = $param->getName();
+            $type = $param->getType();
+
+            if (($resolved[$name] ?? null) !== null) {
+                continue;
+            }
+
+            if ($type instanceof ReflectionNamedType
+                && isset($this->services[$type->getName()])) {
+                $resolved[$name] = $this->services[$type->getName()];
+            }
+        }
+
+        return $resolved;
+    }
+}
+```
+
+Pass the services by their class name, and pass the event by its parameter
+name. The ORM passes an event under its class name and under the key `event`,
+so an event parameter named `$event` is matched:
+
+```php
+use Windwalker\ORM\Event\AfterSaveEvent;
+
+$resolver = new ServiceResolver([
+    SearchIndexer::class => new SearchIndexer(),
+]);
+
+$resolver->call(
+    static function (AfterSaveEvent $event, SearchIndexer $indexer) {
+        $indexer->update((int) $event->data['id']);
+    },
+    ['event' => $event],
+);
+```
+
+A service that is not in the list stays `null`. A parameter that does not
+accept `null` then raises a `TypeError`, so give such a parameter a service
+in the list.
+
+To attach the resolver to the ORM, call `ORM::setAttributesResolver()`.
+
+## Custom Object Builder Within the Resolver
+
+`ObjectBuilder::setBuilder()` changes how `createObject()` builds objects. The
+ORM uses `createObject()` for the entity hydrator, and for a custom mapper
+class. Set the builder when those objects need the same container as the
+services:
+
+```php
+$resolver->setBuilder(
+    static fn (string $class, ...$args): object
+        => $container->newInstance($class, $args)
 );
 ```
 

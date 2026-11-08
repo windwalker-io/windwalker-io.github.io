@@ -178,7 +178,8 @@ export const groupedComponents: ComponentSet = {
     'pool': {
       title: 'Pool',
       description: 'Simple connection pool library.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/pool'),
+      extra: {},
     },
   },
 
@@ -200,13 +201,15 @@ export const groupedComponents: ComponentSet = {
   'HTML & Rendering': {
     'dom': {
       title: 'DOM',
-      description: 'A DOMDocument wrapper and toolset to build DOM elements.',
-      extra: { 'wip': true },
+      description: 'Build, parse, and render HTML as an element tree.',
+      menu: () => import('./menu/components/dom'),
+      extra: {},
     },
     'html': {
       title: 'HTML',
       description: 'A set of HTML element building helpers.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/html'),
+      extra: {},
     },
     'form': {
       title: 'Form',

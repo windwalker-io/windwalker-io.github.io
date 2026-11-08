@@ -117,20 +117,14 @@ value. The method sends one statement that the database resolves against
 its unique index, which is the safe way to write counters, caches and
 "create or update" records under concurrency.
 
+The Query builder has the same operation with custom update expressions, see
+[Upsert](/documentation/components/query/upsert). For entity records, see
+[Upsert](/documentation/components/orm/persisting#upsert) in the ORM.
+
 ### Why It Matters for Concurrency
 
-The common alternative is a check-then-write sequence: `SELECT` the row,
-then `INSERT` it if missing, otherwise `UPDATE` it. Two requests can both
-see no row and both insert, which causes a duplicate-key error, or both
-read the same counter value and lose an increment. `upsert()` removes the
-gap between the check and the write, because the database decides between
-insert and update in a single statement.
-
-::: tip
-Use `upsert()` for "insert or update" logic in web requests and workers.
-Avoid running the check and the write as separate statements.
-:::
-
+The reasons for `upsert()` over a check-then-write sequence are explained in
+the [ORM Upsert](/documentation/components/orm/persisting#upsert) section.
 Deadlocks are reduced, not eliminated. A single upsert takes fewer locks
 than a separate check and write, which is a frequent source of deadlocks.
 Two transactions that upsert the same keys in different orders can still
@@ -328,6 +322,9 @@ $db->writer->insertBulk(
 ```
 
 The writer builds one `INSERT` that lists every row in its `VALUES` clause.
+
+To update many entities through the ORM, see
+[Batch and Bulk Updates](/documentation/components/orm/persisting#batch-and-bulk-updates).
 For the example above, a MySQL database receives this statement:
 
 ```sql
@@ -430,3 +427,11 @@ data when the order matters.
 `upsert()` with `returningIdField` returns the ID directly in the returned
 row, so it does not need `lastInsertId()`. See
 [Returning the ID](#returning-the-id).
+
+## Related Pages
+
+- [Query Upsert](/documentation/components/query/upsert) and
+  [Writing Data](/documentation/components/query/writing): the same
+  statements built with the query builder.
+- [ORM Persisting](/documentation/components/orm/persisting): saving
+  entities, which uses the writer for each row.
