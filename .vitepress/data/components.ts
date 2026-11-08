@@ -160,7 +160,8 @@ export const groupedComponents: ComponentSet = {
     'database': {
       title: 'Database',
       description: 'Simple but powerful DBAL component.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/database'),
+      extra: {},
     },
     'query': {
       title: 'Query',
@@ -183,12 +184,14 @@ export const groupedComponents: ComponentSet = {
     'scalars': {
       title: 'Scalars',
       description: 'PHP scalars objects to enhance data operations.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/scalars'),
+      extra: {},
     },
     'data': {
       title: 'Data',
       description: 'Provide Collection object and multi-format structured data encode / decode.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/data'),
+      extra: {},
     },
   },
 
