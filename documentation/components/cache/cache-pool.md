@@ -90,12 +90,8 @@ It applies to:
 
 - `set()` and `setMultiple()` without a TTL.
 - `modify()`, `compute()`, and `touch()` without a TTL.
+- `fetch()` and `fetchAsync()` with a `null` TTL.
 - Items returned by `getItem()` before `expiresAfter()` is called.
-
-::: warning
-`fetch()` with a `null` TTL does not use `defaultTtl`. It stores the value for one year. Pass an explicit TTL to
-`fetch()`.
-:::
 
 ::: warning
 When `defaultTtl` is `null`, the default is one year.

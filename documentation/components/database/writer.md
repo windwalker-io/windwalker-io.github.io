@@ -268,6 +268,13 @@ $row = $db->writer->upsert(
 $row['id']; // ID of the inserted or the updated row
 ```
 
+::: info
+The returned data is the input you passed, with the ID set. The row is not
+read back from the database, so columns that the conflict update changed, or
+left out, show the input values rather than the stored ones. Read the row
+again when you need the stored values.
+:::
+
 Each platform reads the ID in its own way:
 
 - PostgreSQL and SQLite: `RETURNING id` in the same statement.

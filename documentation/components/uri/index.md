@@ -107,9 +107,8 @@ from those parts. Query data is kept in two forms: the encoded query string
 and an array of decoded variables, which `withVar()` and `withoutVar()`
 keep in sync.
 
-`withPath()`, `withQuery()`, and `withVar()` filter and encode the values
-they receive. `withPathAppend()` is the exception and appends the suffix
-as given. The [Uri](./uri) page explains the difference.
+`withPath()`, `withQuery()`, `withVar()`, and `withPathAppend()` filter and
+encode the values they receive. The [Uri](./uri) page explains the details.
 
 ## Topic Pages
 

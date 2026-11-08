@@ -135,23 +135,30 @@ new Uri('https://example.com')->withPath('/search?q=1');
 // InvalidArgumentException: Path should not contain `?` and `#` symbols.
 ```
 
-`withPathAppend()` adds a suffix to the current path. It does not encode the
-suffix and does not normalize the result:
+`withPathAppend()` adds a suffix to the current path. It filters the whole
+resulting path the same way `withPath()` does: characters that are not
+allowed in a path are percent-encoded, and existing escape sequences are
+kept, so `%20` is not encoded twice:
 
 ```php
 $uri = new Uri('https://example.com/files')
     ->withPathAppend('/report 2026.pdf');
 
 echo $uri->getPath();
-// /files/report 2026.pdf
+// /files/report%202026.pdf
+
+$uri = new Uri('https://example.com/files')
+    ->withPathAppend('/report%202026.pdf');
+
+echo $uri->getPath();
+// /files/report%202026.pdf
 ```
 
-::: warning
-`withPathAppend()` appends the suffix as it is. A suffix that contains a
-space, `?`, `#`, or a `%` that is not an escape sequence produces an
-invalid or ambiguous URL. Encode path segments first, with
-`UriHelper::encode(..., true)`, or use `withPath()` when you build the
-whole path. See the [Helpers](./helpers) page.
+::: info
+The suffix is still a path, not a single segment. A `/` in it adds a
+new level, and `?` or `#` are encoded rather than starting a query or a
+fragment. Use `UriHelper::encode(..., true)` on a segment when you need a
+literal encoded value, or use `withPath()` to build the whole path.
 :::
 
 ## Working with Query Variables

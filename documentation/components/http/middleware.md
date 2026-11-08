@@ -183,13 +183,6 @@ public files are served without the checks of the application.
 For production, keep letting a web server or a CDN serve static files,
 because it is faster and handles caching better than PHP does.
 
-::: warning
-`ReactServer` does not run the middleware chain. It dispatches its events
-directly, so the two built-in middleware have no effect there. Use a
-server built on `HttpServerTrait` when you need middleware with an event
-loop.
-:::
-
 `FaviconFixMiddleware` answers requests for `/favicon.ico`. If the file
 exists in the public path, it is sent with the image content type.
 Browsers request this path automatically, so without a reply they log a
@@ -224,6 +217,9 @@ $server->middleware(
 Each header value can be a callable. It receives the file as an
 `SplFileInfo` and returns the value.
 
+A path that contains a `..` segment after decoding, such as
+`/%2e%2e/secret.txt`, also goes to the next handler and is never read.
+
 `FileProcessMiddleware` needs the `symfony/mime` package to detect the
 content type. Install it in your application. The constructor throws a
 `DomainException` when the package is missing.
@@ -231,7 +227,6 @@ content type. Install it in your application. The constructor throws a
 ::: warning
 `FileProcessMiddleware` serves every file in the public path, including
 hidden files such as `.env`. Keep application files and secrets outside
-that directory. The middleware does not check for `..` segments itself.
-The URI parser normalizes the request path before the middleware receives
-it, but do not symlink application directories into the public path.
+that directory. Do not symlink application directories into the public
+path, because the middleware follows the links.
 :::

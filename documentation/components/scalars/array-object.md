@@ -631,11 +631,12 @@ arr([1, 2, 3, 4])->rand(2)->dump();  // two random items
 ## Aggregation
 
 `sum()` adds the numeric values and skips the rest. `avg()` returns `null`
-for an empty array:
+for an empty array, and `0` when the values add up to zero:
 
 ```php
 arr([10, 20, 'n/a'])->sum();   // 30
 arr([10, 20, 30])->avg();      // 20
+arr([1, -1])->avg();           // 0
 arr([])->avg();                // null
 ```
 

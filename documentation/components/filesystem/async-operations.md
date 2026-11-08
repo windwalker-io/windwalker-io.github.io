@@ -176,18 +176,6 @@ fs('/var/www/b.txt')
 `FilesIterator`, so the listing methods from [Iterating Files](./iterating-files)
 work on the result of `wait()`.
 
-`createTempAsync()` is in the same forwarding map, but it is not a useful
-entry point. The facade treats its first argument as a path, so calling it
-without arguments fails with a `TypeError`:
-
-```php
-// TypeError: no path was given.
-Filesystem::createTempAsync();
-
-// Use the synchronous method for temporary files.
-$tmp = Filesystem::createTemp();
-```
-
 ## Ordering
 
 Each async call starts when it is made, and two calls can finish in either

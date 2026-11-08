@@ -245,12 +245,6 @@ Calling `listen()` again while the server is listening throws a
 `RuntimeException`.
 
 ::: warning
-`ReactServer` has no middleware chain. Calls to `middleware()` are not
-available on it, and the built-in middleware of this package do not run.
-Put request checks in a listener instead.
-:::
-
-::: warning
 A listener that blocks, such as a slow database query or a `sleep()`,
 stops every other request of the process. Move slow work out of the
 listener, or use the event loop's asynchronous tools.

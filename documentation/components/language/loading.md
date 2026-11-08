@@ -91,18 +91,21 @@ The format is the name of a handler in the format registry of
 | Format | Name to pass | Notes |
 |--------|--------------|-------|
 | INI | `ini` | Parsed with `parse_ini_string()`. Quote values that contain special characters. |
-| JSON | `json` | A flat object of keys and strings. |
+| JSON | `json` | An object of keys and strings. Nested objects are flattened. |
 | YAML | `yaml` or `yml` | Requires `symfony/yaml`. |
 | PHP | `php` | The file returns an array of keys and strings. |
 
 Pass `null` as the format to detect it from the file extension, so `.yml`
 files are read as YAML and `.json` files as JSON.
 
-A JSON file is a flat map from keys to strings:
+A JSON file maps keys to strings. A nested object is flattened into dotted
+keys, so this file defines the same key as the flat example below:
 
 ```json
 {
-    "order.shipped": "Order :orderId has been shipped."
+    "order": {
+        "shipped": "Order :orderId has been shipped."
+    }
 }
 ```
 
@@ -118,7 +121,7 @@ return [
 ];
 ```
 
-The same flat structure applies to every format. A YAML file uses the same
+The same structure applies to every format. A YAML file uses the same
 keys, and requires `symfony/yaml` to be installed:
 
 ```yaml

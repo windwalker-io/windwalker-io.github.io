@@ -106,6 +106,13 @@ $client->put('users/42', ['name' => 'Sakura']);
 $client->patch('users/42', ['email' => 'a@example.com']);
 ```
 
+`query()` sends a `QUERY` request. Its body is optional, and an array body
+is sent as JSON unless you set a `Content-Type` header:
+
+```php
+$client->query('users/search', ['filter' => ['status' => 'active']]);
+```
+
 For any other method, or when the method is decided at runtime, use
 `request()`. Its arguments are the method, the URL, the body, and the
 options:

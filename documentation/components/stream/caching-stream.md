@@ -171,8 +171,8 @@ $stream = new UppercaseStream(new StringStream('foo bar'));
 echo $stream->getContents(); // FOO BAR
 ```
 
-::: warning
-Always pass the inner stream to the constructor. The argument
-is optional in the signature, but a decorator with no inner stream fails
-on its first call.
+::: info
+The constructor argument is optional. Without it, the decorator wraps an
+empty stream, so pass the inner stream when you need to read or write your
+data.
 :::

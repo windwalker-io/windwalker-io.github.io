@@ -397,9 +397,7 @@ class SyncInventory
 
         if ($this->api->isBusy()) {
             // Retry in 30 seconds. Counts as an attempt, not a failure.
-            $controller->retryAfter(30);
-
-            return;
+            throw $controller->retryAfter(30);
         }
 
         if ($this->orders->isCancelled()) {
@@ -426,7 +424,7 @@ counters differently. The defaults are `tries = 5` and `backoff = 0`:
 | Outcome | `attempts` | `deferTimes` | Counted as failure | Next step | Limited by `tries` |
 |---------|------------|--------------|--------------------|-----------|--------------------|
 | `throw $controller->defer(N)` | Unchanged | +1 | No | Requeued after N seconds | No |
-| `$controller->retryAfter(N)` | +1 | Unchanged | No | Requeued after N seconds | Yes |
+| `throw $controller->retryAfter(N)` | +1 | Unchanged | No | Requeued after N seconds | Yes |
 | Thrown exception, or `$controller->failed($e)` | +1 | Unchanged | Yes | Requeued with the backoff, or deleted when `tries` is reached | Yes |
 | `throw $controller->abandoned()` | +1 | Unchanged | No | Deleted | Not applicable |
 
@@ -559,9 +557,7 @@ class SyncCatalog
     public function handle(JobController $controller): void
     {
         if ($this->api->isBusy()) {
-            $controller->retryAfter(30);
-
-            return;
+            throw $controller->retryAfter(30);
         }
 
         $this->api->sync();
@@ -579,8 +575,8 @@ class SyncCatalog
 #### Reversing a retryAfter
 
 A reversal works only while the method is still running. Here the job asks
-for a retry, then finds that the catalog was synced meanwhile, and cancels
-the retry before it returns:
+for a retry without `throw`, so the method keeps running. It then finds that
+the catalog was synced meanwhile, and cancels the retry before it returns:
 
 ```php
 use Windwalker\Queue\Attributes\JobEntry;
@@ -611,9 +607,10 @@ class SyncCatalog
 instead of being requeued.
 
 ::: warning
-`retryAfter()` does not stop the method. Code after it still runs, so
-`return` right after the call. An exception thrown after `retryAfter()`
-makes the run a failure, and the retry request is dropped.
+A plain call to `retryAfter()`, without `throw`, does not stop the method.
+Code after it still runs, so `return` right after the call. An exception
+thrown after a plain call makes the run a failure, and the retry request is
+dropped.
 :::
 
 ### failed()
