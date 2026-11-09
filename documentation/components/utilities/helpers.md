@@ -102,7 +102,9 @@ Array
 ```
 
 The depth counts expanded containers. The top-level array counts as the
-first level, so `depth(2)` expands one nested level below it.
+first level, so `depth(2)` expands one nested level below it. `depth(0)`
+expands no containers at all, so only `*MAX LEVEL*` is printed for the
+top-level value's children.
 
 ::: info
 The depth limit applies to nesting, not to the number of items. A flat array
