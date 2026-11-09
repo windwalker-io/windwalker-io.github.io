@@ -8,12 +8,12 @@ export default <ComponentMenu> {
       link: '',
     },
     {
-      text: 'Grid',
-      link: 'grid',
-    },
-    {
       text: 'Helpers',
       link: 'helpers',
+    },
+    {
+      text: 'Grid',
+      link: 'grid',
     },
   ]
 };

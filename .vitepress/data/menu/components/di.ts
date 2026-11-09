@@ -12,20 +12,20 @@ export default <ComponentMenu> {
       link: 'basic-usage',
     },
     {
-      text: 'Tagged Services',
-      link: 'tagged-services',
-    },
-    {
-      text: 'Lazy Loading',
-      link: 'lazy',
+      text: 'Parameters',
+      link: 'parameters',
     },
     {
       text: 'Attributes',
       link: 'attributes',
     },
     {
-      text: 'Parameters',
-      link: 'parameters',
+      text: 'Tagged Services',
+      link: 'tagged-services',
+    },
+    {
+      text: 'Lazy Objects',
+      link: 'lazy',
     },
     {
       text: 'Multi Levels',

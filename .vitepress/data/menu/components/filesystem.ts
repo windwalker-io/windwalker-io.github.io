@@ -16,12 +16,12 @@ export default <ComponentMenu> {
       link: 'iterating-files',
     },
     {
-      text: 'Path Collection',
-      link: 'path-collection',
-    },
-    {
       text: 'Path Utilities',
       link: 'path-utilities',
+    },
+    {
+      text: 'Path Collection',
+      link: 'path-collection',
     },
     {
       text: 'Temporary Files',

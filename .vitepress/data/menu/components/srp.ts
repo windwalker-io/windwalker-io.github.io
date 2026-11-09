@@ -8,12 +8,12 @@ export default <ComponentMenu> {
       link: '',
     },
     {
-      text: 'Configuration',
-      link: 'configuration',
-    },
-    {
       text: 'Protocol',
       link: 'protocol',
+    },
+    {
+      text: 'Configuration',
+      link: 'configuration',
     },
     {
       text: 'Sample Flow',

@@ -28,12 +28,12 @@ export default <ComponentMenu> {
       link: 'tables',
     },
     {
-      text: 'Schema Diff',
-      link: 'schema-diff',
-    },
-    {
       text: 'Databases and Schemas',
       link: 'databases-and-schemas',
+    },
+    {
+      text: 'Schema Diff',
+      link: 'schema-diff',
     },
     {
       text: 'Events',

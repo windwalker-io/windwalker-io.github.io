@@ -1,6 +1,6 @@
 import { ComponentMenu } from '../../../types';
 
-export default <ComponentMenu> {
+export default <ComponentMenu>{
   name: 'Queue',
   items: [
     {
@@ -27,5 +27,5 @@ export default <ComponentMenu> {
       text: 'Failed Jobs',
       link: 'failed-jobs',
     },
-  ]
+  ],
 };

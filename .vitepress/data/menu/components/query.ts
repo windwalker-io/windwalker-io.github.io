@@ -12,12 +12,20 @@ export default <ComponentMenu> {
       link: 'select',
     },
     {
+      text: 'Conditions',
+      link: 'where',
+    },
+    {
       text: 'Joins',
       link: 'join',
     },
     {
-      text: 'Conditions',
-      link: 'where',
+      text: 'Iteration',
+      link: 'iteration',
+    },
+    {
+      text: 'Cursor Pagination',
+      link: 'cursor-pagination',
     },
     {
       text: 'Writing Data',
@@ -38,14 +46,6 @@ export default <ComponentMenu> {
     {
       text: 'Common Table Expressions',
       link: 'cte',
-    },
-    {
-      text: 'Iteration',
-      link: 'iteration',
-    },
-    {
-      text: 'Cursor Pagination',
-      link: 'cursor-pagination',
     },
     {
       text: 'Rendering and Debugging',

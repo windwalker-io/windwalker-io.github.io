@@ -8,16 +8,16 @@ export default <ComponentMenu> {
       link: '',
     },
     {
+      text: 'Messages',
+      link: 'messages',
+    },
+    {
       text: 'HTTP Client',
       link: 'client',
     },
     {
       text: 'Transports',
       link: 'transports',
-    },
-    {
-      text: 'Messages',
-      link: 'messages',
     },
     {
       text: 'Output',

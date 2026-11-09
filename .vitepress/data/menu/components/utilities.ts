@@ -20,8 +20,32 @@ export default <ComponentMenu> {
       link: 'str',
     },
     {
+      text: 'Type Cast',
+      link: 'type-cast',
+    },
+    {
       text: 'Assert',
       link: 'assert',
+    },
+    {
+      text: 'Helpers',
+      link: 'helpers',
+    },
+    {
+      text: 'Object Helpers',
+      link: 'object-helpers',
+    },
+    {
+      text: 'Text Transforms',
+      link: 'text-transforms',
+    },
+    {
+      text: 'Identifiers',
+      link: 'identifiers',
+    },
+    {
+      text: 'Exceptions',
+      link: 'exceptions',
     },
     {
       text: 'Attributes',
@@ -34,30 +58,6 @@ export default <ComponentMenu> {
     {
       text: 'Iterators',
       link: 'iterators',
-    },
-    {
-      text: 'Exceptions',
-      link: 'exceptions',
-    },
-    {
-      text: 'Object Helpers',
-      link: 'object-helpers',
-    },
-    {
-      text: 'Helpers',
-      link: 'helpers',
-    },
-    {
-      text: 'Identifiers',
-      link: 'identifiers',
-    },
-    {
-      text: 'Text Transforms',
-      link: 'text-transforms',
-    },
-    {
-      text: 'Type Cast',
-      link: 'type-cast',
     },
   ]
 };

@@ -12,12 +12,12 @@ export default <ComponentMenu> {
       link: 'assertions',
     },
     {
-      text: 'Database Tests',
-      link: 'database',
-    },
-    {
       text: 'Accessing Members',
       link: 'accessors',
+    },
+    {
+      text: 'Database Tests',
+      link: 'database',
     },
     {
       text: 'Swoole Tests',

@@ -1,10 +1,10 @@
 ---
 layout: doc
-title: TaggedCachePool
+title: Tagged Caches
 component: cache
 ---
 
-# TaggedCachePool
+# Tagged Caches
 
 `TaggedCachePool` extends `CachePool` with tag-based invalidation. Each tag has a version. An item records the versions
 of its tags when it is saved, and it becomes a miss once any of those versions changes. Invalidating a tag therefore

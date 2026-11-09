@@ -12,16 +12,16 @@ export default <ComponentMenu> {
       link: 'cache-pool',
     },
     {
-      text: 'TaggedCachePool',
-      link: 'tagged-pool',
-    },
-    {
       text: 'Storages',
       link: 'storages',
     },
     {
       text: 'Serializers',
       link: 'serializers',
+    },
+    {
+      text: 'Tagged Caches',
+      link: 'tagged-pool',
     },
   ]
 };

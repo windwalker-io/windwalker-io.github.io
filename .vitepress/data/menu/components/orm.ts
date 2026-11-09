@@ -12,6 +12,10 @@ export default <ComponentMenu>{
             link: 'entities',
         },
         {
+            text: 'Attributes',
+            link: 'attributes',
+        },
+        {
             text: 'Casting',
             link: 'casting',
         },
@@ -19,11 +23,6 @@ export default <ComponentMenu>{
             text: 'Hydration',
             link: 'hydration',
         },
-        {
-            text: 'Attributes',
-            link: 'attributes',
-        },
-
         {
             text: 'Querying',
             link: 'querying',
@@ -37,20 +36,20 @@ export default <ComponentMenu>{
             link: 'events',
         },
         {
-            text: 'Optimistic Locking',
-            link: 'optimistic-lock',
-        },
-        {
-            text: 'Nested Sets',
-            link: 'nested-set',
-        },
-        {
             text: 'Energize',
             link: 'energize',
         },
         {
             text: 'UUID',
             link: 'uuid',
+        },
+        {
+            text: 'Optimistic Locking',
+            link: 'optimistic-lock',
+        },
+        {
+            text: 'Nested Sets',
+            link: 'nested-set',
         },
         {
             text: 'Custom Mappers',
