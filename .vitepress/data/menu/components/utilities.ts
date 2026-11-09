@@ -19,5 +19,25 @@ export default <ComponentMenu> {
       text: 'Str',
       link: 'str',
     },
+    {
+      text: 'Assert',
+      link: 'assert',
+    },
+    {
+      text: 'Attributes',
+      link: 'attributes',
+    },
+    {
+      text: 'Dump Attributes',
+      link: 'dump-attributes',
+    },
+    {
+      text: 'Enum Attributes',
+      link: 'enum-attributes',
+    },
+    {
+      text: 'Cache',
+      link: 'cache',
+    },
   ]
 };

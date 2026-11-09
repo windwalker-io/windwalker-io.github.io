@@ -113,7 +113,7 @@ Placeholders in the message are replaced as follows:
 - `{type}`: a description of the value, such as `string(3) "abc"`,
   `BOOL (FALSE)`, or `(NULL)`.
 
-Values that are arrays or objects can be reached with a dotted path:
+Array values can be reached with a dotted path:
 
 ```php
 ArgumentsAssert::assert(
@@ -124,8 +124,9 @@ ArgumentsAssert::assert(
 ```
 
 ::: tip
-Describe the value with `{type}` when the value itself may be long or
-sensitive. `{type}` shows the type and a truncated preview only.
+Use `{type}` when the value may be long or sensitive. Arrays and objects
+show only their type, and strings show a preview truncated to 50
+characters.
 :::
 
 A message can also be a closure. It receives the caller, the value, and

@@ -88,6 +88,15 @@ Both classes follow the same two ideas.
   decide what to create, delete, and update.
 - [Str](./str): searching, trimming, padding, truncating, and transforming
   strings, with encoding support.
+- [Assert](./assert): one-line argument and state checks with messages
+  that name the caller and the value.
+- [Attributes](./attributes): reading PHP attributes from classes, members,
+  and parent classes, plus trait options.
+- [Dump Attributes](./dump-attributes): controlling which properties appear
+  in object dumps.
+- [Enum Attributes](./enum-attributes): titles, icons, colors, and other
+  metadata on enum cases.
+- [Cache](./cache): caching values per object or per class with a string ID.
 
 ## Related components
 

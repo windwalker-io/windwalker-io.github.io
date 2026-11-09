@@ -82,10 +82,15 @@ const sectionNames: [prefix: string, name: string][] = [
 ];
 
 // Build llms.txt: H2 sections per area, nested lists per sub-directory
-async function buildLlmsTxt(): Promise<string> {
-  const files = (await publicMarkdownFiles()).filter(
+async function llmsMarkdownFiles(): Promise<string[]> {
+  return (await publicMarkdownFiles()).filter(
     (file) => file.includes('/') && !llmsExcludePrefixes.some((prefix) => file.startsWith(prefix)),
   );
+}
+
+// Build llms.txt: H2 sections per area, nested lists per sub-directory
+async function buildLlmsTxt(): Promise<string> {
+  const files = await llmsMarkdownFiles();
   const infos = new Map((await Promise.all(files.map(readMdInfo))).map((i) => [i.file, i]));
   const item = (info: MdInfo, indent = '') =>
     `${indent}- [${info.title}](${toUrl(info.file)})${info.description ? `: ${info.description}` : ''}`;
@@ -200,9 +205,10 @@ function markdownExportPlugin(): Plugin {
 // Built before VitePress renders pages so the checksum can be shown on the download page
 const skillsPackage = await buildSkillsPackage({
   srcDir,
-  files: await publicMarkdownFiles(),
+  files: await llmsMarkdownFiles(),
+  siteUrl,
+  index: await buildLlmsTxt(),
   stagingDir: join(srcDir, '.vitepress', 'cache', 'skills-package'),
-  describe: readMdInfo,
 });
 
 // https://vitepress.dev/reference/site-config
