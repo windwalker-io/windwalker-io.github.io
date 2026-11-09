@@ -39,5 +39,45 @@ export default <ComponentMenu> {
       text: 'Cache',
       link: 'cache',
     },
+    {
+      text: 'Iterators',
+      link: 'iterators',
+    },
+    {
+      text: 'Priority Queue',
+      link: 'priority-queue',
+    },
+    {
+      text: 'Exceptions',
+      link: 'exceptions',
+    },
+    {
+      text: 'Reflection',
+      link: 'reflection',
+    },
+    {
+      text: 'Env',
+      link: 'env',
+    },
+    {
+      text: 'Serial',
+      link: 'serial',
+    },
+    {
+      text: 'Symbol',
+      link: 'symbol',
+    },
+    {
+      text: 'Lazy Objects',
+      link: 'lazy-objects',
+    },
+    {
+      text: 'Text Transforms',
+      link: 'text-transforms',
+    },
+    {
+      text: 'Type Cast',
+      link: 'type-cast',
+    },
   ]
 };

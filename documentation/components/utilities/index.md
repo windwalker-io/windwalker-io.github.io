@@ -97,6 +97,23 @@ Both classes follow the same two ideas.
 - [Enum Attributes](./enum-attributes): titles, icons, colors, and other
   metadata on enum cases.
 - [Cache](./cache): caching values per object or per class with a string ID.
+- [Iterators](./iterators): lazy pipelines, re-runnable generators, paged
+  sources, and unique values.
+- [Priority Queue](./priority-queue): ordered items with named priorities.
+- [Exceptions](./exceptions): exception helpers for multiple messages and
+  verbosity levels.
+- [Reflection](./reflection): reading and writing members regardless of
+  visibility.
+- [Env](./env): reading and setting environment values with defaults.
+- [Serial](./serial): in-memory numbered sequences.
+- [Symbol](./symbol): named marker values compared by identity.
+- [Lazy Objects](./lazy-objects): checking and unwrapping PHP 8.4 lazy
+  objects.
+- [Text Transforms](./text-transforms): filling placeholders in text,
+  singular and plural forms of English words, and converting names between
+  naming styles.
+- [Type Cast](./type-cast): strict, safe, and forced conversions between
+  types.
 
 ## Related components
 

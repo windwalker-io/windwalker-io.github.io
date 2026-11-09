@@ -12,7 +12,7 @@ The Windwalker documentation, in the same scope as `llms.txt`, is published with
   <li><a href="/llms.txt">llms.txt</a>: the online documentation index for LLMs</li>
   <li><a href="/skills.zip">skills.zip</a>: the archive</li>
   <li><a href="/skills.zip.sha256">skills.zip.sha256</a>: the checksum file</li>
-  <li><a href="/skills/llms.md">skills/llms.md</a>: the index, same structure as <code>llms.txt</code> with relative links</li>
+  <li><a href="/skills/README.md">skills/README.md</a>: the index, same structure as <code>llms.txt</code> with relative links</li>
 </ul>
 
 ## Checksum
@@ -32,7 +32,7 @@ curl -fsSLO https://windwalker.io/skills.zip &&
   unzip -q skills.zip -d skills
 ```
 
-The checksum step prints `skills.zip: OK` when the archive matches. Then the files are in `./skills/`, starting with `skills/llms.md`.
+The checksum step prints `skills.zip: OK` when the archive matches. Then the files are in `./skills/`, starting with `skills/README.md`.
 
 ::: info
 The checksum and the archive come from the same site, so this check detects a corrupted or incomplete download. It does not prove that the archive was not replaced on the server.

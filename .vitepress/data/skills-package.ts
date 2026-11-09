@@ -1,14 +1,14 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, utimes, writeFile } from 'node:fs/promises';
-import { join, posix } from 'node:path';
+import { dirname, join, posix } from 'node:path';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const FIXED_TIME = new Date('2024-01-01T00:00:00Z');
 const LINK = /\[([^\]]*)\]\(([^)\s]+)(\s+"[^"]*")?\)/g;
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
-const INDEX_NAME = 'llms.md';
+const INDEX_NAME = 'README.md';
 
 export type SkillsPackage = {
   stagingDir: string;
@@ -27,14 +27,9 @@ type BuildOptions = {
   stagingDir: string;
 };
 
-// `documentation/components/query/where.md` -> `components-query-where.md`
-function flatName(file: string): string {
-  const path = file
-    .replace(/\.md$/, '')
-    .replace(/^documentation\//, '')
-    .replace(/\/index$/, '') || 'index';
-
-  return `${path.split('/').join('-')}.md`;
+// `documentation/components/attributes/index.md` -> `components/attributes/index.md`
+function packagePath(file: string): string {
+  return file.replace(/^documentation\//, '');
 }
 
 // Candidate repo paths for a link target, resolved like VitePress clean URLs
@@ -47,7 +42,14 @@ function candidates(base: string, path: string): string[] {
   return [`${clean}.md`, `${clean}/index.md`];
 }
 
-// Staged layout: <stagingDir>/skills/*.md, skills.zip, skills.zip.sha256
+// Relative link from a directory inside the package to a file inside it
+function relativeLink(fromDir: string, to: string): string {
+  const rel = posix.relative(fromDir, to);
+
+  return rel.startsWith('.') ? rel : `./${rel}`;
+}
+
+// Staged layout: <stagingDir>/skills/<nested paths>.md, skills.zip, skills.zip.sha256
 export async function buildSkillsPackage({
   srcDir,
   files,
@@ -56,18 +58,10 @@ export async function buildSkillsPackage({
   stagingDir,
 }: BuildOptions): Promise<SkillsPackage> {
   const sourceFiles = [...files].sort();
-  const flatByFile = new Map<string, string>();
-  const ownerByFlat = new Map<string, string>([[INDEX_NAME, 'generated index']]);
+  const outByFile = new Map<string, string>(sourceFiles.map((file) => [file, packagePath(file)]));
 
-  for (const file of sourceFiles) {
-    const name = flatName(file);
-
-    if (ownerByFlat.has(name)) {
-      throw new Error(`Skills package name collision: ${ownerByFlat.get(name)} and ${file} both map to ${name}`);
-    }
-
-    ownerByFlat.set(name, file);
-    flatByFile.set(file, name);
+  if (new Set(outByFile.values()).size !== outByFile.size || outByFile.has(INDEX_NAME)) {
+    throw new Error('Skills package path collision');
   }
 
   const pkgDir = join(stagingDir, 'skills');
@@ -84,10 +78,12 @@ export async function buildSkillsPackage({
     const hashIndex = target.indexOf('#');
     const path = hashIndex === -1 ? target : target.slice(0, hashIndex);
     const fragment = hashIndex === -1 ? '' : target.slice(hashIndex);
-    const flat = candidates(file, path).map((c) => flatByFile.get(c)).find(Boolean);
+    const linked = candidates(file, path).find((c) => outByFile.has(c));
 
-    if (flat) {
-      return `[${label}](./${flat}${fragment})`;
+    if (linked) {
+      const link = relativeLink(dirname(outByFile.get(file)!), outByFile.get(linked)!);
+
+      return `[${label}](${link}${fragment})`;
     }
 
     // Target is outside the package: keep the text, drop the link
@@ -101,22 +97,24 @@ export async function buildSkillsPackage({
     const out = text.replace(LINK, (_match, label: string, target: string) =>
       rewriteLink(file, label, target),
     );
+    const dest = join(pkgDir, outByFile.get(file)!);
 
-    await writeFile(join(pkgDir, flatByFile.get(file)!), out);
+    await mkdir(dirname(dest), { recursive: true });
+    await writeFile(dest, out);
   }
 
   const escapedSiteUrl = siteUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const indexText = index.replace(
     new RegExp(`${escapedSiteUrl}/([^)\\s]+)`, 'g'),
     (match, file: string) => {
-      const flat = flatByFile.get(file);
+      const out = outByFile.get(file);
 
-      if (!flat) {
+      if (!out) {
         warnings.push(`${INDEX_NAME} -> ${file}`);
         return match;
       }
 
-      return `./${flat}`;
+      return relativeLink(dirname(INDEX_NAME), out);
     },
   );
 
@@ -126,7 +124,7 @@ export async function buildSkillsPackage({
     console.warn(`[skills] Links outside the package were left unresolved:\n  ${warnings.join('\n  ')}`);
   }
 
-  const members = [...flatByFile.values(), INDEX_NAME].sort();
+  const members = [...outByFile.values(), INDEX_NAME].sort();
 
   // Fixed mtimes keep the archive byte-identical for identical content
   await Promise.all(members.map((name) => utimes(join(pkgDir, name), FIXED_TIME, FIXED_TIME)));
