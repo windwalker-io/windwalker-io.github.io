@@ -150,6 +150,31 @@ Implement the interfaces that match the parts you need:
 - `ParsersExtensionInterface` for `getParsers()`.
 - `GlobalVariablesExtensionInterface` for `getGlobals()`.
 
+## Rendering with a Context Object
+
+`renderWithContext()` renders a template and binds `$this` inside the
+template to a context object. Use it when a template needs methods of an
+object owned by your application, such as a page presenter:
+
+```php
+class PagePresenter
+{
+    public function title(): string
+    {
+        return 'Dashboard';
+    }
+}
+
+echo $edge->renderWithContext(
+    '<h1>{{ $this->title() }}</h1>',
+    [],
+    new PagePresenter(),
+);
+```
+
+The output is `<h1>Dashboard</h1>`. The context is only set for the
+duration of the call, so each render receives its own object.
+
 ## Changing the Echo Tags
 
 The compiler also controls the tags for output. The setters are:

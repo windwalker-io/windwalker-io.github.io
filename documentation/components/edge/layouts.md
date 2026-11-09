@@ -23,7 +23,7 @@ prints the stack where it needs it.
 A layout uses `@yield` to mark a place that children can fill. A child
 uses `@extends` to name its layout and `@section` to provide content:
 
-```php
+```blade
 {{-- layouts/master.blade.php --}}
 <html>
 <head>
@@ -35,7 +35,7 @@ uses `@extends` to name its layout and `@section` to provide content:
 </html>
 ```
 
-```php
+```blade
 {{-- pages/home.blade.php --}}
 @extends('layouts.master')
 
@@ -62,7 +62,7 @@ $html = $edge->render('pages.dashboard', [
 ]);
 ```
 
-```php
+```blade
 {{-- layouts/master.blade.php --}}
 <html>
 <head>
@@ -83,7 +83,7 @@ $html = $edge->render('pages.dashboard', [
 </html>
 ```
 
-```php
+```blade
 {{-- pages/dashboard.blade.php --}}
 @extends('layouts.master')
 
@@ -137,10 +137,46 @@ them in `<head>` or before `</body>`.
 - `@pushOnce('name', 'id')` pushes a block once, even when the same
   template is rendered several times with the same id.
 
-```php
+```blade
 @pushIf($user->isAdmin(), 'scripts')
     <script src="/js/admin.js"></script>
 @endPushIf
+```
+
+## Including Partials
+
+`@include` renders another template at the current position. The
+included template receives the variables of the current template, and
+any array passed as the second argument overrides them:
+
+```blade
+@include('partials.header', ['title' => 'Dashboard'])
+```
+
+`@each` renders a partial once for every item in an array. The partial
+receives the item under the name given as the third argument, and the
+array key under `key`:
+
+```blade
+<ul>
+    @each('partials.item', $items, 'item')
+</ul>
+```
+
+`@each` accepts a fourth argument for an empty array. Use a template name,
+or prefix a plain string with `raw|`:
+
+```blade
+@each('partials.item', $items, 'item', 'raw|No items.')
+```
+
+`@hasSection` checks whether a section has content, which lets a layout
+render a wrapper only when the child filled it:
+
+```blade
+@hasSection('sidebar')
+    <aside>@yield('sidebar')</aside>
+@endif
 ```
 
 ## Partials Rendered Once
@@ -148,7 +184,7 @@ them in `<head>` or before `</body>`.
 Use `@once` for a block that should appear one time, such as a
 JavaScript library included by a reusable partial:
 
-```php
+```blade
 @once('chart-library')
     @push('scripts')
         <script src="/js/chart.js"></script>

@@ -100,6 +100,7 @@ return static fn() => [
     'edge' => [
         'components' => [
             'alert' => AlertComponent::class,
+            'address' => 'components.address',
         ],
         'component_scans' => [
             'App\\Component',
@@ -139,6 +140,9 @@ file cache, and `paths` sets the template directories. See
   and array caches, and how expiration works.
 - [Extending Edge](/documentation/components/edge/extending): custom
   directives, parsers, globals, and extension classes.
+- [Differences from Blade](/documentation/components/edge/blade-differences):
+  Edge-only features, changed behavior, and Blade directives that Edge
+  does not provide.
 
 ## Related components
 

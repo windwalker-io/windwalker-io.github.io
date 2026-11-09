@@ -27,6 +27,7 @@ export const componentNames = [
   'renderer',
   'scalars',
   'session',
+  'srp',
   'stream',
   'test',
   'uri',
@@ -151,6 +152,12 @@ export const groupedComponents: ComponentSet = {
     'filter': {
       title: 'Filter',
       description: 'A set of filter / validate rules.',
+      extra: {},
+    },
+    'srp': {
+      title: 'SRP',
+      description: 'Secure Remote Password (SRP-6a) PHP and JS package.',
+      menu: () => import('./menu/components/srp'),
       extra: {},
     },
 

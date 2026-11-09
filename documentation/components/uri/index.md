@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Uri
 menu: components/uri
+component: uri
 ---
 
 # Introduction

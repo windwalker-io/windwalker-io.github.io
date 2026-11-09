@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Filter
 menu: components/filter
+component: filter
 ---
 
 # Introduction

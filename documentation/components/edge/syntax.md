@@ -80,9 +80,20 @@ $edge->render('{{ $html }}', ['html' => '<b>"hi"</b>']);
 Use `??` for fallback values. An undefined variable produces a PHP
 notice, so always provide a default when the key may be missing:
 
-```php
+```blade
 {{ $title ?? 'Untitled' }}
 ```
+
+Edge also accepts the `or` form, which compiles to an `isset()` check.
+The left side must be a variable:
+
+```blade
+{{ $title or 'Untitled' }}
+```
+
+This form is specific to Edge. See
+[Differences from Blade](/documentation/components/edge/blade-differences)
+for the full list.
 
 ::: warning
 `ENT_COMPAT` does not encode single quotes. Always wrap HTML
@@ -95,7 +106,7 @@ by a value that contains `'`.
 
 <code v-pre>{!! !!}</code> prints the value without escaping:
 
-```php
+```blade
 {!! $htmlFragment !!}
 ```
 
@@ -115,7 +126,7 @@ same braces belong to a JavaScript framework:
 
 Comments between <code v-pre>{{-- --}}</code> are removed from the compiled output:
 
-```php
+```blade
 {{-- This line never reaches the browser. --}}
 ```
 
@@ -126,7 +137,7 @@ To keep a block unparsed, wrap it in `@verbatim` and `@endverbatim`.
 Conditions use `@if`, `@elseif`, `@else`, and `@endif`. The `@unless`
 directive is the negated form of `@if`.
 
-```php
+```blade
 @unless ($user->isGuest())
     <p>Welcome back.</p>
 @endunless
@@ -135,7 +146,7 @@ directive is the negated form of `@if`.
 Loops use `@foreach`, `@for`, and `@while`. The `@forelse` directive
 renders an `@empty` branch when the collection has no items:
 
-```php
+```blade
 @forelse ($users as $user)
     <p>{{ $user['name'] }}</p>
 @empty
@@ -146,7 +157,7 @@ renders an `@empty` branch when the collection has no items:
 Inside a loop, `@continue($condition)` and `@break($condition)` skip
 an iteration or stop the loop when the condition is true:
 
-```php
+```blade
 @foreach ($numbers as $n)
     @continue($n === 2)
     @break($n === 4)
@@ -156,7 +167,7 @@ an iteration or stop the loop when the condition is true:
 
 Use `@switch` with `@case`, `@break`, and `@default` for value matching:
 
-```php
+```blade
 @switch($status)
     @case('draft')
         Draft
@@ -176,7 +187,7 @@ Use `@switch` with `@case`, `@break`, and `@default` for value matching:
 Helpers add HTML attributes only when the condition is true. Each
 helper prints an attribute name without a value.
 
-```php
+```blade
 <input type="checkbox" @checked($on) @disabled($locked)>
 ```
 
@@ -188,7 +199,7 @@ helper prints an attribute name without a value.
 `@class` builds a `class` attribute from an array. Numeric keys are
 always included. String keys are included when their value is truthy:
 
-```php
+```blade
 <p @class([
     'card',
     'card-active' => $active,
@@ -196,22 +207,49 @@ always included. String keys are included when their value is truthy:
 ])></p>
 ```
 
+`@bool` prints `true` or `false` as a plain value, which is useful inside
+JavaScript or an attribute that expects a literal boolean:
+
+```blade
+<button data-open="@bool($open)"></button>
+```
+
 `@json` encodes a value as JSON. The output is HTML-escaped, so place it
 in an attribute, not inside a `<script>` block:
 
-```php
+```blade
 <div data-config="@json($config)"></div>
 ```
+
+For a `<script>` block, use `@js`. It emits a JavaScript expression that
+parses the value at runtime:
+
+```blade
+<script>
+    const config = @js($config);
+</script>
+```
+
+Edge encodes the JSON as base64 and outputs `JSON.parse(atob('...'))`.
+The base64 text contains no quotes or angle brackets, so the output is
+safe inside a script block without further escaping.
 
 ## PHP Code in Templates
 
 `@php ... @endphp` runs a block of PHP, and `@php($expr)` runs a single
 expression:
 
-```php
+```blade
 @php($total = count($items))
 
 <p>{{ $total }} items</p>
+```
+
+`@unset($name)` removes a variable from the template scope. This is
+useful when a loop variable must not leak into code that follows:
+
+```blade
+@unset($item)
 ```
 
 ::: warning

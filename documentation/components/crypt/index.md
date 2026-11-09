@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Crypt
 menu: components/crypt
+component: crypt
 ---
 
 # Introduction

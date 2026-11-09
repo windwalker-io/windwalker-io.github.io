@@ -31,5 +31,9 @@ export default <ComponentMenu> {
       text: 'Extending Edge',
       link: 'extending',
     },
+    {
+      text: 'Differences from Blade',
+      link: 'blade-differences',
+    },
   ]
 };

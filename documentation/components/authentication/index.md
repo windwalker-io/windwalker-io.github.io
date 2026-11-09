@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Authentication
 menu: components/authentication
+component: authentication
 ---
 
 # Introduction

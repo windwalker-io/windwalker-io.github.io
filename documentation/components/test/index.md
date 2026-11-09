@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Test
 menu: components/test
+component: test
 ---
 
 # Introduction

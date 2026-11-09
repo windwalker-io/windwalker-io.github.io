@@ -4,6 +4,7 @@ title: Authentication Methods
 part: Components
 chapter: Authentication
 menu: components/authentication
+component: authentication
 ---
 
 # Authentication Methods

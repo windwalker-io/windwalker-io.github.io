@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Authorization
 menu: components/authorization
+component: authorization
 ---
 
 # Introduction

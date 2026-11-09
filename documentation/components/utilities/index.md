@@ -4,6 +4,7 @@ title: Introduction
 part: Components
 chapter: Utilities
 menu: components/utilities
+component: utilities
 ---
 
 # Introduction

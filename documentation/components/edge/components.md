@@ -28,14 +28,14 @@ Anonymous components need only a loader path. Create the component file
 inside the path, then call it with an `<x-...>` tag. The dot in the name
 maps to a directory:
 
-```php
+```blade
 {{-- components/alert.blade.php --}}
 <div class="alert">
     {{ $slot }}
 </div>
 ```
 
-```php
+```blade
 {{-- pages/home.blade.php --}}
 <x-components.alert>
     Saved.
@@ -83,7 +83,7 @@ $edge->addExtension($ext);
 echo $edge->render('pages.form');
 ```
 
-```php
+```blade
 {{-- components/card.blade.php --}}
 @props(['title' => 'Untitled'])
 
@@ -93,12 +93,12 @@ echo $edge->render('pages.form');
 </section>
 ```
 
-```php
+```blade
 {{-- components/button.blade.php --}}
 <button type="button">{{ $label }}</button>
 ```
 
-```php
+```blade
 {{-- pages/form.blade.php --}}
 <x-components.card title="Profile" id="profile">
     <p>Update your details.</p>
@@ -113,7 +113,7 @@ echo $edge->render('pages.form');
 An anonymous component is a view file. Its `@props` directive declares
 the attributes it accepts, with default values:
 
-```php
+```blade
 @props(['type' => 'info', 'message' => 'Unknown'])
 
 <div>{{ $type }}: {{ $message }}</div>
@@ -123,7 +123,7 @@ Attributes that are not declared in `@props` are collected in
 `$attributes`. Call `withMerge()` to add default classes while keeping
 the classes the caller passes:
 
-```php
+```blade
 <div {!! $attributes->withMerge(['class' => 'alert']) !!}>
     {!! $slot() !!}
 </div>
@@ -141,6 +141,77 @@ attributes such as `label="Submit"` are passed as strings.
 Pass `false` as the second argument only for values that are already
 safe HTML.
 :::
+
+### Reading Props from Attributes
+
+`props()` takes the names of the values that the view expects and
+removes them from `$attributes`. Print the remaining attributes after
+calling it, so that the prop names do not appear in the HTML:
+
+```blade
+<?php
+
+$props = $attributes->props('item', 'open');
+$item = $props['item'] ?? null;
+$open = $props['open'] ?? false;
+$attributes = $attributes->class('my-new-class');
+
+?>
+<div data-open="{{ $open ? '1' : '0' }}" {!! $attributes !!}>
+    {{ $item }}
+</div>
+```
+
+The caller passes the values with bound attributes:
+
+```blade
+<x-components.address :item="'Taipei'" :open="true" id="c-addr" />
+```
+
+::: info
+The keys of the collection returned by `props()` use the kebab-case form
+of the names, so a prop named `openState` is read with `$props['open-state']`.
+:::
+
+### Optional Slots
+
+A slot that the caller does not pass is not defined in the view. Check a
+named slot with `??` before you call it:
+
+```blade
+<section {!! $attributes !!}>
+    {!! $slot() !!}
+
+    @if ($footer ?? null)
+        <footer>{!! $footer() !!}</footer>
+    @endif
+</section>
+```
+
+The caller adds the named slot with `<x-slot>`:
+
+```blade
+<x-components.card>
+    Body
+    <x-slot name="footer">Footer text</x-slot>
+</x-components.card>
+```
+
+### Declaring View Variables
+
+Add a docblock at the top of a view that lists the variables it uses.
+The docblock does not run, but it tells readers and the IDE which
+variables are available:
+
+```blade
+<?php
+
+/**
+ * @var ComponentAttributes $attributes
+ * @var string              $item
+ * @var bool                $open
+ */
+```
 
 ## Class Components
 
@@ -208,6 +279,57 @@ Every public property and method of a class component is visible to
 its view. Keep internal state `protected`, or list it in `$except`.
 :::
 
+### Adding Data
+
+Override `data()` when a value must be computed before the view renders.
+Assign the value to a public property, then return `parent::data()`, so
+that the property reaches the view:
+
+```php
+class AddressComponent extends AbstractComponent
+{
+    public array $address = [];
+
+    public function data(): array
+    {
+        $this->address = ['city' => 'Taipei'];
+
+        return parent::data();
+    }
+}
+```
+
+A public method with arguments can also be called from the view. The
+view calls it like a function:
+
+```php
+public function getAddress(int $id): string
+{
+    return "address-$id";
+}
+```
+
+```blade
+<p>{{ $getAddress(1) }}</p>
+```
+
+In a Windwalker application, services that load data are usually
+injected into the constructor. See the [Overview](/documentation/components/edge/)
+for that setup.
+
+### Inline Templates
+
+`render()` can return a `Closure` that returns the template text instead
+of a view name. The template is compiled like a view file, so it can use
+the public properties of the component:
+
+```php
+public function render(): Closure|string
+{
+    return fn() => '<p>{{ $address["city"] }}</p>';
+}
+```
+
 Register class components by name. Use `registerComponent()` on the
 `ComponentExtension`, then call the name in a tag:
 
@@ -215,7 +337,18 @@ Register class components by name. Use `registerComponent()` on the
 $ext->registerComponent('alert', AlertComponent::class);
 ```
 
+A name can also point to a view file instead of a class. Tags with that
+name render the view as an anonymous component:
+
 ```php
+$ext->registerComponent('address', 'components.address');
+```
+
+```blade
+<x-address :item="'Taipei'" />
+```
+
+```blade
 <x-alert level="warning">Check your input.</x-alert>
 ```
 
@@ -223,13 +356,70 @@ In a Windwalker application, a class component can also be declared with
 the `EdgeComponent` attribute, described in
 [Overview](/documentation/components/edge/).
 
+## Scoped Slots
+
+A slot can receive values from the component that renders it. The
+component passes named arguments when it calls the slot, and the slot
+reads them with `@scope`. The variable names in `@scope` must match the
+argument names:
+
+```blade
+{{-- components/row.blade.php --}}
+<ul>
+    {!! $item(user: 'Simon', role: 'admin') !!}
+</ul>
+```
+
+```blade
+{{-- pages/list.blade.php --}}
+@component('components.row')
+    @slot('item')
+        @scope($user, $role)
+        <li>{{ $user }} ({{ $role }})</li>
+    @endslot
+@endcomponent
+```
+
+Rendering the page outputs `<li>Simon (admin)</li>` inside the list.
+`@scope` is specific to Edge. Blade does not have an equivalent
+directive. See [Differences from Blade](/documentation/components/edge/blade-differences).
+
+## Designing Props
+
+A component should receive the data it uses, and nothing more. The
+caller decides which record to pass, so the component does not query
+for data that it does not display. For example, a product card that
+shows one variant should declare that variant as a prop, and not a list
+of all variants:
+
+```php
+#[EdgeComponent('product-card')]
+class ProductCardComponent extends AbstractComponent
+{
+    public function __construct(
+        #[Prop]
+        public Product $item,
+        #[Prop]
+        public ProductVariant $variant,
+    ) {
+    }
+}
+```
+
+```blade
+<x-product-card :item="$product" :variant="$product->variants[0]" />
+```
+
+Declaring only the values that the view uses keeps the component easy to
+reuse and makes its interface clear to the developer who calls it.
+
 ## Dynamic Components
 
 `<x-dynamic-component>` chooses its target from the `is` attribute at
 render time. The value can be a registered component name, or the name
 of a view that is used as an anonymous component:
 
-```php
+```blade
 <x-dynamic-component is="alert" level="danger">
     Something failed.
 </x-dynamic-component>
