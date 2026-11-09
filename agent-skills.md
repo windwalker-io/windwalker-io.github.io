@@ -28,13 +28,9 @@ Download, verify, and extract the archive in one command. The command stops befo
 ```bash
 SHA=__SKILLS_SHA256__
 
-curl -fsSLO https://windwalker.io/skills.zip && {
-  if command -v shasum >/dev/null 2>&1; then
-    echo "$SHA  skills.zip" | shasum -a 256 -c
-  else
-    echo "$SHA  skills.zip" | sha256sum -c
-  fi
-} && unzip -q skills.zip -d skills
+curl -fsSLO https://windwalker.io/skills.zip && \
+  echo "$SHA  skills.zip" | { if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c; else sha256sum -c; fi; } && \
+  unzip -q skills.zip -d skills
 ```
 
 The `v` parameter changes with every build, so a cached copy of an older archive is never used.
