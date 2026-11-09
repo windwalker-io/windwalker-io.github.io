@@ -9,6 +9,7 @@ description: Download the Windwalker agent skills as a zip archive and verify it
 The Windwalker agent skills are published with every site build as a zip archive. The archive contains flat Markdown files, and every link inside them is relative, so the directory can be copied into any project as it is.
 
 <ul>
+  <li><a href="/llms.txt">llms.txt</a>: the online documentation index for LLMs</li>
   <li><a href="/skills.zip">skills.zip</a>: the archive</li>
   <li><a href="/skills.zip.sha256">skills.zip.sha256</a>: the checksum file</li>
   <li><a href="/skills/skills.md">skills/skills.md</a>: the index, same entry point style as <code>llms.txt</code></li>

@@ -266,7 +266,7 @@ export default defineConfig({
         ]
       },
       { text: 'Unicorn RAD', link: '#' },
-      { text: 'Skills', link: '/download-skills' },
+      { text: 'Skills', link: '/agent-skills' },
       { text: 'Status', link: 'status' },
       { text: 'Others', link: '#' },
     ],
