@@ -90,7 +90,7 @@ These methods convert the whole value, with no fallback:
 
 - `toArray()` converts an object or a `Traversable` to an array. Pass
   `$recursive` to convert nested objects too, and `$filter` to apply
-  the visibility rules of [Dump Attributes](./dump-attributes).
+  the visibility rules of [Attributes](./attributes#dump-attributes).
 - `toObject()` converts an array to an object, and returns an object
   unchanged. Pass `$class` to create another class.
 - `toIterable()` returns an iterable as it is, an object's public properties
@@ -161,5 +161,6 @@ Any other method name throws a `BadMethodCallException`.
 
 ## Related
 
-- [Env](./env): returns string values that often need converting.
+- [Helpers](./helpers): `Env::get()` returns string values that often need
+  converting.
 - [Exceptions](./exceptions): the `CastingException` thrown by `must()`.

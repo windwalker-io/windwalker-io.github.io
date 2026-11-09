@@ -13,7 +13,9 @@ each match. `AttributesAccessor` performs these steps in one call, and
 it accepts a class name, an object, or a reflector. Routing tables,
 validation rules, and framework components all use this pattern.
 
-## Minimal Setup
+## AttributesAccessor
+
+### Minimal Setup
 
 Define an attribute class, apply it, and read it back. No configuration is
 needed:
@@ -41,7 +43,7 @@ echo $route->path; // /users
 `getFirstAttributeInstance()` returns the attribute as an object, or
 `null` when the class has no matching attribute.
 
-## Showcase: Building a Route Table
+### Showcase: Building a Route Table
 
 The following example stores a route on each controller method, then
 builds a table from the methods and calls one of them:
@@ -91,7 +93,7 @@ attribute, as a reflector and its `ReflectionAttribute`. Call
 `newInstance()` on the `ReflectionAttribute` to read the attribute's
 arguments.
 
-## Reading Class Attributes
+### Reading Class Attributes
 
 The lookup functions accept the same three inputs:
 
@@ -118,7 +120,7 @@ AttributesAccessor::getAttributesFromAny(
 Attribute names are compared case-insensitively when you use
 `runAttributeIfExists()`.
 
-## Members of a Class
+### Members of a Class
 
 `getMembersWithAttribute()` scans constants, properties, and methods of a
 class, and the cases of an enum. The generator yields an array, keyed by
@@ -144,7 +146,7 @@ member and the attribute and returns `true` to keep the match.
 `getFirstMemberWithAttribute()` takes the same arguments and returns the
 first match as `[$member, $attribute]`, or `null`.
 
-## Running a Handler
+### Running a Handler
 
 `runAttributeIfExists()` calls a handler for each matching attribute. The
 handler receives the attribute object and the source value. The method
@@ -162,7 +164,7 @@ $count = AttributesAccessor::runAttributeIfExists(
 
 This is useful when you want to act on every match, not only the first.
 
-## Scanning a Directory
+### Scanning a Directory
 
 `scanDirAndRunAttributes()` reads all PHP files in a directory, loads
 each class, and runs a handler for the classes that carry the attribute.
@@ -222,25 +224,158 @@ class. Apply it to a property, and find marked properties with
 public string $title = '';
 ```
 
-## Method Summary
+## Dump Attributes
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `getFirstAttribute()` | `$value, $attributeClass, $flags = 0` | First matching `ReflectionAttribute`, or `null`. |
-| `getFirstAttributeInstance()` | `$value, $attributeClass, $flags = 0` | First matching attribute object, or `null`. |
-| `getAttributesFromAny()` | `$value, ?$name = null, $flags = 0` | All matching `ReflectionAttribute`s, including parents. |
-| `runAttributeIfExists()` | `$valueOrAttrs, $attributeClass, $handler, $options = 0` | Runs a handler for each match and returns the count. |
-| `getMembersWithAttribute()` | `$ref, $name, $flags = 0, $filter = null` | Generator of `[$member, $attribute]`, keyed by member name. |
-| `getFirstMemberWithAttribute()` | `$ref, $name, $flags = 0, $filter = null` | First `[$member, $attribute]`, or `null`. |
-| `scanDirAndRunAttributes()` | `$attributeClass, $dir, $namespace, $handler, $options = 0` | Scans a directory and returns match counts per class. |
-| `TraitOptions::getOption()` | `$class, $traitName, $name` | One option of a trait, or `null`. |
-| `TraitOptions::getOptions()` | `$class, $traitName` | All options of a trait. |
-| `TraitOptions::getAllOptions()` | `$class` | Options of every trait, keyed by trait name. |
-| `TraitOptions::findAttribute()` | `$class` | The `TraitOptions` instance of a class, or `null`. |
+Debug output, logs, and arrays built for display often include whole
+objects. Those objects may hold credentials, caches, or internal state that
+should not appear in the output. The reverse also happens: a protected
+property may be exactly what you need to see while debugging. The
+`Expose`, `Invisible`, and `Transient` attributes let a class decide which
+of its properties appear in these dumps, without changing the code that
+creates the dump.
+
+### Dump Minimal Setup
+
+Mark a property with `Invisible`, then pass the object to one of the dump
+helper functions in the `Windwalker` namespace:
+
+```php
+use Windwalker\Utilities\Attributes\Invisible;
+
+class User
+{
+    public string $name = 'alice';
+
+    #[Invisible]
+    public string $cache = 'warm';
+}
+
+\Windwalker\get_object_dump_values(new User());
+// ['name' => 'alice']
+```
+
+The helpers are plain functions, so there is no container or service to
+set up.
+
+### Showcase: Dumping an Account
+
+The following class exposes its role in dumps, hides its password, and
+keeps a token out of every dump:
+
+```php
+use ReflectionProperty;
+use Windwalker\Utilities\Attributes\Expose;
+use Windwalker\Utilities\Attributes\Invisible;
+use Windwalker\Utilities\Attributes\Transient;
+use Windwalker\Utilities\TypeCast;
+
+final class Account
+{
+    public string $email = 'alice@example.com';
+
+    #[Expose]
+    protected string $role = 'editor';
+
+    #[Invisible]
+    public string $password = 'secret';
+
+    #[Transient]
+    public string $sessionToken = 'abc123';
+}
+
+$account = new Account();
+
+$dump = \Windwalker\get_object_dump_values($account);
+// ['email' => 'alice@example.com', 'role' => 'editor']
+
+$public = TypeCast::toArray(
+    $account,
+    false,
+    false,
+    ReflectionProperty::IS_PUBLIC,
+);
+// ['email' => 'alice@example.com']
+```
+
+The protected `role` appears only because of `Expose`. The password and the
+token are absent from both results.
+
+### The Three Attributes
+
+Each attribute applies to a property. They differ in what they change:
+
+- `Expose`: includes a protected or private property in the dump.
+- `Invisible`: excludes a property from the dump, even when it is public.
+- `Transient`: extends `Invisible`, so it excludes the property the same
+  way. Use it for state that should never be dumped, such as a cache.
+
+Subclasses of these attributes work the same way, because the check
+includes subclasses of `Expose` and `Invisible`.
+
+::: tip
+Use `Invisible` or `Transient` for secrets and caches. Using `Expose` on a
+private property is a deliberate choice, so keep it for values that are
+safe to show.
+:::
+
+### Which Properties Are Included
+
+Without `Expose`, the helpers skip protected and private properties. Public
+properties are included unless `Invisible` is present.
+
+An uninitialized typed property is skipped until it is assigned. After
+assignment, it appears in the next dump:
+
+```php
+class Profile
+{
+    public ?string $bio;
+}
+
+$profile = new Profile();
+
+\Windwalker\get_object_dump_values($profile); // []
+
+$profile->bio = 'Hello';
+
+\Windwalker\get_object_dump_values($profile); // ['bio' => 'Hello']
+```
+
+### Filtering the Dump
+
+The second argument of both helpers is a filter. It accepts
+`ReflectionProperty` flags, such as `ReflectionProperty::IS_PUBLIC`.
+`null`, the default, applies no filter:
+
+```php
+\Windwalker\get_object_dump_values(
+    $account,
+    \ReflectionProperty::IS_PUBLIC,
+);
+```
+
+`get_object_dump_props()` takes the same arguments, but returns the
+`ReflectionProperty` objects instead of the values.
+
+### Where the Attributes Apply
+
+The attributes are read only by the dump helpers. Two paths use them:
+
+- The helper functions `get_object_dump_values()` and
+  `get_object_dump_props()`.
+- `TypeCast::toArray()`, when you pass a `$filter` as its fourth
+  argument.
+
+Without a filter, `TypeCast::toArray()` returns the result of
+`get_object_vars()`, which ignores these attributes.
+
+::: info
+Native functions, such as `json_encode()` and `serialize()`, do not read
+these attributes. Use a dedicated serializer or a DTO when a value must be
+excluded from output of that kind.
+:::
 
 ## Related
 
-- [Dump Attributes](./dump-attributes): attributes that control which
-  properties appear in object dumps.
-- [Enum Attributes](./enum-attributes): attributes that add titles, icons,
-  and colors to enum cases.
+- [Enum Metadata](./enum-metadata): titles, icons, colors, and other
+  metadata on enum cases.

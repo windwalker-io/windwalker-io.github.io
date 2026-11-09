@@ -1,10 +1,10 @@
 ---
 layout: doc
-title: Enum Attributes
+title: Enum Metadata
 component: utilities
 ---
 
-# Enum Attributes
+# Enum Metadata
 
 A native PHP enum holds a value and a name, but nothing for display. A
 select box needs a label, a status badge needs a color, and an admin page

@@ -32,14 +32,17 @@ export default defineConfig({
   markdown: {
     codeTransformers: [
       {
-        // Replace the checksum placeholder in code blocks at build time
-        preprocess: (code) => code.replaceAll('__SKILLS_SHA256__', skillsPackage.sha256),
+        // Replace the checksum and version placeholders in code blocks at build time
+        preprocess: (code) => code
+          .replaceAll('__SKILLS_SHA256__', skillsPackage.sha256)
+          .replaceAll('__SKILLS_VERSION__', skillsPackage.sha256.slice(0, 12)),
       },
     ],
   },
   vite: {
     define: {
       __SKILLS_SHA256__: JSON.stringify(skillsPackage.sha256),
+      __SKILLS_VERSION__: JSON.stringify(skillsPackage.sha256.slice(0, 12)),
       __SKILLS_FILE_COUNT__: JSON.stringify(skillsPackage.fileCount),
     },
     plugins: [markdownExportPlugin()],

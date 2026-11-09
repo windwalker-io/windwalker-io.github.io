@@ -201,5 +201,5 @@ function or method. Top-level script code has no caller name to report.
 
 ## Related
 
-- [Dump Attributes](./dump-attributes): another utility that describes an
-  object's properties in a readable form.
+- [Attributes](./attributes#dump-attributes): the dump visibility attributes
+  (`Expose`, `Invisible`, `Transient`) are described there.

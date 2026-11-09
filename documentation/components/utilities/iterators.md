@@ -102,7 +102,7 @@ is useful for side effects, such as logging, and it does not change the
 values.
 :::
 
-## Extending a Pipeline with a Callback
+### Extending a Pipeline with a Callback
 
 `with()` adds a callback that receives the whole inner iterable and returns
 a new iterable. Use it when a step needs to see more than one item at a
@@ -122,6 +122,27 @@ iterator_to_array($pipeline, false); // [1, 2, 3]
 
 `wrap()` adds a callback to the same object. Use it only when you want to
 change this instance, because it does not create a copy.
+
+### Method Summary
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `__construct()` | `iterable\|callable $iterator` | Creates a pipeline from an iterable or a generator factory. |
+| `map()` | `callable $callback` | Maps each value. |
+| `mapWithKey()` | `callable $callback` | Maps each value and its key. |
+| `filter()` | `callable $callback, int $flags = 0` | Keeps items the callback accepts. |
+| `flatMap()` | `callable $callback` | Maps each item to an iterable and flattens. |
+| `slice()` | `int $start, ?int $length = null` | Takes a range of items. |
+| `limit()` | `int $offset, int $limit` | Takes a range, by offset and count. |
+| `chunk()` | `int $size, bool $preserveKeys = false` | Groups items into chunks. |
+| `reduce()` | `callable $callback, mixed $initial = null` | Folds the items into one value. |
+| `concat()` / `chain()` | `iterable ...$iterables` | Appends other iterables. |
+| `keys()` / `values()` | None | Returns only the keys or only the values. |
+| `implode()` | `string $separator` | Joins the values into a `StringObject`. |
+| `explode()` | `string $separator, string $str, ?int $limit = null` | Static; splits a string into a pipeline. |
+| `each()` | `callable $callback` | Runs a callback for each item, for side effects. |
+| `with()` / `withSelf()` | `callable $callback` | Returns a copy with one more step. |
+| `wrap()` | `callable $callback` | Adds a step to this instance. |
 
 ## RewindableGenerator
 
@@ -309,35 +330,7 @@ Do not iterate a queue that other code still needs. Use `toArray()` or
 iterate a `clone` of the queue.
 :::
 
-## Method Summary
-
-| Class and method | Parameters | Description |
-|------------------|------------|-------------|
-| `NestedIterator::__construct()` | `iterable\|callable $iterator` | Creates a pipeline from an iterable or a generator factory. |
-| `map()` | `callable $callback` | Maps each value. |
-| `mapWithKey()` | `callable $callback` | Maps each value and its key. |
-| `filter()` | `callable $callback, int $flags = 0` | Keeps items the callback accepts. |
-| `flatMap()` | `callable $callback` | Maps each item to an iterable and flattens. |
-| `slice()` | `int $start, ?int $length = null` | Takes a range of items. |
-| `limit()` | `int $offset, int $limit` | Takes a range, by offset and count. |
-| `chunk()` | `int $size, bool $preserveKeys = false` | Groups items into chunks. |
-| `reduce()` | `callable $callback, mixed $initial = null` | Folds the items into one value. |
-| `concat()` / `chain()` | `iterable ...$iterables` | Appends other iterables. |
-| `keys()` / `values()` | None | Returns only the keys or only the values. |
-| `implode()` | `string $separator` | Joins the values into a `StringObject`. |
-| `explode()` | `string $separator, string $str, ?int $limit = null` | Static; splits a string into a pipeline. |
-| `each()` | `callable $callback` | Runs a callback for each item, for side effects. |
-| `with()` / `withSelf()` | `callable $callback` | Returns a copy with one more step. |
-| `wrap()` | `callable $callback` | Adds a step to this instance. |
-| `RewindableGenerator` | `callable $callable` | Re-creates a generator on each rewind. |
-| `PaginateIterator` | `Closure $callback, Closure\|int $perPage, ?int $limit = null` | Reads pages until one is empty. |
-| `UniqueIterator` | `Iterator $iterator, int $flags = SORT_STRING` | Skips repeated values. |
-| `PriorityQueue::__construct()` | `array\|SplPriorityQueue $items = [], mixed $priority = NORMAL` | Creates a queue, optionally filled with items. |
-| `PriorityQueue::insert()` | `mixed $value, mixed $priority` | Adds one item with a priority. |
-| `PriorityQueue::join()` | `iterable $items = [], mixed $priority = NORMAL` | Adds many items with the same priority. |
-| `PriorityQueue::insertArray()` | `array $items` | Adds items keyed by their priority. |
-| `PriorityQueue::toArray()` | None | Returns the items in extraction order, without changing the queue. |
-
 ## Related
 
-- [Text Transforms](./text-transforms): other text helpers in this package.
+- [Object Helpers](./object-helpers): caching values, reflective access,
+  and lazy objects.

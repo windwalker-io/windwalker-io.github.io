@@ -28,48 +28,28 @@ export default <ComponentMenu> {
       link: 'attributes',
     },
     {
-      text: 'Dump Attributes',
-      link: 'dump-attributes',
-    },
-    {
-      text: 'Enum Attributes',
-      link: 'enum-attributes',
-    },
-    {
-      text: 'Cache',
-      link: 'cache',
+      text: 'Enum Metadata',
+      link: 'enum-metadata',
     },
     {
       text: 'Iterators',
       link: 'iterators',
     },
     {
-      text: 'Priority Queue',
-      link: 'priority-queue',
-    },
-    {
       text: 'Exceptions',
       link: 'exceptions',
     },
     {
-      text: 'Reflection',
-      link: 'reflection',
+      text: 'Object Helpers',
+      link: 'object-helpers',
     },
     {
-      text: 'Env',
-      link: 'env',
+      text: 'Helpers',
+      link: 'helpers',
     },
     {
-      text: 'Serial',
-      link: 'serial',
-    },
-    {
-      text: 'Symbol',
-      link: 'symbol',
-    },
-    {
-      text: 'Lazy Objects',
-      link: 'lazy-objects',
+      text: 'Identifiers',
+      link: 'identifiers',
     },
     {
       text: 'Text Transforms',

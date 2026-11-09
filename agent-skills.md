@@ -8,10 +8,10 @@ description: Download the Windwalker agent skills as a zip archive and verify it
 
 The Windwalker documentation, in the same scope as `llms.txt`, is published with every site build as a zip archive. The archive contains flat Markdown files, and every link inside them is relative, so the directory can be copied into any project as it is.
 
-<ul>
+<ul class="vp-raw">
   <li><a href="/llms.txt">llms.txt</a>: the online documentation index for LLMs</li>
-  <li><a href="/skills.zip">skills.zip</a>: the archive</li>
-  <li><a href="/skills.zip.sha256">skills.zip.sha256</a>: the checksum file</li>
+  <li><a :href="zipUrl">skills.zip</a>: the archive</li>
+  <li><a :href="checksumUrl">skills.zip.sha256</a>: the checksum file</li>
   <li><a href="/skills/README.md">skills/README.md</a>: the index, same structure as <code>llms.txt</code> with relative links</li>
 </ul>
 
@@ -27,10 +27,17 @@ Download, verify, and extract the archive in one command. The command stops befo
 
 ```bash
 SHA=__SKILLS_SHA256__
-curl -fsSLO https://windwalker.io/skills.zip &&
-  echo "$SHA  skills.zip" | { sha256sum -c || shasum -a 256 -c; } &&
-  unzip -q skills.zip -d skills
+
+curl -fsSLO https://windwalker.io/skills.zip && {
+  if command -v shasum >/dev/null 2>&1; then
+    echo "$SHA  skills.zip" | shasum -a 256 -c
+  else
+    echo "$SHA  skills.zip" | sha256sum -c
+  fi
+} && unzip -q skills.zip -d skills
 ```
+
+The `v` parameter changes with every build, so a cached copy of an older archive is never used.
 
 The checksum step prints `skills.zip: OK` when the archive matches. Then the files are in `./skills/`, starting with `skills/README.md`.
 
@@ -40,5 +47,8 @@ The checksum and the archive come from the same site, so this check detects a co
 
 <script setup>
 const sha256 = __SKILLS_SHA256__
+const version = __SKILLS_VERSION__
 const fileCount = __SKILLS_FILE_COUNT__
+const zipUrl = `/skills.zip?v=${version}`
+const checksumUrl = `/skills.zip.sha256?v=${version}`
 </script>

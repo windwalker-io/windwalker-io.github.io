@@ -91,24 +91,18 @@ Both classes follow the same two ideas.
 - [Assert](./assert): one-line argument and state checks with messages
   that name the caller and the value.
 - [Attributes](./attributes): reading PHP attributes from classes, members,
-  and parent classes, plus trait options.
-- [Dump Attributes](./dump-attributes): controlling which properties appear
-  in object dumps.
-- [Enum Attributes](./enum-attributes): titles, icons, colors, and other
+  and parent classes, trait options, and controlling which properties
+  appear in object dumps.
+- [Enum Metadata](./enum-metadata): titles, icons, colors, and other
   metadata on enum cases.
-- [Cache](./cache): caching values per object or per class with a string ID.
 - [Iterators](./iterators): lazy pipelines, re-runnable generators, paged
-  sources, and unique values.
-- [Priority Queue](./priority-queue): ordered items with named priorities.
+  sources, unique values, and ordered priority queues.
 - [Exceptions](./exceptions): exception helpers for multiple messages and
   verbosity levels.
-- [Reflection](./reflection): reading and writing members regardless of
-  visibility.
-- [Env](./env): reading and setting environment values with defaults.
-- [Serial](./serial): in-memory numbered sequences.
-- [Symbol](./symbol): named marker values compared by identity.
-- [Lazy Objects](./lazy-objects): checking and unwrapping PHP 8.4 lazy
-  objects.
+- [Object Helpers](./object-helpers): caching values in a class, reflective
+  member access, and PHP 8.4 lazy objects.
+- [Helpers](./helpers): global helper functions, and the `Env` class.
+- [Identifiers](./identifiers): numbered sequences and named markers.
 - [Text Transforms](./text-transforms): filling placeholders in text,
   singular and plural forms of English words, and converting names between
   naming styles.
