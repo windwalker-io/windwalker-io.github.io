@@ -7,5 +7,13 @@ export default <ComponentMenu> {
       text: 'Overview',
       link: '',
     },
+    {
+      text: 'Engine Renderers',
+      link: 'engines',
+    },
+    {
+      text: 'Composite Renderer',
+      link: 'composite',
+    },
   ]
 };

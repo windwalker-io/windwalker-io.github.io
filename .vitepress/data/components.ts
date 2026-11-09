@@ -214,12 +214,14 @@ export const groupedComponents: ComponentSet = {
     'form': {
       title: 'Form',
       description: 'A HTML form builder with multiple field types.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/form'),
+      extra: {},
     },
     'edge': {
       title: 'Edge',
       description: 'A Blade compatible template engine with much extendable interface.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/edge'),
+      extra: {},
     },
     'renderer': {
       title: 'Renderer',
