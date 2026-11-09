@@ -84,7 +84,7 @@ section below that explains them.
 | [`group()`](#grouping-and-keying) | New object | Groups items by a field or callback. |
 | [`groupBy()`](#grouping-and-keying) | New object | Groups items by a field or callback. |
 | [`groupByPath()`](#grouping-and-keying) | New object | Groups items by a nested path. |
-| [`keyBy()`](#grouping-and-keying) | New object | Indexes items by a field. |
+| [`keyBy()`](#grouping-and-keying) | New object | Indexes items by a field or callback. |
 | [`chunk()`](#chunking-and-paging) | New object | Splits the list into chunks. |
 | [`page()`](#chunking-and-paging) | New object | Returns one page of items. |
 | [`flatten()`](#flattening-nested-data) | New object | Flattens nested arrays into dotted keys. |
@@ -529,6 +529,34 @@ $byId = $orders->keyBy('id');
 ```
 
 `keyBy()` keeps only one item per key, so use it when the field is unique.
+
+Both methods also accept a callback. It receives each item and returns the
+key to group or index by:
+
+```php
+$byStatus = $orders->groupBy(
+    fn (array $order) => strtoupper($order['status'])
+);
+// ['PAID' => [...], 'PENDING' => [...]]
+
+$byCode = $orders->keyBy(
+    fn (array $order) => 'order-' . $order['id']
+);
+// ['order-1' => [...], 'order-2' => [...], ...]
+```
+
+A callback can also be a generator. It yields one `key => value` pair per
+item, and the value is stored in the result instead of the item itself:
+
+```php
+$idsByStatus = $orders->groupBy(function (array $order) {
+    yield $order['status'] => $order['id'];
+});
+// ['paid' => [1, 3], 'pending' => [2]]
+```
+
+The generator is read only once, so yield a single pair per item. Any
+further `yield` in the same callback is ignored.
 
 ## Columns and Records
 

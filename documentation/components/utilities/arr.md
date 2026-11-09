@@ -38,6 +38,11 @@ for the other, because some defaults differ.
 | `only()` | `$data, array $fields` | Keeps the listed keys. | `only()` |
 | `except()` | `$data, array $fields` | Drops the listed keys. | `except()` |
 | `getColumn()` | `$src, $column, $keyName = null, $invasive = true` | Collects one field from each row. | `column()` |
+| `group()` | `$array, $key, $flags = Arr::GROUP_TYPE_ARRAY` | Groups items by a field or callback. | `group()` |
+| `groupByPath()` | `$array, $key = null, $flags = Arr::GROUP_TYPE_ARRAY, $delimiter = '.'` | Groups items by a nested key path. | `groupByPath()` |
+| `keyBy()` | `$array, $key, $flags = 0` | Indexes items by a field or callback. | `keyBy()` |
+| `groupPrefix()` | `&$origin, $prefix, $removeOrigin = false` | Pivots `prefix_xxx` keys to `prefix.xxx`. | — |
+| `extractPrefix()` | `$origin, $prefix, $target = null` | Pivots `prefix_xxx` keys into `$target`. | — |
 | `find()` | `$data, $callback = null, $keepKey = false, $offset = null, $limit = null` | Items matching a callback. | `find()` |
 | `findFirst()` | `$data, $callback = null` | First item matching a callback. | `findFirst()` |
 | `reject()` | `$data, $callback, $keepKey = false` | Drops items matching a callback. | `reject()` |
@@ -49,6 +54,11 @@ for the other, because some defaults differ.
 | `collapse()` | `$data, $keepKey = false` | Removes all nesting into a list. | `collapse()` |
 | `flatMap()` | `$array, $callback` | Maps and merges returned items. | `flatMap()` |
 | `mapRecursive()` | `$array, $callback, $useKeys = false, $loopIterable = false` | Maps every nested value. | `mapRecursive()` |
+| `mapWithKeys()` | `$array, $handler, $type = self::GROUP_TYPE_KEY_BY` | Builds new keys and values from each item. | `mapWithKeys()` |
+| `mapGenerator()` | `$generator` | Collects the pairs a generator yields into an array. | — |
+| `crossJoin()` | `...$args` | Cartesian product of the given arrays. | `crossJoin()` |
+| `transpose()` | `$array` | Swaps the rows and columns of a two-dimensional array. | — |
+| `flipMatrix()` | `$array` | Maps each inner value to its outer key. | — |
 | `sort()` | `$data, $condition, $descending = false, $options = SORT_REGULAR` | Sorts by value or field, keeping keys. | `sortBy()` |
 | `invert()` | `$array` | Swaps keys and values. | `flip()` |
 | `unique()` | `$array` | Removes duplicate values. | `unique()` |
