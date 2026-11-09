@@ -13,6 +13,26 @@ package also provides a component system for reusable UI pieces, either
 as view files or as PHP classes, and extension points for custom
 directives, parsers, and global variables.
 
+## Why Edge
+
+Edge is built around a few goals:
+
+- **A familiar syntax.** Developers who know Blade can read and write
+  Edge templates from the first day, with the same echoes, directives,
+  layouts, and components.
+- **No heavy dependencies.** Edge depends only on `windwalker/data` and
+  `windwalker/utilities`. You can use it in a small script or in a large
+  application without pulling in a full framework.
+- **No hidden application layer.** The core directives do not call
+  authentication, session, or container services. A template only uses the
+  data and helpers that you pass in, so the same templates render the same
+  way in any project.
+- **Room to customize.** You can add directives, parsers, global variables,
+  loaders, caches, and components. Teams can define their own syntax without
+  forking the engine.
+- **Compiled and cached.** Templates are compiled into PHP once and reused
+  until the source file changes, so rendering stays fast in production.
+
 ## Installation
 
 ```bash

@@ -242,11 +242,13 @@ export const groupedComponents: ComponentSet = {
     'test': {
       title: 'Test',
       description: 'Simple test helpers to help unit-testing.',
-      extra: { 'wip': true },
+      menu: () => import('./menu/components/test'),
+      extra: {},
     },
     'utilities': {
       title: 'Utilities',
       description: 'Some core and sharing classes for Windwalker components.',
+      menu: () => import('./menu/components/utilities'),
       extra: { 'wip': true },
     },
   },

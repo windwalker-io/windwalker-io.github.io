@@ -4,10 +4,15 @@ import { basename, dirname, join, relative, sep } from 'node:path';
 import { flatComponents, getComponentsSidebar } from './data/components';
 import { guidesSidebar } from './data/guides';
 import { componentRoutePrefix, guideRoutePrefix } from './store/routing-store';
+import { buildSkillsPackage } from './data/skills-package';
 
 const siteUrl = 'https://windwalker.io';
 const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
 const srcDir = join(import.meta.dirname, '..');
+
+// Shared compile restrictions: every public output (pages, raw markdown, llms.txt, skills) uses these
+const publicExcludePrefixes = ['tmp/'];
+const isPublicMarkdown = (file: string) => !publicExcludePrefixes.some((prefix) => file.startsWith(prefix));
 
 async function collectMarkdownFiles(dir: string = srcDir): Promise<string[]> {
   const files: string[] = [];
@@ -23,6 +28,10 @@ async function collectMarkdownFiles(dir: string = srcDir): Promise<string[]> {
   }
 
   return files.sort();
+}
+
+async function publicMarkdownFiles(): Promise<string[]> {
+  return (await collectMarkdownFiles()).filter(isPublicMarkdown);
 }
 
 const toUrl = (file: string) => `${siteUrl}/${file}`;
@@ -74,7 +83,7 @@ const sectionNames: [prefix: string, name: string][] = [
 
 // Build llms.txt: H2 sections per area, nested lists per sub-directory
 async function buildLlmsTxt(): Promise<string> {
-  const files = (await collectMarkdownFiles()).filter(
+  const files = (await publicMarkdownFiles()).filter(
     (file) => file.includes('/') && !llmsExcludePrefixes.some((prefix) => file.startsWith(prefix)),
   );
   const infos = new Map((await Promise.all(files.map(readMdInfo))).map((i) => [i.file, i]));
@@ -143,9 +152,9 @@ async function buildLlmsTxt(): Promise<string> {
   return lines.join('\n');
 }
 
-// Copy every source markdown file into the build output and write llms.txt
+// Copy every public markdown file into the build output, write llms.txt and the skills package
 async function exportMarkdownAndLlmsTxt(outDir: string) {
-  const files = await collectMarkdownFiles();
+  const files = await publicMarkdownFiles();
 
   for (const file of files) {
     const target = join(outDir, file);
@@ -154,6 +163,7 @@ async function exportMarkdownAndLlmsTxt(outDir: string) {
   }
 
   await writeFile(join(outDir, 'llms.txt'), await buildLlmsTxt());
+  await cp(skillsPackage.stagingDir, outDir, { recursive: true });
 }
 
 // Serve llms.txt and raw markdown files during `yarn dev`
@@ -175,7 +185,7 @@ function markdownExportPlugin(): Plugin {
         const dest = req.headers['sec-fetch-dest'];
         const isModuleRequest = (req.url ?? '').includes('?') || (dest !== undefined && dest !== 'document');
 
-        if (!isModuleRequest && file.endsWith('.md') && (await collectMarkdownFiles()).includes(file)) {
+        if (!isModuleRequest && file.endsWith('.md') && (await publicMarkdownFiles()).includes(file)) {
           res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
           res.end(await readFile(join(srcDir, file)));
           return;
@@ -187,10 +197,30 @@ function markdownExportPlugin(): Plugin {
   };
 }
 
+// Built before VitePress renders pages so the checksum can be shown on the download page
+const skillsPackage = await buildSkillsPackage({
+  srcDir,
+  files: await publicMarkdownFiles(),
+  stagingDir: join(srcDir, '.vitepress', 'cache', 'skills-package'),
+  describe: readMdInfo,
+});
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  srcExclude: ['tmp/**'],
+  srcExclude: publicExcludePrefixes.map((prefix) => `${prefix}**`),
+  markdown: {
+    codeTransformers: [
+      {
+        // Replace the checksum placeholder in code blocks at build time
+        preprocess: (code) => code.replaceAll('__SKILLS_SHA256__', skillsPackage.sha256),
+      },
+    ],
+  },
   vite: {
+    define: {
+      __SKILLS_SHA256__: JSON.stringify(skillsPackage.sha256),
+      __SKILLS_FILE_COUNT__: JSON.stringify(skillsPackage.fileCount),
+    },
     plugins: [markdownExportPlugin()],
   },
   buildEnd: async (siteConfig) => {
@@ -220,6 +250,10 @@ export default defineConfig({
       pattern: 'https://github.com/windwalker-io/windwalker-io.github.io/blob/master/:path'
     },
 
+    outline: {
+      level: [2, 3],
+    },
+
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
@@ -232,6 +266,7 @@ export default defineConfig({
         ]
       },
       { text: 'Unicorn RAD', link: '#' },
+      { text: 'Skills', link: '/download-skills' },
       { text: 'Status', link: 'status' },
       { text: 'Others', link: '#' },
     ],

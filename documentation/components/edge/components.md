@@ -233,10 +233,9 @@ class AlertComponent extends AbstractComponent
 }
 ```
 
-Every public property becomes a variable in the view. A public method
-with no arguments is available as an invokable variable, so
-<code v-pre>{{ $headline() }}</code> and <code v-pre>{{ $headline }}</code> both work. A public method
-with arguments is available as a closure. Add a property to the
+Every public property becomes a variable in the view. Public methods are
+available to the view too, as described in
+[Calling Public Methods](#calling-public-methods). Add a property to the
 `$except` array to hide it from the view.
 
 A tag attribute sets a property only when that property has the
@@ -279,6 +278,110 @@ Every public property and method of a class component is visible to
 its view. Keep internal state `protected`, or list it in `$except`.
 :::
 
+### Calling Public Methods
+
+Public methods of a class component are passed to the view as variables.
+How the view calls a method depends on whether it takes arguments.
+
+A method without arguments can be called with parentheses, or printed as a
+variable. Both forms return the same value:
+
+```php
+public function headline(): string
+{
+    return strtoupper($this->title);
+}
+```
+
+```blade
+<h1>{{ $headline() }}</h1>
+<h1>{{ $headline }}</h1>
+```
+
+A method with arguments is passed as a closure. Call it with the arguments
+that the view needs:
+
+```php
+public function greet(string $who): string
+{
+    return "Hi $who";
+}
+```
+
+```blade
+<p>{{ $greet('Simon') }}</p>
+```
+
+::: tip
+Each call runs the method again. If the view uses the same result several
+times, store it in a variable first, for example `@php($title = $headline())`.
+:::
+
+### Computed Properties
+
+PHP 8.4 property hooks let a public property compute its value when it is
+read. In this example, `fullName` combines two props. The view receives the
+computed value like any other property, and nothing is stored in the component:
+
+```php
+use Closure;
+use Windwalker\Edge\Component\AbstractComponent;
+use Windwalker\Utilities\Attributes\Prop;
+
+class UserNameComponent extends AbstractComponent
+{
+    public function __construct(
+        #[Prop]
+        public string $firstName = '',
+        #[Prop]
+        public string $lastName = '',
+    ) {
+    }
+
+    public string $fullName {
+        get => trim("$this->firstName $this->lastName");
+    }
+
+    public function render(): Closure|string
+    {
+        return 'components.user-name';
+    }
+}
+```
+
+```blade
+<p>{{ $fullName }}</p>
+```
+
+The caller passes the props as attributes. Kebab-case attributes map to the
+camel-case props:
+
+```blade
+<x-user-name first-name="Simon" last-name="Wang" />
+```
+
+Edge reads the public properties once, when it builds the data for the view.
+A computed property therefore gives the view a snapshot of its value at that
+moment. If the component changes during rendering, the view does not see the
+new value.
+
+If a value must change while the view renders, use a public method instead.
+A method runs each time the view calls it, so it returns the current state:
+
+```php
+public function label(): string
+{
+    return "Total: {$this->amount} TWD";
+}
+```
+
+```blade
+<p>{{ $label() }}</p>
+```
+
+Keep computed properties for values that depend on props and do not change
+during rendering. Keep the getter free of side effects and expensive queries.
+
 ### Adding Data
 
 Override `data()` when a value must be computed before the view renders.
@@ -299,22 +402,7 @@ class AddressComponent extends AbstractComponent
 }
 ```
 
-A public method with arguments can also be called from the view. The
-view calls it like a function:
-
-```php
-public function getAddress(int $id): string
-{
-    return "address-$id";
-}
-```
-
-```blade
-<p>{{ $getAddress(1) }}</p>
-```
-
-In a Windwalker application, services that load data are usually
-injected into the constructor. See the [Overview](/documentation/components/edge/)
+In a Windwalker application, services that load data are usuallyinjected into the constructor. See the [Overview](/documentation/components/edge/)
 for that setup.
 
 ### Inline Templates
@@ -372,16 +460,17 @@ argument names:
 
 ```blade
 {{-- pages/list.blade.php --}}
-@component('components.row')
-    @slot('item')
+<x-components.row>
+    <x-slot name="item">
         @scope($user, $role)
         <li>{{ $user }} ({{ $role }})</li>
-    @endslot
-@endcomponent
+    </x-slot>
+</x-components.row>
 ```
 
 Rendering the page outputs `<li>Simon (admin)</li>` inside the list.
-`@scope` is specific to Edge. Blade does not have an equivalent
+The `<x-slot>` tag names the slot, and `@scope` is the only directive in
+this example. It is specific to Edge. Blade does not have an equivalent
 directive. See [Differences from Blade](/documentation/components/edge/blade-differences).
 
 ## Designing Props
