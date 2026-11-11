@@ -2,7 +2,8 @@ import { defineConfig } from 'vitepress'
 import { join } from 'node:path';
 import { flatComponents, getComponentsSidebar } from './data/components';
 import { guidesSidebar } from './data/guides';
-import { componentRoutePrefix, guideRoutePrefix } from './store/routing-store';
+import { frameworkSidebar } from './data/framework';
+import { componentRoutePrefix, frameworkRoutePrefix, guideRoutePrefix } from './store/routing-store';
 import { buildSkillsPackage } from './data/skills-package';
 import {
   buildLlmsTxt,
@@ -85,7 +86,7 @@ export default defineConfig({
         text: 'Documentations',
         items: [
           { text: 'Guide', link: `/${guideRoutePrefix}/start/` },
-          { text: 'Framework', link: '#' },
+          { text: 'Framework', link: `/${frameworkRoutePrefix}/` },
           { text: 'Components', link: `/${componentRoutePrefix}/` },
         ]
       },
@@ -97,6 +98,7 @@ export default defineConfig({
 
     sidebar: {
       [`/${guideRoutePrefix}`]: guidesSidebar.value,
+      [`/${frameworkRoutePrefix}`]: frameworkSidebar.value,
       [`/${componentRoutePrefix}`]: await getComponentsSidebar(),
     },
 
