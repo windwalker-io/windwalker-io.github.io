@@ -1,22 +1,32 @@
 import type { Plugin } from 'vitepress';
-import { cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, sep } from 'node:path';
 
-export const siteUrl = 'https://windwalker.io';
-const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
+// Repository root (this file lives in .vitepress/data/)
 export const srcDir = join(import.meta.dirname, '../..');
+
+// Public domain, read from the repository's CNAME file (single source of truth)
+export const siteUrl = `https://${readFileSync(join(srcDir, 'CNAME'), 'utf8').trim()}`;
+
+// Directories never scanned for markdown files
+const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
 
 // Shared compile restrictions: every public output (pages, raw markdown, llms.txt, skills) uses these
 export const publicExcludePrefixes = ['tmp/'];
 const isPublicMarkdown = (file: string) => !publicExcludePrefixes.some((prefix) => file.startsWith(prefix));
 
-async function collectMarkdownFiles(dir: string = srcDir): Promise<string[]> {
+// ---------------------------------------------------------------------------
+// Markdown file discovery
+// ---------------------------------------------------------------------------
+
+// Recursively collect every `.md` file as a POSIX-style path relative to srcDir
+function collectMarkdownFiles(dir: string = srcDir): string[] {
   const files: string[] = [];
 
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (!skipDirs.has(entry.name)) {
-        files.push(...await collectMarkdownFiles(join(dir, entry.name)));
+        files.push(...collectMarkdownFiles(join(dir, entry.name)));
       }
     } else if (entry.isFile() && entry.name.endsWith('.md')) {
       files.push(relative(srcDir, join(dir, entry.name)).split(sep).join('/'));
@@ -26,9 +36,13 @@ async function collectMarkdownFiles(dir: string = srcDir): Promise<string[]> {
   return files.sort();
 }
 
-export async function publicMarkdownFiles(): Promise<string[]> {
-  return (await collectMarkdownFiles()).filter(isPublicMarkdown);
+export function publicMarkdownFiles(): string[] {
+  return collectMarkdownFiles().filter(isPublicMarkdown);
 }
+
+// ---------------------------------------------------------------------------
+// llms.txt generation
+// ---------------------------------------------------------------------------
 
 const toUrl = (file: string) => `${siteUrl}/${file}`;
 
@@ -37,8 +51,9 @@ const humanize = (name: string) =>
 
 type MdInfo = { file: string; title: string; description: string };
 
-async function readMdInfo(file: string): Promise<MdInfo> {
-  const text = await readFile(join(srcDir, file), 'utf8');
+// Read title and description from frontmatter, falling back to the first heading and paragraph
+function readMdInfo(file: string): MdInfo {
+  const text = readFileSync(join(srcDir, file), 'utf8');
   const fm: Record<string, string> = {};
   const fmMatch = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
   const body = fmMatch ? text.slice(fmMatch[0].length) : text;
@@ -52,11 +67,13 @@ async function readMdInfo(file: string): Promise<MdInfo> {
   }
 
   const heading = body.match(/^#\s+(.+)$/m)?.[1].trim();
+  // First line that is plain prose; skips headings, markup, code fences, lists, and imports
   const paragraph = body
     .split('\n')
     .map((line) => line.trim())
     .find((line) => line && !/^(#|<|```|-|\*|\||>|!|\{|import |export )/.test(line)) ?? '';
 
+  // Strip link syntax and emphasis markers so the description reads as plain text
   const description = (fm.description || paragraph)
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/[*`]/g, '')
@@ -69,25 +86,27 @@ async function readMdInfo(file: string): Promise<MdInfo> {
   };
 }
 
+// Files excluded from llms.txt (but still exported as raw markdown)
 const llmsExcludePrefixes = ['.github/'];
 
+// Top-level areas grouped as H2 sections in llms.txt, in display order
 const sectionNames: [prefix: string, name: string][] = [
   ['documentation/guides', 'Guides'],
   ['documentation/components', 'Components'],
   ['documentation/framework', 'Framework'],
 ];
 
-// Build llms.txt: H2 sections per area, nested lists per sub-directory
-export async function llmsMarkdownFiles(): Promise<string[]> {
-  return (await publicMarkdownFiles()).filter(
+// Files listed in llms.txt: only those inside a sub-directory, minus excluded prefixes
+export function llmsMarkdownFiles(): string[] {
+  return publicMarkdownFiles().filter(
     (file) => file.includes('/') && !llmsExcludePrefixes.some((prefix) => file.startsWith(prefix)),
   );
 }
 
-// Build llms.txt: H2 sections per area, nested lists per sub-directory
-export async function buildLlmsTxt(): Promise<string> {
-  const files = await llmsMarkdownFiles();
-  const infos = new Map((await Promise.all(files.map(readMdInfo))).map((i) => [i.file, i]));
+// H2 section per area; sub-directories become nested lists, linked through their index.md
+export function buildLlmsTxt(): string {
+  const files = llmsMarkdownFiles();
+  const infos = new Map(files.map(readMdInfo).map((i) => [i.file, i]));
   const item = (info: MdInfo, indent = '') =>
     `${indent}- [${info.title}](${toUrl(info.file)})${info.description ? `: ${info.description}` : ''}`;
 
@@ -98,6 +117,7 @@ export async function buildLlmsTxt(): Promise<string> {
     '',
   ];
 
+  // Bucket each file under its section; anything outside the known sections goes to "Other"
   const sections = new Map<string, string[]>();
 
   for (const file of files) {
@@ -119,6 +139,7 @@ export async function buildLlmsTxt(): Promise<string> {
     const direct: string[] = [];
     const groups = new Map<string, string[]>();
 
+    // Direct files are listed as-is; deeper files are grouped under their first sub-directory
     for (const file of sectionFiles) {
       const rest = prefix ? file.slice(prefix.length + 1) : file;
       const parts = rest.split('/');
@@ -153,18 +174,42 @@ export async function buildLlmsTxt(): Promise<string> {
   return lines.join('\n');
 }
 
-// Copy every public markdown file into the build output, write llms.txt and the skills package
-export async function exportMarkdownAndLlmsTxt(outDir: string, skillsStagingDir: string) {
-  const files = await publicMarkdownFiles();
+// ---------------------------------------------------------------------------
+// Raw markdown output
+// ---------------------------------------------------------------------------
+
+// Appended to raw markdown only; rendered HTML pages stay unchanged
+export function withMarkdownFooter(file: string, text: string): string {
+  const htmlUrl = `${siteUrl}/${file.replace(/\.md$/, '.html')}`;
+
+  return `${text.replace(/\s*$/, '')}
+
+---
+
+## Sitemap
+
+- [All pages index](${siteUrl}/llms.txt)
+- [HTML version of this page](${htmlUrl})
+
+`;
+}
+
+// ---------------------------------------------------------------------------
+// Build output and dev server
+// ---------------------------------------------------------------------------
+
+// Runs at buildEnd: copy raw markdown, write llms.txt, and add the skills package
+export function exportMarkdownAndLlmsTxt(outDir: string, skillsStagingDir: string) {
+  const files = publicMarkdownFiles();
 
   for (const file of files) {
     const target = join(outDir, file);
-    await mkdir(dirname(target), { recursive: true });
-    await cp(join(srcDir, file), target);
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8')));
   }
 
-  await writeFile(join(outDir, 'llms.txt'), await buildLlmsTxt());
-  await cp(skillsStagingDir, outDir, { recursive: true });
+  writeFileSync(join(outDir, 'llms.txt'), buildLlmsTxt());
+  cpSync(skillsStagingDir, outDir, { recursive: true });
 }
 
 // Serve llms.txt and raw markdown files during `yarn dev`
@@ -172,23 +217,24 @@ export function markdownExportPlugin(): Plugin {
   return {
     name: 'markdown-export',
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
+      server.middlewares.use((req, res, next) => {
         const pathname = decodeURIComponent((req.url ?? '').split('?')[0]);
 
         if (pathname === '/llms.txt') {
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.end(await buildLlmsTxt());
+          res.end(buildLlmsTxt());
           return;
         }
 
         const file = pathname.slice(1);
-        // Vite requests page modules as `.md` with `script` fetch destination; only serve raw text to documents and plain clients
+        // Vite requests page modules as `.md` with a `script` fetch destination.
+        // Only serve raw text to documents and plain clients (not module imports).
         const dest = req.headers['sec-fetch-dest'];
         const isModuleRequest = (req.url ?? '').includes('?') || (dest !== undefined && dest !== 'document');
 
-        if (!isModuleRequest && file.endsWith('.md') && (await publicMarkdownFiles()).includes(file)) {
+        if (!isModuleRequest && file.endsWith('.md') && publicMarkdownFiles().includes(file)) {
           res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(await readFile(join(srcDir, file)));
+          res.end(withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8')));
           return;
         }
 

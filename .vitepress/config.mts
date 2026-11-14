@@ -18,9 +18,9 @@ import {
 // Built before VitePress renders pages so the checksum can be shown on the download page
 const skillsPackage = await buildSkillsPackage({
   srcDir,
-  files: await llmsMarkdownFiles(),
+  files: llmsMarkdownFiles(),
   siteUrl,
-  index: await buildLlmsTxt(),
+  index: buildLlmsTxt(),
   stagingDir: join(srcDir, '.vitepress', 'cache', 'skills-package'),
 });
 
@@ -49,7 +49,7 @@ export default defineConfig({
     plugins: [markdownExportPlugin()],
   },
   buildEnd: async (siteConfig) => {
-    await exportMarkdownAndLlmsTxt(siteConfig.outDir, skillsPackage.stagingDir);
+    exportMarkdownAndLlmsTxt(siteConfig.outDir, skillsPackage.stagingDir);
   },
   title: "Windwalker PHP Framework",
   description: "The Next Generation PHP Framework",
