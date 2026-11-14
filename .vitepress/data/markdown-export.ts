@@ -1,19 +1,44 @@
 import type { Plugin } from 'vitepress';
-import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, sep } from 'node:path';
 
 // Repository root (this file lives in .vitepress/data/)
 export const srcDir = join(import.meta.dirname, '../..');
 
-// Public domain, read from the repository's CNAME file (single source of truth)
-export const siteUrl = `https://${readFileSync(join(srcDir, 'CNAME'), 'utf8').trim()}`;
+// Public domain: SITE_DOMAIN env var (e.g. `SITE_DOMAIN=example.com yarn build`), else the repository's CNAME file
+export const siteUrl = `https://${(process.env.SITE_DOMAIN || readFileSync(join(srcDir, 'CNAME'), 'utf8')).trim()}`;
 
 // Directories never scanned for markdown files
 const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
 
 // Shared compile restrictions: every public output (pages, raw markdown, llms.txt, skills) uses these
 export const publicExcludePrefixes = ['tmp/'];
-const isPublicMarkdown = (file: string) => !publicExcludePrefixes.some((prefix) => file.startsWith(prefix));
+
+// Markdown export options, built once in config.mts and passed to every export entry point
+export type MarkdownExclude = string | RegExp;
+
+export type MarkdownExportOptions = {
+  // Glob (`*` within a segment, `**` across segments, `?` one char) or RegExp, tested against the path relative to the repository root
+  excludes: MarkdownExclude[];
+  // Sidebar trees used to link chapter siblings in the Sitemap block
+  sidebar: SidebarNode[];
+};
+
+const globToRegExp = (glob: string) => new RegExp(
+  '^' + glob
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*/g, '\u0000')
+    .replace(/\*/g, '[^/]*')
+    .replace(/\u0000/g, '.*')
+    .replace(/\?/g, '[^/]') + '$',
+);
+
+const isMarkdownExcluded = (file: string, excludes: MarkdownExclude[]) => excludes.some((pattern) =>
+  typeof pattern === 'string' ? globToRegExp(pattern).test(file) : pattern.test(file),
+);
+
+const isPublicMarkdown = (file: string, excludes: MarkdownExclude[]) =>
+  !publicExcludePrefixes.some((prefix) => file.startsWith(prefix)) && !isMarkdownExcluded(file, excludes);
 
 // ---------------------------------------------------------------------------
 // Markdown file discovery
@@ -36,15 +61,15 @@ function collectMarkdownFiles(dir: string = srcDir): string[] {
   return files.sort();
 }
 
-export function publicMarkdownFiles(): string[] {
-  return collectMarkdownFiles().filter(isPublicMarkdown);
+export function publicMarkdownFiles(options: MarkdownExportOptions): string[] {
+  return collectMarkdownFiles().filter((file) => isPublicMarkdown(file, options.excludes));
 }
 
 // ---------------------------------------------------------------------------
 // llms.txt generation
 // ---------------------------------------------------------------------------
 
-const toUrl = (file: string) => `${siteUrl}/${file}`;
+const toUrl = (file: string, baseUrl: string) => `${baseUrl}/${file}`;
 
 const humanize = (name: string) =>
   name.split(/[-_]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -97,18 +122,18 @@ const sectionNames: [prefix: string, name: string][] = [
 ];
 
 // Files listed in llms.txt: only those inside a sub-directory, minus excluded prefixes
-export function llmsMarkdownFiles(): string[] {
-  return publicMarkdownFiles().filter(
+export function llmsMarkdownFiles(options: MarkdownExportOptions): string[] {
+  return publicMarkdownFiles(options).filter(
     (file) => file.includes('/') && !llmsExcludePrefixes.some((prefix) => file.startsWith(prefix)),
   );
 }
 
 // H2 section per area; sub-directories become nested lists, linked through their index.md
-export function buildLlmsTxt(): string {
-  const files = llmsMarkdownFiles();
+export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = siteUrl): string {
+  const files = llmsMarkdownFiles(options);
   const infos = new Map(files.map(readMdInfo).map((i) => [i.file, i]));
   const item = (info: MdInfo, indent = '') =>
-    `${indent}- [${info.title}](${toUrl(info.file)})${info.description ? `: ${info.description}` : ''}`;
+    `${indent}- [${info.title}](${toUrl(info.file, baseUrl)})${info.description ? `: ${info.description}` : ''}`;
 
   const lines = [
     '# Windwalker PHP Framework',
@@ -157,7 +182,7 @@ export function buildLlmsTxt(): string {
       const groupBase = prefix ? `${prefix}/${dir}` : dir;
       const indexInfo = infos.get(`${groupBase}/index.md`);
       const label = humanize(dir);
-      const title = indexInfo ? `[${label}](${toUrl(indexInfo.file)})` : label;
+      const title = indexInfo ? `[${label}](${toUrl(indexInfo.file, baseUrl)})` : label;
 
       lines.push(`- ${title}`);
 
@@ -178,20 +203,84 @@ export function buildLlmsTxt(): string {
 // Raw markdown output
 // ---------------------------------------------------------------------------
 
+type SidebarNode = { text?: string; link?: string; items?: SidebarNode[] };
+type ChapterItem = { text: string; file: string };
+type ChapterList = { title: string; items: ChapterItem[] };
+
+// Route link (e.g. /documentation/components/cache/tagged-pool) to its markdown file
+const linkToFile = (link: string) => {
+  const path = link.replace(/^\//, '');
+
+  return `${path === '' || path.endsWith('/') ? path + 'index' : path}.md`;
+};
+
+const dirOf = (file: string) => file.slice(0, file.lastIndexOf('/'));
+
+// Find the innermost sidebar group that lists the page's sibling chapters (same directory, 2+ pages)
+function findChapterList(nodes: SidebarNode[], file: string): ChapterList | undefined {
+  for (const node of nodes) {
+    if (!node.items?.length) {
+      continue;
+    }
+
+    const nested = findChapterList(node.items, file);
+
+    if (nested) {
+      return nested;
+    }
+
+    const siblings = node.items
+      .filter((item) => item.link && !item.items?.length)
+      .map((item) => ({ text: item.text ?? '', file: linkToFile(item.link!) }))
+      .filter((item) => dirOf(item.file) === dirOf(file));
+
+    if (siblings.length >= 2 && siblings.some((item) => item.file === file)) {
+      return { title: node.text ?? '', items: siblings };
+    }
+  }
+
+  return undefined;
+}
+
+// Chapter links for the page's sidebar section, shown in the Sitemap block
+function chapterSitemap(file: string, sidebar: SidebarNode[], baseUrl: string): string[] {
+  const chapters = findChapterList(sidebar, file);
+
+  if (!chapters) {
+    return [];
+  }
+
+  return [
+    `### ${chapters.title}`,
+    '',
+    ...chapters.items.map((item) =>
+      item.file === file ? `- ${item.text} (current page)` : `- [${item.text}](${toUrl(item.file, baseUrl)})`,
+    ),
+    '',
+  ];
+}
+
 // Appended to raw markdown only; rendered HTML pages stay unchanged
-export function withMarkdownFooter(file: string, text: string): string {
-  const htmlUrl = `${siteUrl}/${file.replace(/\.md$/, '.html')}`;
+export function withMarkdownFooter(
+  file: string,
+  text: string,
+  options: MarkdownExportOptions,
+  baseUrl: string = siteUrl,
+): string {
+  const htmlUrl = `${baseUrl}/${file.replace(/\.md$/, '.html')}`;
 
-  return `${text.replace(/\s*$/, '')}
-
----
-
-## Sitemap
-
-- [All pages index](${siteUrl}/llms.txt)
-- [HTML version of this page](${htmlUrl})
-
-`;
+  return [
+    text.replace(/\s*$/, ''),
+    '',
+    '---',
+    '',
+    '## Sitemap',
+    '',
+    `- [All pages index](${baseUrl}/llms.txt)`,
+    `- [HTML version of this page](${htmlUrl})`,
+    '',
+    ...chapterSitemap(file, options.sidebar, baseUrl),
+  ].join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -199,21 +288,25 @@ export function withMarkdownFooter(file: string, text: string): string {
 // ---------------------------------------------------------------------------
 
 // Runs at buildEnd: copy raw markdown, write llms.txt, and add the skills package
-export function exportMarkdownAndLlmsTxt(outDir: string, skillsStagingDir: string) {
-  const files = publicMarkdownFiles();
+export function exportMarkdownAndLlmsTxt(outDir: string, skillsStagingDir: string, options: MarkdownExportOptions) {
+  const files = publicMarkdownFiles(options);
 
   for (const file of files) {
     const target = join(outDir, file);
     mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8')));
+    writeFileSync(target, withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8'), options));
   }
 
-  writeFileSync(join(outDir, 'llms.txt'), buildLlmsTxt());
+  writeFileSync(join(outDir, 'llms.txt'), buildLlmsTxt(options));
   cpSync(skillsStagingDir, outDir, { recursive: true });
 }
 
 // Serve llms.txt and raw markdown files during `yarn dev`
-export function markdownExportPlugin(): Plugin {
+// Links point at the host the request came in on (e.g. http://localhost:5173)
+const devBaseUrl = (host: string | undefined) => (host ? `http://${host}` : siteUrl);
+
+// Single entry point for markdown options: dev middleware here, build output via exportMarkdownAndLlmsTxt
+export function markdownExportPlugin(options: MarkdownExportOptions): Plugin {
   return {
     name: 'markdown-export',
     configureServer(server) {
@@ -222,7 +315,7 @@ export function markdownExportPlugin(): Plugin {
 
         if (pathname === '/llms.txt') {
           res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.end(buildLlmsTxt());
+          res.end(buildLlmsTxt(options, devBaseUrl(req.headers.host)));
           return;
         }
 
@@ -232,10 +325,19 @@ export function markdownExportPlugin(): Plugin {
         const dest = req.headers['sec-fetch-dest'];
         const isModuleRequest = (req.url ?? '').includes('?') || (dest !== undefined && dest !== 'document');
 
-        if (!isModuleRequest && file.endsWith('.md') && publicMarkdownFiles().includes(file)) {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8')));
-          return;
+        if (!isModuleRequest && file.endsWith('.md')) {
+          if (publicMarkdownFiles(options).includes(file)) {
+            res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+            res.end(withMarkdownFooter(file, readFileSync(join(srcDir, file), 'utf8'), options, devBaseUrl(req.headers.host)));
+            return;
+          }
+
+          // Excluded markdown is not served as raw text in dev either, matching the build output
+          if (existsSync(join(srcDir, file))) {
+            res.statusCode = 404;
+            res.end('Not Found');
+            return;
+          }
         }
 
         next();

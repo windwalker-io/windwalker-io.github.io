@@ -15,12 +15,24 @@ import {
   srcDir,
 } from './data/markdown-export';
 
+const componentsSidebar = await getComponentsSidebar();
+
+// Markdown export options, passed to the plugin and every export entry point
+const markdownOptions = {
+  // Globs (`*`, `**`, `?`) or RegExp. Excluded files get no raw .md and no llms.txt entry; HTML pages are kept.
+  excludes: [
+    'documentation/components/index.md',
+  ],
+  // Every route's sidebar tree; used to link chapter siblings in the Sitemap block
+  sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...componentsSidebar],
+};
+
 // Built before VitePress renders pages so the checksum can be shown on the download page
 const skillsPackage = await buildSkillsPackage({
   srcDir,
-  files: llmsMarkdownFiles(),
+  files: llmsMarkdownFiles(markdownOptions),
   siteUrl,
-  index: buildLlmsTxt(),
+  index: buildLlmsTxt(markdownOptions),
   stagingDir: join(srcDir, '.vitepress', 'cache', 'skills-package'),
 });
 
@@ -46,10 +58,10 @@ export default defineConfig({
       __SKILLS_VERSION__: JSON.stringify(skillsPackage.sha256.slice(0, 12)),
       __SKILLS_FILE_COUNT__: JSON.stringify(skillsPackage.fileCount),
     },
-    plugins: [markdownExportPlugin()],
+    plugins: [markdownExportPlugin(markdownOptions)],
   },
   buildEnd: async (siteConfig) => {
-    exportMarkdownAndLlmsTxt(siteConfig.outDir, skillsPackage.stagingDir);
+    exportMarkdownAndLlmsTxt(siteConfig.outDir, skillsPackage.stagingDir, markdownOptions);
   },
   title: "Windwalker PHP Framework",
   description: "The Next Generation PHP Framework",
@@ -99,7 +111,7 @@ export default defineConfig({
     sidebar: {
       [`/${guideRoutePrefix}`]: guidesSidebar.value,
       [`/${frameworkRoutePrefix}`]: frameworkSidebar.value,
-      [`/${componentRoutePrefix}`]: await getComponentsSidebar(),
+      [`/${componentRoutePrefix}`]: componentsSidebar,
     },
 
     // sidebar: [
