@@ -1,7 +1,13 @@
-Write complete, first-time documentation for a Windwalker component or package in this repository (VitePress site under `documentation/components/`).
+Write complete, first-time documentation for a Windwalker or Unicorn package, guide, or framework topic in this repository (VitePress site under `documentation/`).
+
+Scope:
+- The user defines the scope. It may be a component, a guide, a framework area, or a specific set of pages. Do not assume it is a component.
+- If the target package or the target area under `documentation/` is unclear, or it is unclear whether pages are new or existing, ask the user before creating any file.
+- Only when the scope is a component under `documentation/components/` use the component doc page template below. For any other scope, follow the documentation style instructions and the existing pages of that area instead.
+- When the scope is a framework area (for example core, Unicorn, or Luna), read the real usage before writing. Under the host app's `vendor/`, locate the matching packages by their actual directory names, then read each package's `instructions`, `docs`, `README.md`, `src`, and `tests`. Understand how the code is actually used, then write the page from that understanding.
 
 Input (one of these):
-- A set of existing documents (for example drafts, old pages, or notes) that the user points to. Use them as source material, but verify every API, option, and default against the source before using it.
+- A set of existing documents (for example drafts, old pages, or notes) that the user points to. Use them as source material, but verify every API, option, and default against the source before using it. If these documents contain headings, treat them as the user's intended table of contents and follow that order where possible so readers can learn step by step. The order is not mandatory: add, merge, or change sections when it improves the manual.
 - A request to read the source code directly. Locate the package source as described below and build the documentation from it.
 
 Locating sources:
@@ -9,12 +15,13 @@ Locating sources:
 
 Step 0 (mandatory, before writing anything):
 - Read `.github/instructions/documentation-style.instructions.md` in full.
-- Read `.github/skills/templates/component-doc-page.md` in full.
+- If the scope is a component, also read `.github/skills/templates/component-doc-page.md` in full.
 - Reply with a short list of the rules you will apply, including where reminders go and the line-length limit, before creating any file.
 
-- Follow `.github/instructions/documentation-style.instructions.md` for writing rules, and `.github/skills/templates/component-doc-page.md` for page structure.
-- Study the Overview sections of existing component pages under `documentation/components/` to match tone and layout.
-- Focus on standalone usage (without the framework) for every component. In the Overview, include the main framework entry point (DI examples are allowed there). On topic pages, mention framework-level behavior only briefly as background, for example when a config setting can control it. Do not write large DI, service provider, or command-line examples on topic pages; those belong to their own dedicated section.
+- Follow `.github/instructions/documentation-style.instructions.md` for writing rules.
+- If the scope is a component, follow `.github/skills/templates/component-doc-page.md` for page structure. Otherwise, follow the structure of the existing pages in the same area under `documentation/`.
+- Study the Overview sections of existing pages in the same area (for component scope, under `documentation/components/`) to match tone and layout.
+- For component packages, focus on standalone usage (without the framework). In the Overview, include the main framework entry point (DI examples are allowed there). On topic pages, mention framework-level behavior only briefly as background, for example when a config setting can control it. Do not write large DI, service provider, or command-line examples on topic pages; those belong to their own dedicated section.
 
 Requirements:
 1. Write a manual, not an API reference. The reader should understand what the package is for, how its parts think and fit together, and how to assemble them. Explain the concepts and the design philosophy before the details. Introduce a domain term when a feature depends on it, and explain it briefly.
@@ -25,7 +32,7 @@ Requirements:
 5. Decide page splits by the package's structure, not by length. Give a feature its own page when it is a subsystem, a domain concept, a separate topic the reader may look up on its own, or an optional add-on. Keep tightly coupled features on the same page, even if the page is long. A short page is acceptable when its topic is distinct.
 6. Verify every code sample, class name, method signature, and default against the source and the package's `tests/` folder. Do not invent APIs. Mention a default only when it matters to the user. Use tests for realistic usage patterns.
 7. Write in fluent, native-sounding English, in the tone of a professional open-source project. Keep it neutral. Do not include internal links, IDE tutorials, personal remarks, or images.
-8. Use the site's page layout and frontmatter conventions: `layout: doc`, `title`, and `component: <name>` on every page of the component. Add the component to `.vitepress/data/components.ts` and its menu to `.vitepress/data/menu/components/<name>.ts` so the sidebar lists every page.
+8. Use the site's page layout and frontmatter conventions: `layout: doc` and `title` on every page. For component pages, also set `component: <name>` on every page of the component, add the component to `.vitepress/data/components.ts`, and add its menu to `.vitepress/data/menu/components/<name>.ts`. For other scopes, follow the sidebar setup used by that area (for example `.vitepress/data/guides.ts`). Make sure the sidebar lists every new page.
 9. Keep every line in code examples at 75 characters or fewer. When a line would exceed 75 characters, break it vertically: put each argument, array item, or chained call on its own line.
 10. Do not change framework or host app source code.
 
@@ -37,8 +44,8 @@ Final self-check (run before reporting completion, and report the result):
 - `yarn build` passes with no dead links.
 
 Success criteria:
-- The overview explains the package and its main parts, and each page covers its topic with concepts, usage, and reminders.
-- Standalone and framework-injected usage are covered where they apply.
+- The overview or introduction page explains the subject and its main parts, and each page covers its topic with concepts, usage, and reminders.
+- Standalone and framework-injected usage are covered where they apply, which for component packages is always.
 - Page splits follow the rules in the documentation style instructions, and the final summary lists the proposed pages and reasons.
 - Every page is listed in the sidebar menu, and no existing pages break.
 - `yarn build` succeeds in the site root.
