@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 import { join } from 'node:path';
 import { flatComponents, getComponentsSidebar } from './data/components';
 import { guidesSidebar } from './data/guides';
@@ -37,7 +38,8 @@ const skillsPackage = await buildSkillsPackage({
 });
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
+
   srcExclude: publicExcludePrefixes.map((prefix) => `${prefix}**`),
   sitemap: {
     hostname: siteUrl,
@@ -53,6 +55,9 @@ export default defineConfig({
     ],
   },
   vite: {
+    optimizeDeps: {
+      include: ['elkjs/lib/elk.bundled.js'],
+    },
     define: {
       __SKILLS_SHA256__: JSON.stringify(skillsPackage.sha256),
       __SKILLS_VERSION__: JSON.stringify(skillsPackage.sha256.slice(0, 12)),
@@ -145,4 +150,4 @@ export default defineConfig({
       pageData.titleTemplate = `:title | ${component?.title} Component | ${siteConfig.site.title}`;
     }
   }
-})
+}))

@@ -329,6 +329,125 @@ Only objects created by the container get their attributes processed. An
 object created with `new` keeps its `#[Inject]` properties empty.
 :::
 
+### Injecting by Tag
+
+Add `tag` to `#[Inject]` to pick one of several variants. The tag is passed to
+the binding, as described in [Service Variants](/documentation/framework/core-concepts/service-variants).
+Assume the interface is bound in `etc/di.config.php`:
+
+```php
+'bindings' => [
+    PaymentGatewayInterface::class => function (
+        Container $container,
+        ?string $tag = null,
+    ) {
+        return match ($tag) {
+            'paypal' => $container->newInstance(PaypalGateway::class),
+            default => $container->newInstance(StripeGateway::class),
+        };
+    },
+],
+```
+
+A service can then ask for a specific variant:
+
+```php
+class DonationService
+{
+    public function __construct(
+        #[Inject(tag: 'paypal')]
+        protected PaymentGatewayInterface $gateway,
+    ) {}
+}
+```
+
+Attribute values must be constants, so pass a string or an enum case, not a
+closure. The full option list is on the
+[DI attributes](/documentation/components/di/attributes) page.
+
+### Auto-Registering Services with #[Service]
+
+`#[Service]` lets a class be resolved without a binding. Put it on the class
+to register it on first use:
+
+```php
+namespace App\Report;
+
+use Windwalker\DI\Attributes\Service;
+
+#[Service]
+class ReportBuilder {}
+```
+
+`#[Service]` can also use on a parameter, will auto create and register the class if it is not registered.
+
+```php
+class ReportController
+{
+    public function __construct(
+        #[Service]
+        protected ReportBuilder $report,
+    ) {}
+}
+```
+
+::: warning
+Carefully use `#[Service]` on parameters. It registers the class as a shared object,
+so every controller that injects it uses the same instance, which can leak
+state. Other developers may not notice that the class is now global, and
+cause conflicts. Prefer declaring `#[Service]` on the class to make this
+behavior explicit.
+:::
+
+Add `shared: false` to get a new object on every lookup:
+
+```php
+#[Service(shared: false)]
+class ReportBuilder {}
+```
+
+::: tip
+Prefer plain constructor injection for dependencies that are always needed.
+Declare helper classes with class-level `#[Service]`.
+:::
+
+### Creating New Instances with #[Autowire]
+
+`#[Autowire]` creates the dependency when it is not registered. If the
+class is registered, the registered object is used. A new object is created
+on every injection, and it is not stored in the container:
+
+```php
+namespace App\Report;
+
+use Windwalker\DI\Attributes\Autowire;
+
+class ReportBuilder {}
+
+class ReportController
+{
+    public function __construct(
+        #[Autowire]
+        protected ReportBuilder $report,
+    ) {}
+}
+```
+
+Use `#[Autowire]` for classes that you do not want to register, and that
+must not share state, such as a builder or a temporary helper. Each
+controller gets its own `ReportBuilder`.
+
+::: info
+`#[Autowire]` checks the container first. A class with class-level
+`#[Service]` is registered, so `#[Autowire]` returns the shared object. Use
+one attribute per class, and choose `#[Autowire]` for classes that stay
+unregistered.
+:::
+
+The attribute is available on parameters and properties in the default
+attribute set. For the full behavior and class-level use, see the
+[DI attributes](/documentation/components/di/attributes) page.
+
 ### The Container Itself
 
 The container registers itself, so a class can type-hint `Container`:

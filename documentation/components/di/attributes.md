@@ -111,8 +111,17 @@ $controller = $container->newInstance(
 
 ## #[Inject]
 
-`#[Inject]` injects a class-typed dependency into a property or parameter. The container uses a registered service when
-available; otherwise, it creates the class. Register or bind interfaces to concrete services before injecting them.
+`#[Inject]` injects a dependency into a property or a constructor or method parameter. It works only on objects that the container creates.
+
+### Resolution
+
+For each target, the container:
+
+1. Reads the type from the `id` argument, or from the first class or interface type.
+2. Returns the registered service for that ID and tag, if one exists.
+3. Otherwise, creates a concrete class. The created object is not registered.
+
+Register an interface before you inject it. The container does not create interfaces.
 
 ```php
 use Windwalker\Attributes\AttributeType;
@@ -139,8 +148,32 @@ $flower = $container->newInstance(Flower::class);
 $flower->sakura; // Sakura object
 ```
 
-`#[Inject]` accepts `id`, `forceNew`, and `tag`. `id` overrides the type-hinted service ID, `forceNew` bypasses a
-registered definition's cached value, and `tag` selects a tagged definition:
+### Tags
+
+Pass a string or an enum case as the `tag`. Attribute values must be
+constant expressions, so a closure cannot be used here:
+
+```php
+class Dashboard
+{
+    #[Inject(tag: 'claude')]
+    public ChatModelInterface $claude;
+
+    #[Inject(tag: ChatModelDriver::GPT)]
+    public ChatModelInterface $gpt;
+}
+```
+
+The container passes the tag to the binding. Bind the interface with a
+closure that reads the tag, as shown on the
+[Service Variants](/documentation/framework/core-concepts/service-variants)
+page. If no entry matches the tag, the untagged entry is used when it exists.
+
+### Options
+
+`id` overrides the type-hinted ID. `forceNew` creates a new value instead of
+returning the cached one. `tag` selects the tagged entry. This example uses
+all three:
 
 ```php
 public function __construct(
@@ -149,7 +182,7 @@ public function __construct(
 ) {}
 ```
 
-`#[Inject]` can also use on parameters:
+Parameters work the same way:
 
 ```php
     public function __construct(#[Inject] public Sakura $sakura) 
@@ -165,7 +198,8 @@ Or directly set a class name:
 
 ## #[Service]
 
-`#[Service]` resolves an injectable service and shares it by default. Register it for constructor parameters:
+`#[Service]` resolves a shared service for a property or parameter, without a
+separate binding. Register it for constructor parameters:
 
 ```php
 use Windwalker\Attributes\AttributeType;
@@ -195,10 +229,10 @@ You can also direct a class name:
     {}
 ```
 
-### Declare Service
+### Registering a Class
 
-`#[Service]` can also declare a class as a shared service. The container recognizes this class-level attribute when the
-service is resolved by class name:
+Put `#[Service]` on a class to let the container resolve it by class name,
+without a binding:
 
 ```php
 use Windwalker\DI\Attributes\Service;
@@ -218,7 +252,31 @@ The container creates and stores the service on first resolution:
 $foo = $container->get(Foo::class);
 ```
 
-### Provided In
+### Non-Shared Services
+
+`shared: false` creates a new object on every lookup:
+
+```php
+#[Service(shared: false)]
+class ReportBuilder {}
+```
+
+### Tagged Services
+
+`tag` registers the class for one tag only. A lookup without that tag throws
+`DefinitionNotFoundException`:
+
+```php
+#[Service(tag: 'claude')]
+class ClaudeDriver implements ChatModelInterface {}
+
+$container->get(ClaudeDriver::class, tag: 'claude');
+```
+
+### Level Checks
+
+Combine `providedIn` with `shared: false`. The level is then checked on
+every lookup.
 
 The `providedIn` argument restricts a service to specified container levels. For example, this declaration allows
 resolution at level 2:
@@ -258,6 +316,13 @@ $container->bind(
 
 `#[Service]` also accepts a `tag`; resolve the service using the same tag. The `shared` option defaults to `true`.
 
+
+### Choosing Inject or Service
+
+- `#[Inject]` uses a service that is already registered. For an unregistered
+  concrete class, it creates a new object and does not register it.
+- `#[Service]` makes the class resolvable by itself. The container registers
+  it on first use.
 
 ## `#[Isolation]`
 

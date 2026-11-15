@@ -48,7 +48,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         { text: 'Environment Variables', link: `/${frameworkRoutePrefix}/core-concepts/environment-variables` },
         { text: 'Dependency Injection', link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection` },
         { text: 'Service Variants', link: `/${frameworkRoutePrefix}/core-concepts/service-variants` },
-        { text: 'Container Layers', link: `/${frameworkRoutePrefix}/core-concepts/layers` },
+        { text: 'Application Layers', link: `/${frameworkRoutePrefix}/core-concepts/layers` },
         { text: 'Request Lifecycle', link: `/${frameworkRoutePrefix}/core-concepts/request-lifecycle` },
       ]
     },
@@ -61,6 +61,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         { text: 'Middleware', link: `/${frameworkRoutePrefix}/http-routing/middleware` },
         { text: 'Controllers', link: `/${frameworkRoutePrefix}/http-routing/controllers` },
         { text: 'Request & Input', link: `/${frameworkRoutePrefix}/http-routing/request-and-input` },
+        { text: 'Uploaded Files', link: `/${frameworkRoutePrefix}/http-routing/uploaded-files` },
         { text: 'Responses', link: `/${frameworkRoutePrefix}/http-routing/responses` },
       ]
     },

@@ -1,9 +1,9 @@
 ---
 layout: doc
-title: Container Layers
+title: Application Layers
 ---
 
-# Container Layers
+# Application Layers
 
 ## Introduction
 
@@ -12,6 +12,29 @@ requests. An object created in one request can survive into the next and
 leak one user's state into another. Windwalker splits the container into
 layers, each with its own lifetime. Per-request services live in the request
 layer, and services that are safe to share live in the application layer.
+
+## Why Three Layers
+
+A long-running server such as Swoole should register providers and
+configuration only once, when the application initializes. For each request,
+Windwalker creates only the request-level services. When the request ends,
+the request container and its state are discarded. This keeps memory leaks
+unlikely, because nothing from one request survives into the next by default.
+
+The layers are built into Windwalker's container rather than added by a
+plugin. The design stays compact, and the layers work closely together.
+
+The top layer, `AppLayer::RUNTIME`, ignores the execution environment. It
+performs only basic process initialization.
+
+In theory, one process could run several HTTP and WebSocket servers at the
+same time. In practice, this is not recommended, because it makes development
+and debugging very difficult.
+
+::: tip
+Run one server per process. This keeps logs, state, and debugging
+straightforward.
+:::
 
 ## The Layers
 
