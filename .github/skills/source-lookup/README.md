@@ -28,6 +28,16 @@ This repository is a documentation site. The framework packages are installed in
 - Use `git log` in the package to see recent changes when needed.
 - Draft documents under `vendor/windwalker-io/*/docs/` describe new or major features. Treat them as leads and verify them against the code.
 
+## Reading real usage for documentation
+
+Use this procedure before writing or rewriting a framework page, for example for the core, Unicorn, or Luna packages.
+
+1. Locate the matching packages under the host app's `vendor/` by their actual directory names. Do not guess names.
+2. For each package, read `instructions`, `docs/`, `README.md`, `src/`, and `tests/`, in that order.
+3. Use `tests/` to learn the realistic assembly and call patterns. Use `src/` for signatures, defaults, and behavior.
+4. Verify every class name, method, option, and default against the source before writing it. Do not invent APIs.
+5. Document only the intended behavior. If the code contradicts its own docblock or tests, report it to the user as a possible bug instead of documenting it.
+
 ## Runtime and test verification
 
 Read the host app's `.github/dev/instructions/` first (`cli`, `smoke-test`, `test-common`, `test-coverage`) and `.github/dev/skills/test/SKILL.md`.

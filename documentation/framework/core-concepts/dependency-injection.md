@@ -1,7 +1,368 @@
 ---
 layout: doc
+title: Dependency Injection
 ---
 
 # Dependency Injection
 
-This page is a placeholder. The content will be written later.
+## Introduction
+
+Dependency injection (DI) means a class declares what it needs in its
+constructor, and code outside the class supplies it. Compare a service that
+creates its own gateway:
+
+```php
+class CheckoutService
+{
+    protected StripeGateway $gateway;
+
+    public function __construct()
+    {
+        $this->gateway = new StripeGateway();
+    }
+}
+```
+
+with one that asks for an interface:
+
+```php
+class CheckoutService
+{
+    public function __construct(
+        protected PaymentGatewayInterface $gateway,
+    ) {}
+}
+```
+
+The container decides which object fills each interface. Switching
+gateways, or using a fake in tests, then means changing one binding.
+
+## How Windwalker Uses DI
+
+Windwalker creates a container for the runtime and one for each
+application. Packages and your project register services during boot, and
+the container fills constructor type hints in controllers, middleware, and
+services.
+
+- **Container**: stores definitions, creates objects, and shares them.
+  See the [DI component](/documentation/components/di/basic-usage).
+- **Service providers**: register a group of related services. See
+  [Service Providers](#service-providers).
+- **Service variants**: configure DI keys and pick one of several
+  implementations at runtime. See
+  [Service Variants](/documentation/framework/core-concepts/service-variants).
+- **Layers**: the runtime, application, and request containers. See
+  [Container Layers](/documentation/framework/core-concepts/layers).
+- **Attributes**: `#[Inject]`, `#[Autowire]`, `#[Service]`, and others. See
+  the [DI attributes](/documentation/components/di/attributes) page.
+
+## Service Providers
+
+A service provider registers one group of related services, such as
+everything a payment feature needs. A package can ship one, and a project
+enables it with a single line. Windwalker calls each provider once during
+boot.
+
+### Minimal Setup
+
+The following example adds a checkout feature. It needs four parts: the
+classes, a provider that registers them, the configuration that enables the
+provider, and the code that uses them.
+
+#### Declare the Dependencies
+
+The service depends only on an interface:
+
+```php
+// src/Payment/PaymentGatewayInterface.php
+namespace App\Payment;
+
+interface PaymentGatewayInterface
+{
+    public function charge(int $amount, string $currency): string;
+}
+```
+
+```php
+// src/Payment/StripeGateway.php
+namespace App\Payment;
+
+class StripeGateway implements PaymentGatewayInterface
+{
+    public function charge(int $amount, string $currency): string
+    {
+        return "charge-$amount";
+    }
+}
+```
+
+```php
+// src/Payment/CheckoutService.php
+namespace App\Payment;
+
+class CheckoutService
+{
+    public function __construct(
+        protected PaymentGatewayInterface $gateway,
+    ) {}
+
+    public function checkout(int $amount): string
+    {
+        return $this->gateway->charge($amount, 'USD');
+    }
+}
+```
+
+#### Register the Services
+
+The provider binds the interface and prepares the shared service:
+
+```php
+// src/Provider/PaymentProvider.php
+namespace App\Provider;
+
+use App\Payment\CheckoutService;
+use App\Payment\PaymentGatewayInterface;
+use App\Payment\StripeGateway;
+use Windwalker\DI\Container;
+use Windwalker\DI\ServiceProviderInterface;
+
+class PaymentProvider implements ServiceProviderInterface
+{
+    public function register(Container $container): void
+    {
+        $container->bindShared(
+            PaymentGatewayInterface::class,
+            StripeGateway::class,
+        );
+
+        $container->prepareSharedObject(CheckoutService::class);
+    }
+}
+```
+
+#### Enable the Provider
+
+Add the provider to `providers` in `etc/di.config.php`:
+
+```php
+// etc/di.config.php, inside the returned array
+'providers' => [
+    \App\Provider\PaymentProvider::class,
+],
+```
+
+#### Use the Services
+
+The controller receives `CheckoutService` through its constructor:
+
+```php
+namespace App\Controller;
+
+use App\Payment\CheckoutService;
+
+class CheckoutController
+{
+    public function __construct(
+        protected CheckoutService $checkout,
+    ) {}
+
+    public function pay(): string
+    {
+        return $this->checkout->checkout(1200);
+    }
+}
+```
+
+Code outside the request can use the same object:
+
+```php
+$checkout = $app->retrieve(CheckoutService::class);
+
+echo $checkout->checkout(1200); // charge-1200
+```
+
+::: info
+`CheckoutService` is shared for the whole application, so it outlives a
+single request in a long-running server. See
+[Container Layers](/documentation/framework/core-concepts/layers).
+:::
+
+Without the provider, `retrieve()` throws, because the class is not
+registered.
+
+### Showcase: Reading Settings During Registration
+
+The `register()` method can read configuration with `getParam()`, and a
+closure can use the value when the service is created:
+
+```php
+namespace App\Provider;
+
+use App\Payment\PaymentGatewayInterface;
+use App\Payment\StripeGateway;
+use Windwalker\DI\Container;
+use Windwalker\DI\ServiceProviderInterface;
+
+class PaymentProvider implements ServiceProviderInterface
+{
+    public function register(Container $container): void
+    {
+        $container->bindShared(
+            PaymentGatewayInterface::class,
+            fn(Container $container) => new StripeGateway(
+                apiKey: $container->getParam('payment.stripe.key'),
+            ),
+        );
+    }
+}
+```
+
+The value is read when the service is first requested. This example
+assumes `StripeGateway` takes a `string $apiKey` argument.
+
+### Provider Interfaces
+
+A provider can implement these interfaces. Each runs at a different time:
+
+- `ServiceProviderInterface::register(Container $container)`: when the
+  provider is registered. Use it for bindings.
+- `BootableProviderInterface::boot(Container $container)`: right after
+  registration, while configuration is still loading.
+- `BootableDeferredProviderInterface::bootDeferred(Container $container)`:
+  after all configuration sections are registered.
+- `RequestBootableProviderInterface::bootBeforeRequest(Container $container)`:
+  at the start of each web request, in the request container.
+- `RequestReleasableProviderInterface::releaseAfterRequest(Container $container)`:
+  at the end of each web request.
+
+The request interfaces are from `Windwalker\Core\DI`. See
+[Container Layers](/documentation/framework/core-concepts/layers#request-hooks)
+for details.
+
+```php
+use Windwalker\DI\BootableDeferredProviderInterface;
+
+class PaymentProvider implements
+    ServiceProviderInterface,
+    BootableDeferredProviderInterface
+{
+    public function register(Container $container): void
+    {
+        // Register bindings here.
+    }
+
+    public function bootDeferred(Container $container): void
+    {
+        $container->extend(
+            \App\Payment\CheckoutService::class,
+            function (\App\Payment\CheckoutService $checkout) {
+                return $checkout;
+            },
+        );
+    }
+}
+```
+
+### Registering Providers
+
+Register a provider in one of two ways:
+
+- Add it to the `providers` key of a configuration section.
+- Call `registerServiceProvider()` yourself, for example in a test:
+
+```php
+$container = new \Windwalker\DI\Container();
+$container->registerServiceProvider(new PaymentProvider());
+```
+
+Configuration entries are resolved through the container and are usually
+class names. A class listed in several sections is registered once.
+
+::: tip
+Keep provider constructor arguments registered in the container. An
+unregistered class dependency stops the boot.
+:::
+
+::: info
+`registerByConfig()` does not call `bootDeferred()`. A custom loader must
+call it itself.
+:::
+
+::: warning
+Shared objects that a provider creates in `boot()` live in the application
+container. In a long-running server they persist across requests, so keep
+per-request state out of them. See
+[Container Layers](/documentation/framework/core-concepts/layers).
+:::
+
+## Injection Styles
+
+Windwalker supports three ways to receive a dependency.
+
+### Constructor Injection
+
+Declare the dependency as a typed constructor parameter. It is the preferred
+style, and the class can be built by hand in a test:
+
+```php
+$service = new CheckoutService(new StripeGateway());
+```
+
+### Property Injection
+
+Use `#[Inject]` on a property when a constructor is not practical. The
+container fills it after creating the object:
+
+```php
+use Windwalker\DI\Attributes\Inject;
+
+class ReportBuilder
+{
+    #[Inject]
+    protected CheckoutService $checkout;
+}
+```
+
+::: info
+Only objects created by the container get their attributes processed. An
+object created with `new` keeps its `#[Inject]` properties empty.
+:::
+
+### The Container Itself
+
+The container registers itself, so a class can type-hint `Container`:
+
+```php
+use Windwalker\DI\Container;
+
+class ReportExporter
+{
+    public function __construct(protected Container $container) {}
+}
+```
+
+Use this only when the class must choose a service at runtime. Injecting the
+container hides the real dependencies.
+
+## Application Methods
+
+The application shortcuts delegate to its container:
+
+- `retrieve($id)`: returns a registered service. It throws an exception
+  when the ID is not registered.
+- `make($class, $args)`: creates a new object on every call. It does not
+  register the class.
+- `service($class, $args)`: creates the object and registers it as
+  shared on the first call. Later calls return the same object.
+- `bind($id, $value)`: binds an ID to a class, an object, or a closure.
+  See the [container binding rules](/documentation/components/di/basic-usage).
+- `resolve($source)`: resolves a config path, class name, or callable.
+
+```php
+$pdf = $app->make(\App\Report\PdfRenderer::class);
+$mailer = $app->service(\App\Mail\Mailer::class);
+```
+
+Use `retrieve()` for services that are already registered, and `service()`
+for a class that should be created on first use.

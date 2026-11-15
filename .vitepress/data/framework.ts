@@ -47,6 +47,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
       items: [
         { text: 'Environment Variables', link: `/${frameworkRoutePrefix}/core-concepts/environment-variables` },
         { text: 'Dependency Injection', link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection` },
+        { text: 'Service Variants', link: `/${frameworkRoutePrefix}/core-concepts/service-variants` },
+        { text: 'Container Layers', link: `/${frameworkRoutePrefix}/core-concepts/layers` },
         { text: 'Request Lifecycle', link: `/${frameworkRoutePrefix}/core-concepts/request-lifecycle` },
       ]
     },
@@ -100,6 +102,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
     {
       text: 'Security',
       items: [
+        { text: 'App Secret', link: `/${frameworkRoutePrefix}/security/app-secret` },
         { text: 'Authentication', link: `/${frameworkRoutePrefix}/security/authentication` },
         { text: 'Authorization', link: `/${frameworkRoutePrefix}/security/authorization` },
         { text: 'CSRF Protection', link: `/${frameworkRoutePrefix}/security/csrf-protection` },
