@@ -12,7 +12,7 @@ export const siteUrl = `https://${(process.env.SITE_DOMAIN || readFileSync(join(
 const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
 
 // Shared compile restrictions: every public output (pages, raw markdown, llms.txt, skills) uses these
-export const publicExcludePrefixes = ['tmp/'];
+export const publicExcludePrefixes = ['tmp/', '.github/'];
 
 // Markdown export options, built once in config.mts and passed to every export entry point
 export type MarkdownExclude = string | RegExp;
