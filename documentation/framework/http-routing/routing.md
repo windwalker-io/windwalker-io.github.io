@@ -262,6 +262,103 @@ Use a group for every area of the app, such as `front` and `admin`. The
 name prefix keeps route names unique across areas.
 :::
 
+### Nested Scopes
+
+Calling `load()` inside a group registers the loaded files under that group.
+Each loaded route inherits every option of the group: the prefix, namespace,
+middlewares, hosts, scheme, methods, and vars. A loaded file can open another
+group and call `load()` again, so one scope can contain a whole tree of
+scopes. Each level adds its own options to the chain.
+
+The following example scopes a set of pages to one organization. The
+organization ID is in the URL, and a middleware loads the organization:
+
+```php
+<?php
+
+// routes/front/org.php
+
+use App\Module\Front\Org\OrgHomeController;
+use App\Module\Front\Org\OrganizationMiddleware;
+use Windwalker\Core\Router\RouteCreator;
+
+/** @var RouteCreator $router */
+
+$router->group('org')
+    ->prefix('/org/{org_id}')
+    ->middleware(OrganizationMiddleware::class)
+    ->register(function (RouteCreator $router) {
+        $router->get('org_home', '/')
+            ->handler(OrgHomeController::class);
+
+        $router->load(__DIR__ . '/org/*.php');
+    });
+```
+
+The files in `routes/front/org/` add a second scope. Each one adds a path
+segment and a login check. The member routes below therefore run
+`OrganizationMiddleware` first, then `LoginRequireMiddleware`, and match
+`/org/{org_id}/member/{mid}`:
+
+```php
+<?php
+
+// routes/front/org/member.php
+
+use App\Module\Front\Org\Member\MemberController;
+use Lyrasoft\Luna\Middleware\LoginRequireMiddleware;
+use Windwalker\Core\Router\RouteCreator;
+
+/** @var RouteCreator $router */
+
+$router->group('member')
+    ->prefix('/member')
+    ->middleware(LoginRequireMiddleware::class)
+    ->register(function (RouteCreator $router) {
+        $router->get('member_show', '/{mid:\d+}')
+            ->handler(MemberController::class, 'show');
+    });
+```
+
+::: warning
+A middleware of an outer scope can read the scope value only with
+`getUrlVars()`. Use `$app->getUrlVars()['org_id']` in
+`OrganizationMiddleware`, not `$app->input('org_id')`. A query string such
+as `?org_id=2` overrides the route value in `input()`.
+:::
+
+Host guards work the same way. A group with a host protects every route
+below it. A request to another host does not match and returns `404`:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->group('admin')
+    ->hosts('admin.example.com')
+    ->scheme('https')
+    ->prefix('/')
+    ->namespace('admin')
+    ->register(function (RouteCreator $router) {
+        $router->get('dashboard', '/dashboard')
+            ->handler(DashboardController::class);
+    });
+```
+
+::: tip
+`KeepUrlQueryMiddleware` from `windwalker/unicorn` keeps a scope parameter,
+such as `org_id`, in every URL that `Navigator` builds inside the group.
+Pass a `uid` to separate scopes that use the same key.
+:::
+
+Nested scopes add some complexity, because a route's options come from every
+group above it. In exchange, one group controls the prefix, host, and
+middlewares of a whole area, and no route inside can drift out of it. This
+is the reason Windwalker does not offer per-controller attributes for route
+prefixes or hosts for now. Keep each scope in its own folder
+so the tree is easy to read.
+
 ## Route Parameters
 
 A placeholder in braces, such as `{id}`, matches one path segment. Add a
@@ -275,6 +372,21 @@ regular expression after a colon to restrict it:
 $router->get('post_show', '/post/{id:\d+}');
 $router->get('post_tag', '/tag/{slug:[a-z0-9-]+}');
 ```
+
+Wrap a part of the path in brackets to make it optional. A placeholder such
+as `{path:.+}` can match several segments:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->get('post_list', '/posts[/{page:\d+}]');
+$router->get('file_show', '/files[/{path:.+}]');
+```
+
+`/posts` and `/posts/2` both match `post_list`. `/files/a/b/c` gives
+`path` the value `a/b/c`.
 
 Route parameters reach the handler as URL variables. The simplest way is a
 method argument with the same name. A controller method receives `$id`
