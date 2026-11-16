@@ -26,8 +26,28 @@ The response layer has four parts:
 
 Redirect methods on `Navigator` are described in
 [Navigation](/documentation/framework/http-routing/navigation#redirect-methods).
+A controller can return one directly:
+
+```php
+<?php
+
+/** @var Navigator $nav */
+
+return $nav->redirectTo('front::post_show', ['id' => 42]);
+```
+
 Controller methods are described in
-[Controllers](/documentation/framework/http-routing/controllers).
+[Controllers](/documentation/framework/http-routing/controllers). A method
+that returns a value is shown there with a route:
+
+```php
+<?php
+
+public function ping(): string
+{
+    return 'pong';
+}
+```
 
 ## Returning a Value
 
@@ -354,10 +374,21 @@ return response()->redirect('/post/42');
 return response()->redirect('/post/42', 302);
 ```
 
-A redirect returned from a controller is checked. A `Location` that is
-not a local URL is replaced with the app root. A local URL is a path
-such as `/post/42` or a URL under the app root. A URL that starts with
-`//` is not local.
+A redirect returned from a controller is checked against the rule in
+[Local Redirects](/documentation/framework/http-routing/navigation#local-redirects).
+A `Location` that is not local is replaced with the app root:
+
+```php
+<?php
+
+use function Windwalker\response;
+
+// Returned as-is: a local path.
+return response()->redirect('/post/42');
+
+// Replaced with the app root, because `//` is not local.
+return response()->redirect('//evil.example/');
+```
 
 ::: warning
 The check applies only to a redirect that a controller returns. Use
@@ -387,8 +418,20 @@ return $nav->to('post::post_show')->id(42)->withStatus(302);
 ::: info
 `Navigator::redirectInstant()` sends the redirect at once and ends the
 request. The rest of the method does not run. Use it only when you
-cannot return the response. See
-[Navigation](/documentation/framework/http-routing/navigation#redirect-methods).
+cannot return the response:
+
+```php
+<?php
+
+/** @var Navigator $nav */
+
+$nav->redirectInstant('/post/42');
+
+// Not reached.
+```
+
+See [Navigation](/documentation/framework/http-routing/navigation#redirect-methods)
+for all `Navigator` redirect methods.
 :::
 
 ### File Downloads
@@ -659,8 +702,22 @@ public function show(string $id): array
 ```
 
 On an exception, the envelope carries `success: false`, and the HTTP
-status is set from the exception's status code. See
-[Exceptions](/documentation/framework/http-routing/exceptions#json-api-errors).
+status is set from the exception's status code:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\JsonApi;
+
+#[JsonApi]
+public function show(string $id): array
+{
+    throw new \RuntimeException('Post not found.', 404);
+}
+```
+
+The [Exceptions](/documentation/framework/http-routing/exceptions#json-api-errors)
+page describes how the message is chosen.
 
 To apply the format to every method of a route group, add
 `JsonApiMiddleware` to the group:

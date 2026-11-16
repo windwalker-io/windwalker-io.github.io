@@ -20,8 +20,15 @@ The file layer has two parts:
   the file.
 
 Uploaded files do not come from the query string or the parsed body.
-Use [Request & Input](/documentation/framework/http-routing/request-and-input)
-for the other input sources.
+Read those with `input()`, as described in
+[Request & Input](/documentation/framework/http-routing/request-and-input):
+
+```php
+<?php
+
+$title = $app->input('title'); // From the query string or the body.
+$cover = $app->file('cover');  // From the uploaded files.
+```
 
 ## Minimal Setup
 

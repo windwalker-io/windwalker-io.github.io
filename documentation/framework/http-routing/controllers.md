@@ -1,5 +1,6 @@
 ---
 layout: doc
+title: Controllers
 ---
 
 # Controllers
@@ -24,6 +25,23 @@ The controller layer has three parts:
 Routes are defined in the [Routing](/documentation/framework/http-routing/routing)
 page. The method arguments use the input attributes from
 [Request & Input](/documentation/framework/http-routing/request-and-input).
+A route points at a controller method, and the framework passes the route
+variable to the argument:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->get('post_show', '/post/{id}')
+    ->handler(PostController::class, 'show');
+
+// In PostController:
+public function show(#[RouteParam] string $id): string
+{
+    return 'Post ' . $id;
+}
+```
 
 ## Declaring a Controller
 
@@ -476,10 +494,10 @@ public function show(string $id, PostRepository $posts): JsonResponse
 }
 ```
 
-After the throw, the framework takes over. On a `GET` request, it renders the
-error page with status `404`. On a form request, it flashes a warning and
-redirects back instead. See [Exceptions](/documentation/framework/http-routing/exceptions)
-for the full rules, verbosity, validation errors, and JSON errors.
+After the throw, the framework takes over: it renders the error page or
+flashes a warning and redirects back, depending on the request method and
+the client. See [Exceptions](/documentation/framework/http-routing/exceptions)
+for the rules.
 
 ## Flash Messages
 

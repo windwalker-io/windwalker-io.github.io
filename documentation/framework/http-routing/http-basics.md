@@ -25,9 +25,6 @@ each part in detail.
 
 ## PSR-7 Messages
 
-See [Request & Input](/documentation/framework/http-routing/request-and-input)
-and [Responses](/documentation/framework/http-routing/responses).
-
 Windwalker follows the PSR-7 interfaces. The request is a
 `Psr\Http\Message\ServerRequestInterface`, and the response is a
 `Psr\Http\Message\ResponseInterface`. The web request container binds the
@@ -48,15 +45,8 @@ function searchTerm(ServerRequestInterface $request): string
 }
 ```
 
-The classes in `windwalker/http` implement these interfaces. Use them to
-create responses:
-
-- `HtmlResponse`: an HTML body.
-- `JsonResponse`: a JSON body, encoded from an array or object.
-- `TextResponse`: a plain text body.
-- `RedirectResponse`: a redirect with a `Location` header.
-- `EmptyResponse`: a response without a body.
-- `AttachmentResponse`: a file download.
+The classes in `windwalker/http` implement these interfaces. A plain
+PSR-7 response looks like this:
 
 ```php
 <?php
@@ -65,6 +55,11 @@ use Windwalker\Http\Response\JsonResponse;
 
 $response = new JsonResponse(['status' => 'ok'], 200);
 ```
+
+The [Responses](/documentation/framework/http-routing/responses) page
+lists every response class and the `response()` builder. The
+[Request & Input](/documentation/framework/http-routing/request-and-input)
+page covers reading input in detail.
 
 ::: warning
 PSR-7 messages are immutable. The `with*()` methods, such as `withHeader()`,
@@ -83,17 +78,9 @@ $response = $response->withHeader('X-Robots-Tag', 'noindex');
 ## AppRequest
 
 Your code rarely reads the PSR-7 request directly. Windwalker wraps it in
-`AppRequest` (`Windwalker\Core\Http\AppRequest`). It adds the route variables
-and the merged input from the query string and the body, plus the `SystemUri`
-and the matched route. Get it from the request context:
-
-```php
-<?php
-
-$appRequest = $app->getAppRequest();
-```
-
-Most code uses the readers on `AppContext` instead:
+`AppRequest` (`Windwalker\Core\Http\AppRequest`), which adds the route
+variables, the merged input, and the matched route. Most code uses the
+readers on `AppContext`:
 
 ```php
 <?php
@@ -102,26 +89,12 @@ $q = $app->input('q');
 $route = $app->getMatchedRoute()?->getName();
 ```
 
-The two layers differ in what they include:
-
-- PSR-7 request: `$app->getServerRequest()`, the raw values only.
-- `AppRequest`: `$app->getAppRequest()`, with the route variables and the
-  merged input.
-
-::: info
-`getServerRequest()->getQueryParams()` does not include route variables.
-Read `{id}` with `$app->input('id')` instead.
-:::
-
 The [Request & Input](/documentation/framework/http-routing/request-and-input)
-page covers the readers and attributes. Its
-[The AppRequest Object](/documentation/framework/http-routing/request-and-input#the-apprequest-object)
-section explains the input cache, the value-read events, and the other
-members of `AppRequest`.
+page explains the two layers, the input cache, and the value-read events in
+its [The AppRequest Object](/documentation/framework/http-routing/request-and-input#the-apprequest-object)
+section.
 
 ## Middlewares (PSR-15)
-
-See [Middleware](/documentation/framework/http-routing/middleware).
 
 A middleware implements `Psr\Http\Server\MiddlewareInterface`. Its
 `process()` method receives the request and a handler. The middleware can
@@ -173,21 +146,27 @@ $router->get('post_show', '/post/{id}')
 
 A request to `/post/42` now returns the `X-Api-Version: 2` header.
 
-There are two places to register middlewares:
+Global middlewares are listed in the `middlewares` key of a configuration
+file, such as `etc/app/main.config.php`. This list runs for every request:
 
-- Global: the `middlewares` key of a configuration file, such as
-  `etc/app/main.config.php`. This list starts with `RoutingMiddleware`.
-- Route: the `middleware()` method of a route, or of a route group. These
-  run after `RoutingMiddleware` has matched the route.
+```php
+<?php
 
-A middleware that returns a response without calling
-`$handler->handle()` ends the chain, and the controller never runs.
-`ForceSslMiddleware` uses this to redirect plain HTTP requests.
+// etc/app/main.config.php
+
+use Windwalker\Core\Middleware\RoutingMiddleware;
+
+return [
+    'middlewares' => [
+        RoutingMiddleware::class,
+    ],
+];
+```
+
+The [Middleware](/documentation/framework/http-routing/middleware) page
+covers the order of execution, route groups, and middleware attributes.
 
 ## SystemUri
-
-See [Routing](/documentation/framework/http-routing/routing) and
-[Request & Input](/documentation/framework/http-routing/request-and-input).
 
 `SystemUri` (`Windwalker\Core\Router\SystemUri`) is a URI object built from
 the request and the script name. It records where the app is mounted, so
@@ -234,10 +213,6 @@ The script name, such as `index.php`, is removed from it.
 
 ## Routes and Navigation
 
-See [Routing](/documentation/framework/http-routing/routing),
-[Navigation](/documentation/framework/http-routing/navigation), and
-[Controllers](/documentation/framework/http-routing/controllers).
-
 A route has a name, an HTTP method, a path pattern, and a handler. The
 handler is usually a controller:
 
@@ -251,21 +226,25 @@ $router->get('post_show', '/post/{id}')
 ```
 
 `RoutingMiddleware` matches the request's `route` against these patterns.
-When no route matches, the request fails with a route-not-found error.
+The [Routing](/documentation/framework/http-routing/routing) page covers
+route files, groups, and matching rules, and the
+[Controllers](/documentation/framework/http-routing/controllers) page covers
+the handler methods.
 
-`Navigator` works in the other direction. It builds URLs from route names
-with `to()`, `self()`, and `back()`, and it sends redirects. Retrieve it from
-the request context:
+`Navigator` works in the other direction. It builds a URL from a route name
+and sends redirects:
 
 ```php
 <?php
 
+use Windwalker\Core\Router\Navigator;
+
 $nav = $app->retrieve(Navigator::class);
+
+$url = $nav->to('front::post_show')->id(42); // /post/42
+
+return $nav->redirect('/post/42');
 ```
 
-::: warning
-A `RedirectResponse` returned from a controller is checked. A `Location`
-outside the app root is replaced with the app root. Return
-`OutsideRedirectResponse` only for URLs you trust, such as a payment
-gateway.
-:::
+The [Navigation](/documentation/framework/http-routing/navigation) page
+explains the redirect rules, including which URLs `redirect()` accepts.

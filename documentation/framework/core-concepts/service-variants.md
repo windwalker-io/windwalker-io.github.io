@@ -664,7 +664,8 @@ object for the tag.
 ### Minimal Setup
 
 Define the implementations in a configuration section. Each entry can be a
-class name, a closure, or a `create()` definition with named arguments:
+class name, a closure, or a `static fn() => create()` definition with named
+arguments:
 
 ```php
 // etc/packages/chat.config.php
@@ -677,11 +678,11 @@ return #[ConfigModule(name: 'chat', enabled: true)]
 static fn() => [
     'factories' => [
         ChatModelInterface::class => [
-            'gpt' => \Windwalker\DI\create(
+            'gpt' => static fn() => \Windwalker\DI\create(
                 ChatGPTDriver::class,
                 apiKey: env('OPENAI_API_KEY'),
             ),
-            'claude' => \Windwalker\DI\create(
+            'claude' => static fn() => \Windwalker\DI\create(
                 ChatClaudeDriver::class,
                 apiKey: fn() => env('ANTHROPIC_API_KEY'),
             ),
@@ -776,17 +777,17 @@ return #[ConfigModule(name: 'shop_payment', enabled: true)]
 static fn() => [
     'factories' => [
         PaymentGatewayInterface::class => [
-            'stripe' => create(
+            'stripe' => static fn() => create(
                 StripeGateway::class,
                 apiKey: env('STRIPE_SECRET_KEY'),
             ),
-            'paypal' => create(
+            'paypal' => static fn() => create(
                 PaypalGateway::class,
                 clientId: env('PAYPAL_CLIENT_ID'),
             ),
         ],
         CheckoutInterface::class => [
-            'store' => create(
+            'store' => static fn() => create(
                 CheckoutService::class,
                 gateway: fn(Container $container) => $container->get(
                     PaymentGatewayInterface::class,
@@ -794,7 +795,7 @@ static fn() => [
                 ),
                 currency: 'USD',
             ),
-            'donation' => create(
+            'donation' => static fn() => create(
                 CheckoutService::class,
                 gateway: fn(Container $container) => $container->get(
                     PaymentGatewayInterface::class,

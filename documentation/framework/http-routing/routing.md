@@ -21,6 +21,16 @@ The routing system has four parts:
 - `Navigator`: builds URLs from route names. See
   [Navigation](/documentation/framework/http-routing/navigation).
 
+```php
+<?php
+
+use Windwalker\Core\Router\Navigator;
+
+/** @var Navigator $nav */
+
+echo $nav->to('front::post_show')->id(42); // /post/42
+```
+
 The [Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle)
 shows where routing runs in the request.
 
@@ -166,7 +176,19 @@ the response is decided by the app's error handling.
 
 A handler can be a controller class, a `[Class, method]` pair, or a
 closure. A controller class is marked with the `#[Controller]` attribute.
-See [Controllers](/documentation/framework/http-routing/controllers). Use `handler()` to set one handler for all methods:
+Use `handler()` to set one handler for all methods:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->get('post_show', '/post/{id}')
+    ->handler(PostController::class, 'show');
+```
+
+The [Controllers](/documentation/framework/http-routing/controllers) page
+covers the attribute, the task methods, and the injection rules.
 
 ```php
 <?php
@@ -411,7 +433,19 @@ class PostController
 Read them in other ways when needed:
 
 - With the `#[RouteParam]` attribute on a parameter. See
-  [Request & Input](/documentation/framework/http-routing/request-and-input).
+  [Request & Input](/documentation/framework/http-routing/request-and-input):
+
+  ```php
+  <?php
+
+  use Windwalker\Core\Attributes\Request\RouteParam;
+
+  public function show(#[RouteParam] int $id): JsonResponse
+  {
+      return new JsonResponse(['id' => $id]);
+  }
+  ```
+
 - From the request context with `getUrlVars()`, which returns only the
   route variables.
 
@@ -433,10 +467,11 @@ $app->getUrlVars();  // ['id' => '42'], route variables only
 ```
 
 ::: warning
-`input()` merges query values after route variables. A query string such as
-`?id=7` replaces the `{id}` value of `/post/42`. Read route parameters with
-a method argument, `#[RouteParam]`, or `getUrlVars()` when the value must
-come from the route. See
+`input()` reads from three sources, with this priority: body, then route
+variables, then query string. A query value such as `?id=7` does not replace
+the `{id}` value of `/post/42`. A body field named `id` does replace it. For
+a value that must come from the route, read it with a method argument,
+`#[RouteParam]`, or `getUrlVars()`. See
 [Request & Input](/documentation/framework/http-routing/request-and-input)
 for the full list of input methods.
 :::
@@ -511,7 +546,32 @@ A request with another scheme does not match the route.
 - `AfterRoutingEvent`: after matching. It provides the matched `Route`.
 - `RoutingNotMatchedEvent`: when no route matches.
 
-Use the events from a listener or a subscriber, as described in the
+Listen to these events with a subscriber. This one logs every unmatched
+request path:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Listener;
+
+use Windwalker\Core\Events\Web\RoutingNotMatchedEvent;
+use Windwalker\Event\Attributes\EventSubscriber;
+use Windwalker\Event\Attributes\ListenTo;
+
+#[EventSubscriber]
+class RoutingLogSubscriber
+{
+    #[ListenTo(RoutingNotMatchedEvent::class)]
+    public function logMiss(RoutingNotMatchedEvent $event): void
+    {
+        // Log the request path that matched no route.
+    }
+}
+```
+
+Register the subscriber in the `listeners` config, as shown in the
 [Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle).
 The `RoutingMiddleware` constructor also accepts a `$preMatch` closure, which
 runs before the router, and a `$fallback` closure, which runs when no route

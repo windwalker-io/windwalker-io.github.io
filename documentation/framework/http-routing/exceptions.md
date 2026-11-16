@@ -24,9 +24,31 @@ The error layer has these parts:
 - `#[JsonApi]` and `ApiException`, for JSON error responses.
 
 The [Controllers](/documentation/framework/http-routing/controllers) page
-shows how a method returns values. The
-[Validation & Filter](/documentation/framework/http-routing/validation-and-filter) page explains
-the rules that throw validation exceptions.
+shows how a method returns values:
+
+```php
+<?php
+
+public function ping(): string
+{
+    return 'pong';
+}
+```
+
+The [Validation & Filter](/documentation/framework/http-routing/validation-and-filter)
+page explains the rules that throw validation exceptions. A required
+parameter throws `ValidateException` when it is missing:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\Required;
+
+public function show(#[Required] string $id): string
+{
+    return $id;
+}
+```
 
 ## Throwing an Exception
 
@@ -380,9 +402,22 @@ message. Check the log to see the real message.
 
 With the `#[JsonApi]` attribute (see
 [Middleware Attributes](/documentation/framework/http-routing/middleware#middleware-attributes)),
-an exception is rendered as a JSON error with the same status code. Outside
-debug mode, the `message` is the exception message. Debug mode also adds the
-exception class and a backtrace.
+an exception is rendered as a JSON error with the same status code:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\JsonApi;
+
+#[JsonApi]
+public function show(string $id): array
+{
+    throw new \RuntimeException('Post not found.', 404);
+}
+```
+
+Outside debug mode, the `message` is the exception message. Debug mode also
+adds the exception class and a backtrace.
 
 To set a business error code separately from the status, throw
 `ApiException`. Its arguments are the message, the error code, and the HTTP

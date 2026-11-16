@@ -332,10 +332,24 @@ use Windwalker\Core\Router\Navigator;
 return $nav->redirectTo('front::post_show', ['id' => 42]);
 ```
 
+`redirectInstant()` sends the response at once and ends the request, so
+code after it does not run. Use it only when you cannot return the response:
+
+```php
+<?php
+
+/** @var Navigator $nav */
+
+$nav->redirectInstant('/post/42');
+
+// Not reached.
+```
+
 ### Local Redirects
 
-`redirect()` accepts only local URLs. A URL is local when it starts with
-`/` or with the app root:
+`redirect()` accepts only local URLs. A URL is local when it starts with a
+single `/` or with the app root. `//` and `/\` are not local, because
+browsers treat them as another host:
 
 ```php
 <?php
@@ -344,6 +358,9 @@ return $nav->redirectTo('front::post_show', ['id' => 42]);
 
 $nav->redirect('/post/42');
 // Location: /post/42
+
+$nav->redirect('//evil.example/');
+// Location: https://example.com/ (the app root)
 
 $nav->redirect('https://other.example/');
 // Location: https://example.com/ (the app root)
@@ -613,8 +630,23 @@ class NavLocaleSubscriber
 
 The `url` at this point is relative to the site root, so the prefix goes
 in front of it. The routes must accept the same prefix when a request
-arrives. See [Route Groups](/documentation/framework/http-routing/routing)
-for how to define them.
+arrives. A group with a locale prefix looks like this:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->group('locale')
+    ->prefix('/{locale:[a-z]{2}}')
+    ->register(function (RouteCreator $router) {
+        $router->get('post_show', '/post/{id}')
+            ->handler(PostController::class, 'show');
+    });
+```
+
+The [Routing](/documentation/framework/http-routing/routing) page covers
+groups and their options in full.
 
 ### Registering the Subscriber
 

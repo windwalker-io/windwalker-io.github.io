@@ -21,11 +21,24 @@ The validation layer has four parts:
   failed rule throws `ValidateFailException`.
 
 The rule syntax comes from the
-[Filter](/documentation/components/filter/) component.
-[Request & Input](/documentation/framework/http-routing/request-and-input)
-explains how the values are read. The
-[Exceptions](/documentation/framework/http-routing/exceptions) page explains
-how exceptions become responses.
+[Filter](/documentation/components/filter/) component. [Request & Input](/documentation/framework/http-routing/request-and-input)
+explains how the values are read:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\Request\Input;
+
+public function search(
+    #[Input, Filter('int'), Assert('range(min: 1)')]
+    ?int $page = null,
+): JsonResponse {
+    //
+}
+```
+
+The [Exceptions](/documentation/framework/http-routing/exceptions) page
+explains how exceptions become responses.
 
 For conditions that are not field rules, such as a missing record or a
 permission check, use `RequestAssert`. See
@@ -200,6 +213,133 @@ runs. The framework throws `Field "q" is missing in request.` with status
 above does, so that `Required` produces its own message.
 :::
 
+## Mapping Values with MapTo
+
+`#[MapTo]` converts a value to a class before your method receives it. Use
+it when a field should become an enum, a plain object, or an entity instead
+of a string or array.
+
+Attributes run in the order you list them. Put `#[MapTo]` after the source
+attribute and any filter, so it converts the cleaned value.
+
+### Enums
+
+Pass a backed enum class. A value that is not a valid backing value throws
+a `ValueError`:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\MapTo;
+use Windwalker\Core\Attributes\Request\BodyValue;
+
+public function save(
+    #[BodyValue, MapTo(PostStatus::class)]
+    PostStatus $status,
+): JsonResponse {
+    //
+}
+```
+
+### Objects
+
+An array becomes an object of the given class. Keys are matched to the
+properties, and the values are cast to the property types. A body with
+`{"address": {"city": "Taipei", "zip": "100"}}` gives `$address->zip` the
+integer `100`:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\MapTo;
+use Windwalker\Core\Attributes\Request\BodyValue;
+
+public function save(
+    #[BodyValue, MapTo(Address::class)]
+    ?Address $address = null,
+): JsonResponse {
+    //
+}
+```
+
+### Entities
+
+For an entity class, the ORM creates the entity and hydrates it from the
+array:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\MapTo;
+use Windwalker\Core\Attributes\Request\BodyValue;
+
+public function save(
+    #[BodyValue, MapTo(Article::class)]
+    ?Article $article = null,
+): JsonResponse {
+    //
+}
+```
+
+### Try Mode
+
+`try: true` returns `null` instead of throwing when a value cannot be
+mapped. Use it for optional fields:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\MapTo;
+use Windwalker\Core\Attributes\Request\BodyValue;
+use Windwalker\Core\Attributes\Required;
+
+public function save(
+    #[BodyValue, MapTo(PostStatus::class, try: true), Required]
+    ?PostStatus $status = null,
+): JsonResponse {
+    //
+}
+```
+
+::: warning
+With `try: true`, an invalid value becomes `null` without an error. List
+`Required` after `MapTo`, as above, so a value that cannot be mapped is
+rejected. Without it, the method receives `null` silently.
+:::
+
+`nullable` defaults to `true`, so a `null` value skips the conversion.
+
+### Custom Mappings
+
+Add a handler to `MapTo::$mapHandlers` for a class that the built-in rules
+do not cover. A handler returns `null` when it does not apply. Register
+handlers once during application bootstrap:
+
+```php
+<?php
+
+use Windwalker\Core\Attributes\MapTo;
+use Windwalker\DI\Attributes\AttributeHandler;
+
+MapTo::$mapHandlers[] = function (
+    mixed $value,
+    MapTo $attribute,
+    AttributeHandler $handler,
+): mixed {
+    if ($attribute->className !== Money::class) {
+        return null;
+    }
+
+    return Money::fromString((string) $value);
+};
+```
+
+::: info
+Enums and entities are handled before custom handlers, so a handler is
+never called for them. Custom handlers run before the default object
+conversion.
+:::
+
 ## Validating Input by Name
 
 `input()` accepts named arguments. Each name is a field, and each value is a
@@ -230,12 +370,24 @@ section explains how the framework handles it.
 A failed rule throws an exception. A `ValidateFailException` from `input()`,
 or a `ValidateException` from `#[Assert]` and `#[Required]`, is then handled
 as described on the [Exceptions](/documentation/framework/http-routing/exceptions)
-page. In short, a form request redirects back with a warning, and a `GET`
-request renders the error page.
+page. A form request redirects back with a warning, and a `GET` request
+renders the error page.
 
-Throwing validation errors by hand is covered on the
-[Exceptions](/documentation/framework/http-routing/exceptions#throwing-validation-errors)
-page.
+You can throw the same exception from your own check, such as a lookup that
+a field rule cannot do:
+
+```php
+<?php
+
+use Windwalker\Core\Form\Exception\ValidateFailException;
+
+if (!$posts->existsBySlug($slug)) {
+    throw new ValidateFailException('Unknown post slug.', 400);
+}
+```
+
+The [Exceptions](/documentation/framework/http-routing/exceptions#throwing-validation-errors)
+page shows how to pass several messages and when to catch the exception.
 
 ## Asserting Request Conditions
 

@@ -1,5 +1,6 @@
 ---
 layout: doc
+title: Request & Input
 ---
 
 # Request & Input
@@ -468,7 +469,17 @@ Besides the readers in this page, `AppRequest` exposes:
 - `getUri()` and `getMethod()`: the PSR-7 URI and the method the client
   sent.
 - `getSystemUri()`: the request URI split into base and route. See
-  [HTTP Basics](/documentation/framework/http-routing/http-basics#systemuri).
+  [HTTP Basics](/documentation/framework/http-routing/http-basics#systemuri):
+
+  ```php
+  <?php
+
+  $uri = $app->getSystemUri();
+
+  echo $uri->root;  // https://example.com/shop/
+  echo $uri->route; // front/post/42/
+  ```
+
 - `getMatchedRoute()`: the route that matched, or `null` before routing.
 - `getClientIP()`: the client address. See
   [Client IP Address](#client-ip-address).
@@ -614,3 +625,4 @@ hidden `_method` field:
 | `#[Filter(...)]` | Transforms the value, in order | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#filters) |
 | `#[Assert('rule')]` | Checks the value, skips `null` by default | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#asserts) |
 | `#[Required]` | Checks that the value is present | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#required) |
+| `#[MapTo(Class)]` | Converts the value to an enum, object, or entity | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#mapping-values-with-mapto) |

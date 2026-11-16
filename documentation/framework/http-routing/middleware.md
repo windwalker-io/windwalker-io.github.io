@@ -20,8 +20,21 @@ so an area of the app is protected by one line.
 Windwalker runs middlewares from two places:
 
 - Global: the `middlewares` list of a configuration file. It runs for every
-  request and starts with `RoutingMiddleware`. See
-  [Configuration](/documentation/framework/getting-started/configuration).
+  request and starts with `RoutingMiddleware`. The list is set in
+  `etc/app/main.config.php`:
+
+  ```php
+  <?php
+
+  return [
+      'middlewares' => [
+          RoutingMiddleware::class,
+      ],
+  ];
+  ```
+
+  See [Configuration](/documentation/framework/getting-started/configuration)
+  for the other keys.
 - Route: the `middleware()` method of a route or a group. It runs after
   `RoutingMiddleware` has matched the route.
 
@@ -104,8 +117,11 @@ $router->group('api')
 
 ### Passing Arguments
 
-Pass extra arguments after the class name. They become named arguments of
-the constructor. The following `ApiKeyMiddleware` reads a custom header:
+Extra arguments to `middleware()` go to the constructor by name. A `create()`
+call in the `middlewares` list in a configuration file does the same. See
+[Global Middleware](#global-middleware).
+
+The following `ApiKeyMiddleware` reads a custom header:
 
 ```php
 <?php
@@ -188,6 +204,57 @@ fails. Always use the factory layer.
 
 Use `middlewares()` to attach several middlewares in one call. They run in
 the order listed.
+
+### Global Middleware
+
+Global middlewares run for every request. Add them to the `middlewares`
+list in `etc/app/main.config.php`. The list runs in the order written, so
+the position of an entry decides what it can see. The following example adds
+an app middleware after `RoutingMiddleware`:
+
+```php
+<?php
+
+// etc/app/main.config.php
+
+use App\Middleware\RequestIdMiddleware;
+use Windwalker\Core\Middleware\RoutingMiddleware;
+use function Windwalker\DI\create;
+
+return array_merge(
+    require __DIR__ . '/windwalker.config.php',
+    [
+        'middlewares' => [
+            RoutingMiddleware::class,
+            fn() => create(
+                RequestIdMiddleware::class,
+                header: 'X-Request-Id',
+            ),
+        ],
+    ],
+    require __DIR__ . '/../config.php'
+);
+```
+
+Use `fn() => create()` when the middleware needs arguments. It takes the class name
+and the arguments as named arguments, the same as a route's `middleware()`
+call. Use the class name alone when no arguments are needed.
+
+A global middleware placed before `RoutingMiddleware` runs before the route
+is matched. It sees every request, including those that match no route, but
+it cannot read the route variables. A middleware placed after
+`RoutingMiddleware` runs once the route is matched. It can use
+`getUrlVars()`, and it runs before the route's own middlewares.
+
+::: tip
+Use a global middleware only for a rule that applies to every request, such
+as a request ID or a maintenance check. Use a group for an area of the app.
+:::
+
+::: warning
+Keep `RoutingMiddleware` in the list. Without it, no route is matched, and
+the route middlewares and controllers never run.
+:::
 
 ## Showcase: An Organization Scope
 
@@ -319,9 +386,25 @@ Each level adds its own rule, so a group can be a layer of protection:
 - An inner group adds a requirement for its area, such as a login.
 - A route adds a rule that applies to that route only.
 
-Groups can also add a `CsrfMiddleware` for every form in an area. The admin
-area in [Routing](/documentation/framework/http-routing/routing) uses it
-this way.
+Groups can also add a `CsrfMiddleware` for every form in an area:
+
+```php
+<?php
+
+use Windwalker\Core\Middleware\CsrfMiddleware;
+
+/** @var RouteCreator $router */
+
+$router->group('admin')
+    ->prefix('/admin')
+    ->middleware(CsrfMiddleware::class)
+    ->register(function (RouteCreator $router) {
+        // Every POST route in this group checks the CSRF token.
+    });
+```
+
+The [Routing](/documentation/framework/http-routing/routing) page shows
+the full admin route file.
 
 ::: warning
 A route defined outside a group does not inherit the group's middlewares.
