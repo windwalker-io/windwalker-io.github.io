@@ -103,6 +103,57 @@ Keep environment-specific values in `.env` files and let configuration
 files read them. Avoid editing the arrays for each environment.
 :::
 
+### Listeners
+
+The `listeners` key registers event listeners when the app boots. A key
+that is an event class registers a listener on the application dispatcher.
+A key that is a service class registers the listeners on that service:
+
+```php
+// etc/app/main.config.php
+use App\Listener\NavLocaleSubscriber;
+use Windwalker\Core\Router\Navigator;
+
+return [
+    'listeners' => [
+        Navigator::class => [
+            NavLocaleSubscriber::class,
+        ],
+    ],
+];
+```
+
+See [Listeners](/documentation/components/event/listeners) for the
+listener types.
+
+### Application Files
+
+The `etc/app/` directory holds one file per application entry point.
+Each file returns an array that the application loads at boot:
+
+- `main.config.php`: the web application. `etc/di.config.php` loads it
+  when it creates the `main` app. Set the web middlewares, listeners,
+  and HTTP proxy settings here.
+- `console.config.php`: the console application. It registers the
+  commands, listeners, schedules, and scripts from `resources/registry/`.
+- `windwalker.config.php`: the settings shared by both applications.
+  `main.config.php` and `console.config.php` merge it first.
+
+```php
+// etc/app/main.config.php
+use Windwalker\Core\Middleware\RoutingMiddleware;
+
+return array_merge(
+    require __DIR__ . '/windwalker.config.php',
+    [
+        'middlewares' => [
+            RoutingMiddleware::class,
+        ],
+    ],
+    require __DIR__ . '/../config.php'
+);
+```
+
 ### Packages Configuration
 
 Each installed package can ship its own configuration in

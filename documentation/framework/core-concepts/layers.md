@@ -256,3 +256,5 @@ $app->getContainer()->has('request.id'); // false
 ```
 
 For details, see [Multi Levels](/documentation/components/di/multi-levels).
+For the attributes that control request-scoped services, see
+[Attributes](/documentation/components/di/attributes).

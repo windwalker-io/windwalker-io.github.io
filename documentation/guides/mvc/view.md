@@ -498,5 +498,3 @@ There are also shortcuts:
     // Same as og:image
     $htmlFrame->setCoverImages($item->image);
 ```
-
-See the [HtmlFrame](/documentation/framework/html-frame) documentation for the full metadata API.

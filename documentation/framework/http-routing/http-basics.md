@@ -80,6 +80,45 @@ $response = $response->withHeader('X-Robots-Tag', 'noindex');
 ```
 :::
 
+## AppRequest
+
+Your code rarely reads the PSR-7 request directly. Windwalker wraps it in
+`AppRequest` (`Windwalker\Core\Http\AppRequest`). It adds the route variables
+and the merged input from the query string and the body, plus the `SystemUri`
+and the matched route. Get it from the request context:
+
+```php
+<?php
+
+$appRequest = $app->getAppRequest();
+```
+
+Most code uses the readers on `AppContext` instead:
+
+```php
+<?php
+
+$q = $app->input('q');
+$route = $app->getMatchedRoute()?->getName();
+```
+
+The two layers differ in what they include:
+
+- PSR-7 request: `$app->getServerRequest()`, the raw values only.
+- `AppRequest`: `$app->getAppRequest()`, with the route variables and the
+  merged input.
+
+::: info
+`getServerRequest()->getQueryParams()` does not include route variables.
+Read `{id}` with `$app->input('id')` instead.
+:::
+
+The [Request & Input](/documentation/framework/http-routing/request-and-input)
+page covers the readers and attributes. Its
+[The AppRequest Object](/documentation/framework/http-routing/request-and-input#the-apprequest-object)
+section explains the input cache, the value-read events, and the other
+members of `AppRequest`.
+
 ## Middlewares (PSR-15)
 
 See [Middleware](/documentation/framework/http-routing/middleware).

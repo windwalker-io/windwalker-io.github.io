@@ -296,9 +296,9 @@ per-request state out of them. See
 [Container Layers](/documentation/framework/core-concepts/layers).
 :::
 
-## Injection Styles
+## Injecting Dependencies
 
-Windwalker supports three ways to receive a dependency.
+A class can receive a dependency in these ways.
 
 ### Constructor Injection
 
@@ -364,6 +364,27 @@ class DonationService
 Attribute values must be constants, so pass a string or an enum case, not a
 closure. The full option list is on the
 [DI attributes](/documentation/components/di/attributes) page.
+
+### The Container Itself
+
+The container registers itself, so a class can type-hint `Container`:
+
+```php
+use Windwalker\DI\Container;
+
+class ReportExporter
+{
+    public function __construct(protected Container $container) {}
+}
+```
+
+Use this only when the class must choose a service at runtime. Injecting the
+container hides the real dependencies.
+
+## Registering and Creating Services
+
+Use `#[Service]` to register a class, and `#[Autowire]` to create a new
+object on each injection.
 
 ### Auto-Registering Services with #[Service]
 
@@ -448,22 +469,6 @@ The attribute is available on parameters and properties in the default
 attribute set. For the full behavior and class-level use, see the
 [DI attributes](/documentation/components/di/attributes) page.
 
-### The Container Itself
-
-The container registers itself, so a class can type-hint `Container`:
-
-```php
-use Windwalker\DI\Container;
-
-class ReportExporter
-{
-    public function __construct(protected Container $container) {}
-}
-```
-
-Use this only when the class must choose a service at runtime. Injecting the
-container hides the real dependencies.
-
 ## Application Methods
 
 The application shortcuts delegate to its container:
@@ -485,3 +490,19 @@ $mailer = $app->service(\App\Mail\Mailer::class);
 
 Use `retrieve()` for services that are already registered, and `service()`
 for a class that should be created on first use.
+
+## Further Reading
+
+The DI component documentation covers the container API in depth:
+
+- [Basic Usage](/documentation/components/di/basic-usage): creating,
+  binding, and sharing objects.
+- [Attributes](/documentation/components/di/attributes): every built-in
+  attribute, with its options.
+- [Tagged Services](/documentation/components/di/tagged-services): tags and
+  factories in detail.
+- [Lazy Loading](/documentation/components/di/lazy): lazy proxies and their
+  limits.
+- [Parameters](/documentation/components/di/parameters): parameter factories
+  and references.
+- [Multi Levels](/documentation/components/di/multi-levels): child containers.

@@ -24,7 +24,7 @@ shows when the request is created and matched to a route. The
 introduces the PSR-7 objects. Uploaded files are covered on the
 [Uploaded Files](/documentation/framework/http-routing/uploaded-files) page.
 
-## Where Input Comes From
+### Input Sources
 
 The input has three sources:
 
@@ -128,7 +128,9 @@ PATCH /article/42  (body: title=New)  200  {"id":42,"title":"New",...}
 The `page` value is validated by `Assert`, so `page=0` fails with a
 `400` response.
 
-## Reading Input with `input()`
+## Reading Input
+
+### Reading with `input()`
 
 `input()` is the most direct reader. It uses the merged input from all
 sources. Call it without arguments to get a `Collection` of everything:
@@ -171,11 +173,32 @@ pass it straight to an entity or a `save()` call. Name the fields you
 accept, so a client cannot set columns you did not intend to expose.
 :::
 
-## Injecting Input into Parameters
+### Reading by Method
+
+`AppRequest::inputWithMethod()` reads from one source. Pass `GET` for the
+query string, `POST` for the body, or `REQUEST` for the merged input.
+Given an `AppRequest` object named `$appRequest`:
+
+```php
+<?php
+
+// Query string only:
+$page = $appRequest->inputWithMethod('GET', 'page');
+
+// Body only:
+$title = $appRequest->inputWithMethod('POST', 'title');
+```
+
+Use it when you need a source that the merged input would mix with
+another one.
+
+## Injecting Input
 
 Injection attributes read a value and pass it to a method parameter. Use
 them in controllers, view `prepare()` methods, and other services that
 the container creates.
+
+### Input Attribute
 
 `#[Input]` reads from the merged input. Without a name, it uses the
 parameter name:
@@ -202,6 +225,8 @@ public function show(#[Input('article_id')] string $id): JsonResponse
 }
 ```
 
+### Source-Specific Attributes
+
 Use the source-specific attributes when only one source should be read:
 
 - `#[QueryParam]`: reads the query string and route variables only.
@@ -226,6 +251,8 @@ public function update(
 value with the same name. When the source matters, use `#[QueryParam]`
 or `#[BodyValue]` instead.
 :::
+
+### Defaults and Required Parameters
 
 A parameter without a default must receive a value. If the request does
 not supply it, Windwalker throws a `RuntimeException` with status code
@@ -270,6 +297,8 @@ public function search(
     //
 }
 ```
+
+### Filters
 
 Filters run in the order you list them. A string such as `'int'` calls
 the filter service. Pass the filter syntax as a string, and keep the
@@ -319,6 +348,8 @@ With the input `"  Hello World PHP "`, the value becomes
 See the [Filter](/documentation/components/filter/) component for every
 filter and assert rule.
 
+### Assert and Required
+
 A failed `Assert` throws a `ValidateException`. The message is
 `Invalid type of field "page"`, and it adds the rule detail in debug mode.
 A missing `Required` value throws `Field "q" is required.`.
@@ -330,6 +361,8 @@ when the field must be present.
 :::
 
 ## Request Objects
+
+### PSR-7 and AppRequest
 
 Windwalker has two request layers:
 
@@ -372,7 +405,124 @@ $request = $app->getServerRequest()->withHeader('X-Debug', '1');
 $request = $app->getAppRequest()->withUrlVars(['id' => '7']);
 ```
 
-## Request Headers
+### The AppRequest Object
+
+`AppRequest` (`Windwalker\Core\Http\AppRequest`) is the object behind
+`input()`, `file()`, and the other readers. It wraps the PSR-7 request and
+adds the parts that only the framework knows: the `SystemUri`, the matched
+route, and the merged input. Its constructor takes the PSR-7 request, the
+`SystemUri`, a `ProxyResolver` for the client address, and a
+`RequestInspector` for content negotiation.
+
+The web provider creates one `AppRequest` for each request, and
+`AppContext::getAppRequest()` returns it. The object is request-scoped, so
+its cached input and matched route do not leak into the next request.
+
+The class is immutable from outside. Change it through the `with*()`
+methods, which return a clone.
+
+#### Merged Input Is Cached
+
+The first call to `input()` builds the merged input. It merges the route
+variables, the query string, and the parsed body, and keeps the result.
+Later reads reuse it.
+
+`withRequest()` and `withUrlVars()` clear the cache. `getInput()` returns the
+cached array without building it. Before the first read, it returns an empty
+array:
+
+```php
+<?php
+
+$appRequest = $app->getAppRequest();
+
+$appRequest->getInput(); // [] until the first input read
+$appRequest->input('q');
+$appRequest->getInput(); // ['q' => ...]
+```
+
+#### Listening to Value Reads
+
+Each source is read through an event. `AppRequest` emits
+`Windwalker\Core\Http\Event\RequestGetValueEvent` on its own dispatcher
+for these types:
+
+- `TYPE_QUERY`: the query string.
+- `TYPE_URL_VARS`: the route variables. Emitted only when a route matched.
+- `TYPE_BODY`: the parsed body.
+
+The event has public `$values` and `$type` properties. A listener can
+change `$values`, and the change applies to every later reader. The
+following middleware trims the `q` query parameter for every request:
+
+```php
+<?php
+
+// src/Middleware/TrimSearchMiddleware.php
+namespace App\Middleware;
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Windwalker\Core\Application\AppContext;
+use Windwalker\Core\Http\Event\RequestGetValueEvent;
+
+class TrimSearchMiddleware implements MiddlewareInterface
+{
+    public function __construct(protected AppContext $app) {}
+
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler
+    ): ResponseInterface {
+        $this->app->getAppRequest()->getEventDispatcher()
+            ->on(
+                RequestGetValueEvent::class,
+                function (RequestGetValueEvent $event) {
+                    if (
+                        $event->type === RequestGetValueEvent::TYPE_QUERY
+                    ) {
+                        $q = (string) ($event->values['q'] ?? '');
+
+                        $event->values['q'] = trim($q);
+                    }
+                }
+            );
+
+        return $handler->handle($request);
+    }
+}
+```
+
+::: warning
+Attach the listener before the first input read. After the first read, the
+merged input is cached, and the listener cannot change the values that were
+already merged.
+:::
+
+::: info
+The listener changes only the values that `AppRequest` reads. The PSR-7
+request from `getServerRequest()` is not changed.
+:::
+
+#### Other Members
+
+Besides the readers in this page, `AppRequest` exposes:
+
+- `getUri()` and `getMethod()`: the PSR-7 URI and the method the client
+  sent.
+- `getSystemUri()`: the request URI split into base and route. See
+  [HTTP Basics](/documentation/framework/http-routing/http-basics#systemuri).
+- `getMatchedRoute()`: the route that matched, or `null` before routing.
+- `getClientIP()`: the client address. See
+  [Client IP Address](#client-ip-address).
+- `isAccept()`, `isAcceptJson()`, and `isApiCall()`: content negotiation,
+  delegated to `RequestInspector`.
+
+## Headers and Bodies
+
+### Request Headers
 
 `getHeader()` returns one header as a string. It returns `''` when the
 header is missing:
@@ -386,7 +536,7 @@ $requestId = $app->getHeader('X-Request-Id');
 Header names are case-insensitive, so `x-request-id` reads the same
 header.
 
-## JSON and Form Bodies
+### JSON and Form Bodies
 
 Windwalker decodes the body from the `Content-Type` header:
 
@@ -399,8 +549,10 @@ Windwalker decodes the body from the `Content-Type` header:
 For `POST`, PHP fills the form body from `$_POST`. For `PUT`, `PATCH`, and
 `DELETE`, Windwalker parses the form body itself.
 
-Read both formats the same way. Use `#[BodyValue]` for a body-only value,
-and a dot path for a nested JSON value:
+Read both formats the same way. `input()` and `#[Input]` read JSON
+fields too, because the merged input includes the body. Use
+`#[BodyValue]` for a body-only value, and a dot path for a nested JSON
+value:
 
 ```php
 <?php
@@ -432,7 +584,47 @@ If a client sends JSON with another content type, the body is not
 decoded, and no error is raised. Your input is then empty.
 :::
 
-## Request Method and Override
+## Client IP and Method Override
+
+### Client IP Address
+
+`getClientIP()` returns the client's IP address. It is defined on
+`AppRequest`, so get the object with `getAppRequest()`:
+
+```php
+<?php
+
+$ip = $app->getAppRequest()->getClientIP();
+```
+
+By default, the result is the `REMOTE_ADDR` of the server connection.
+Behind a reverse proxy, the real client is in the `X-Forwarded-For`
+header. Windwalker reads that header only when both settings allow it:
+
+- `http.trusted_headers` lists `x-forwarded-for`.
+- `http.trusted_proxies` lists the address of your proxy, through
+  `PROXY_TRUSTED_IPS`.
+
+```php
+<?php
+
+// etc/app/main.config.php
+'http' => [
+    'trusted_proxies' => env('PROXY_TRUSTED_IPS'),
+    'trusted_headers' => [
+        'x-forwarded-for',
+    ],
+],
+```
+
+::: warning
+When the connecting address is not in `trusted_proxies`, `getClientIP()`
+returns `REMOTE_ADDR`, and a client-sent `X-Forwarded-For` header has no
+effect. Add a proxy to `trusted_proxies` only when you control it. A broad
+range in that list lets a client spoof its IP.
+:::
+
+### Request Method and Override
 
 `getMethod()` returns the HTTP method the client sent. HTML forms can
 send only `GET` and `POST`, so Windwalker reads an override from the
@@ -453,36 +645,17 @@ hidden `_method` field:
 </form>
 ```
 
-## Reading by Method
-
-`AppRequest::inputWithMethod()` reads from one source. Pass `GET` for the
-query string, `POST` for the body, or `REQUEST` for the merged input.
-Given an `AppRequest` object named `$appRequest`:
-
-```php
-<?php
-
-// Query string only:
-$page = $appRequest->inputWithMethod('GET', 'page');
-
-// Body only:
-$title = $appRequest->inputWithMethod('POST', 'title');
-```
-
-Use it when you need a source that the merged input would mix with
-another one.
-
 ## Attribute Reference
 
 | Attribute | Reads from | Section |
 | --- | --- | --- |
-| `#[Input]` | Merged input: route variables, query string, body | [Injecting Input](#injecting-input-into-parameters) |
-| `#[QueryParam]` | Query string and route variables | [Injecting Input](#injecting-input-into-parameters) |
-| `#[BodyValue]` | Parsed body only | [JSON and Form Bodies](#json-and-form-bodies) |
-| `#[RouteParam]` / `#[UrlVar]` | Route variables only | [Injecting Input](#injecting-input-into-parameters) |
-| `#[Header('Name')]` | One request header, `''` when missing | [Injecting Input](#injecting-input-into-parameters) |
+| `#[Input]` | Merged input: route variables, query string, body | [Input Attribute](#input-attribute) |
+| `#[QueryParam]` | Query string and route variables | [Source-Specific Attributes](#source-specific-attributes) |
+| `#[BodyValue]` | Parsed body only | [Source-Specific Attributes](#source-specific-attributes) |
+| `#[RouteParam]` / `#[UrlVar]` | Route variables only | [Source-Specific Attributes](#source-specific-attributes) |
+| `#[Header('Name')]` | One request header, `''` when missing | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[InputCompact('a', 'b')]` | Several fields, as a `Collection` | [Showcase](#showcase-an-article-controller) |
 | `#[File]` | Uploaded file | [Uploaded Files](/documentation/framework/http-routing/uploaded-files) |
-| `#[Filter(...)]` | Transforms the value, in order | [Validating and Filtering Input](#validating-and-filtering-input) |
-| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Validating and Filtering Input](#validating-and-filtering-input) |
-| `#[Required]` | Checks that the value is present | [Validating and Filtering Input](#validating-and-filtering-input) |
+| `#[Filter(...)]` | Transforms the value, in order | [Filters](#filters) |
+| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Assert and Required](#assert-and-required) |
+| `#[Required]` | Checks that the value is present | [Assert and Required](#assert-and-required) |

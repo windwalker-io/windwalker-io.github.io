@@ -214,45 +214,6 @@ provides, such as `#[Inject]` and `#[Autowire]`, are described on the
 - `'enabled' => false` removes a section's providers and bindings, which can
   break sections that depend on them.
 
-## Binding in a Provider
-
-Move the binding into a provider when the logic grows. Use `bindShared()` to
-keep one object per tag:
-
-```php
-namespace App\Provider;
-
-use App\Chat\ChatClaudeDriver;
-use App\Chat\ChatGPTDriver;
-use App\Chat\ChatModelDriver;
-use App\Chat\ChatModelInterface;
-use Windwalker\DI\Container;
-use Windwalker\DI\ServiceProviderInterface;
-
-class ChatProvider implements ServiceProviderInterface
-{
-    public function register(Container $container): void
-    {
-        $container->bindShared(
-            ChatModelInterface::class,
-            fn(
-                Container $container,
-                ?ChatModelDriver $tag = null,
-            ) => match ($tag) {
-                ChatModelDriver::Claude => $container->newInstance(
-                    ChatClaudeDriver::class,
-                ),
-                default => $container->newInstance(ChatGPTDriver::class),
-            },
-        );
-    }
-}
-```
-
-Each tag has its own shared object. The provider is also the place for logic
-that reads configuration values. See
-[Service Providers](/documentation/framework/core-concepts/dependency-injection#service-providers).
-
 ## Simple Service Binding
 
 Many services have one configuration for the whole project and need no tag.
@@ -300,7 +261,7 @@ Keep per-request data, such as a user's token, out of it. See
 [Container Layers](/documentation/framework/core-concepts/layers).
 :::
 
-## Tagged Bindings in Configuration
+## Tagged Bindings
 
 The quickest form is a closure in `bindings` that receives the tag. This
 example selects a chat model in `etc/di.config.php`:
@@ -448,13 +409,60 @@ titles, colors, and other rich-enum features.
 `tryWrap()`, which returns `null` instead.
 :::
 
-## Showcase: An AI Assistant Application
+### Binding in a Provider
+
+When the logic grows, move the binding into a provider. Use `bindShared()`
+to keep one object per tag:
+
+```php
+namespace App\Provider;
+
+use App\Chat\ChatClaudeDriver;
+use App\Chat\ChatGPTDriver;
+use App\Chat\ChatModelDriver;
+use App\Chat\ChatModelInterface;
+use Windwalker\DI\Container;
+use Windwalker\DI\ServiceProviderInterface;
+
+class ChatProvider implements ServiceProviderInterface
+{
+    public function register(Container $container): void
+    {
+        $container->bindShared(
+            ChatModelInterface::class,
+            function (
+                Container $container,
+                string|\UnitEnum|null $tag = null,
+            ) {
+                $driver = $tag === null
+                    ? ChatModelDriver::GPT
+                    : ChatModelDriver::wrap($tag);
+
+                return match ($driver) {
+                    ChatModelDriver::Claude => $container->newInstance(
+                        ChatClaudeDriver::class,
+                    ),
+                    ChatModelDriver::GPT => $container->newInstance(
+                        ChatGPTDriver::class,
+                    ),
+                };
+            },
+        );
+    }
+}
+```
+
+Each tag has its own shared object. The provider is also the place for logic
+that reads configuration values. See
+[Service Providers](/documentation/framework/core-concepts/dependency-injection#service-providers).
+
+### Showcase: An AI Assistant Application
 
 A chat feature lets each request pick a model, and a background job uses the
 configured default. The case has four parts: the drivers, the configuration,
 a controller, and a job.
 
-### The Interface and the Drivers
+#### The Interface and the Drivers
 
 Each driver takes its API key in the constructor, so the container can
 create it from configuration:
@@ -489,7 +497,7 @@ class ChatGPTDriver implements ChatModelInterface
 
 `ChatClaudeDriver` has the same shape, with its own API call.
 
-### The Configuration Section
+#### The Configuration Section
 
 A simple example, this shows how we binding services by tag and using `match()` to select the 
 implementation. The API keys are read from the environment:
@@ -578,7 +586,7 @@ static fn() => [
 When a lookup has no tag, the closure uses the configured default. The
 closure is not shared, so each lookup creates a new driver.
 
-### The Controller
+#### The Controller
 
 The controller accepts the model name from the request. `tryFrom()` turns it
 into an enum case, or returns `null` for an unknown name, so only the
@@ -610,7 +618,7 @@ class AssistantController
 }
 ```
 
-### The Background Job
+#### The Background Job
 
 A job that does not care about the model receives the interface without a
 tag. The container uses the configured default:
@@ -948,3 +956,10 @@ Use this form for objects created in code, such as test doubles.
   with `bindShared()` when each tag should keep one object.
 - Convert tags from requests or configuration to an enum before you use them,
   so unknown values fail early and the closure's type matches.
+
+## Further Reading
+
+- [Tagged Services](/documentation/components/di/tagged-services): preset
+  tags and factories in the DI component.
+- [Attributes](/documentation/components/di/attributes): `#[Inject]`,
+  `#[Service]`, and `#[Autowire]` options.

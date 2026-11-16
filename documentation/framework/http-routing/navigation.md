@@ -28,9 +28,12 @@ Route names and patterns are defined in the
 
 ## Getting the Navigator
 
-Get the `Navigator` from the application container. Controllers can use
-`NavigableTrait`, which injects it as `$this->nav`. Views receive it as the
-`$nav` variable.
+Get the `Navigator` from the application container, or inject it as a
+controller method argument, as the showcase below does. Views receive it as
+the `$nav` variable.
+
+`NavigableTrait` is a convenience. Add it to a controller, and it injects
+the Navigator as `$this->nav` without a constructor.
 
 ```php
 <?php
@@ -44,6 +47,8 @@ $nav = $app->retrieve(Navigator::class);
 
 This example extends the post routes from the Routing page. It adds a list
 route and a store route, and both use names instead of paths.
+
+### Routes
 
 Add these routes to `routes/front/post.php`:
 
@@ -69,8 +74,10 @@ $router->save('post_store', '/post')
     ->handler(PostController::class, 'store');
 ```
 
-Add these methods to `PostController`, and add `use NavigableTrait;` to
-the class body:
+### Controller
+
+Add these methods to `PostController`. The `Navigator` is injected as a
+method argument, the same way as other dependencies:
 
 ```php
 <?php
@@ -79,39 +86,38 @@ declare(strict_types=1);
 
 namespace App\Module\Front\Post;
 
-use Windwalker\Core\Router\NavigableTrait;
+use Windwalker\Core\Router\Navigator;
 use Windwalker\Core\Router\RouteUri;
 use Windwalker\Http\Response\JsonResponse;
 
 class PostController
 {
-    use NavigableTrait;
-
-    public function index(): JsonResponse
+    public function index(Navigator $nav): JsonResponse
     {
         // Load the IDs from the database in a real app.
         $ids = [1, 2, 3];
         $links = [];
 
         foreach ($ids as $id) {
-            $links[] = (string) $this->nav->to(
-                'front::post_show',
-                ['id' => $id],
-            );
+            $links[] = (string) $nav
+                ->to('front::post_show')
+                ->id($id);
         }
 
         return new JsonResponse(['links' => $links]);
     }
 
-    public function store(): RouteUri
+    public function store(Navigator $nav): RouteUri
     {
         // Save the post here, then redirect to its page.
         $id = 4;
 
-        return $this->nav->to('front::post_show', ['id' => $id]);
+        return $nav->to('front::post_show')->id($id);
     }
 }
 ```
+
+### Result
 
 The `store()` method returns a `RouteUri`. Windwalker turns it into a
 `303` redirect, so the browser lands on the new post page. The list page
@@ -122,15 +128,19 @@ GET /posts  200  links: /post/1, /post/2, /post/3
 POST /post  303  Location: /post/4
 ```
 
-In a view, the same call builds a link:
+### In a View
+
+The same call builds a link in a view:
 
 ```blade
-<a href="{{ $nav->to('front::post_show', ['id' => $post->id]) }}">
+<a href="{{ $nav->to('front::post_show')->id($post->id) }}">
     {{ $post->title }}
 </a>
 ```
 
 ## Building URLs with to()
+
+### Basic Usage
 
 `to()` takes a route name, the route variables and query values, and
 an optional `NavOptions`. Values that match a placeholder fill the path.
@@ -148,14 +158,13 @@ $nav->to('front::post_show', ['id' => 42, 'tab' => 'comments']);
 // /post/42?tab=comments
 ```
 
-The path starts at the app root. The examples above assume the app is
-installed at the root of the domain.
+The path is relative to the site root. See [URL Mode](#url-mode) for
+installations in a subdirectory.
 
 ### Route Names
 
-Route names have the form `namespace::name`. Inside a route of a group,
-you can use the short name. `Navigator` looks in the matched route's
-namespace first:
+Route names have the form `namespace::name`. Inside a group, you can use
+the short name. `Navigator` looks in the matched route's namespace first:
 
 ```php
 <?php
@@ -183,7 +192,7 @@ Outside a view, `to()` throws `RouteNotFoundException` when the name is
 unknown. Views mute this error by default. See
 [Muted Links and Debug Mode](#muted-links-and-debug-mode).
 
-### Chaining Methods on RouteUri
+### Chaining Variables
 
 `RouteUri` has methods that set one variable each. Each method returns a
 new object, so the chain can be reused safely:
@@ -193,14 +202,17 @@ new object, so the chain can be reused safely:
 
 /** @var Navigator $nav */
 
-$uri = $nav->to('front::post_show', ['id' => 42])
+$uri = $nav->to('front::post_show')
+    ->id(42)
     ->page(2)
     ->var('lang', 'en');
 
 // /post/42?page=2&lang=en
 ```
 
-The main methods are:
+The methods fall into three groups:
+
+Variables:
 
 - `var()`: sets any variable. Enum values and UUIDs are converted to
   scalars.
@@ -208,13 +220,19 @@ The main methods are:
   with a fixed name.
 - `withReturn()`: adds the current URL, encoded, to a `return` variable.
   Use it for login links.
+
+URL and response:
+
 - `full()`, `path()`, `raw()`: change the URL mode for this link. See
   [Navigation Options](#navigation-options).
+- `withStatus()`: sets the status code used when the URI becomes a redirect.
+- `withMessage()`: adds a flash message. It needs `windwalker/session`.
+
+Behavior:
+
 - `mute()`: mutes a missing route for this link only.
 - `allowQuery()`: filters the query values. See
   [Current Page and Active State](#current-page-and-active-state).
-- `withStatus()`: sets the status code used when the URI becomes a redirect.
-- `withMessage()`: adds a flash message. It needs `windwalker/session`.
 
 A login link can return to the current page after sign-in:
 
@@ -250,7 +268,11 @@ $response = $uri->toResponse(302);
 ## Custom URLs with createRouteUri()
 
 Use `createRouteUri()` when the target is not a named route, such as a
-file or an external API. It takes a URL and a query array:
+file or an external API.
+
+### Plain URLs
+
+`createRouteUri()` takes a URL and a query array:
 
 ```php
 <?php
@@ -262,6 +284,8 @@ $url = $nav->createRouteUri('/api/search', ['q' => 'php 8']);
 echo $url;
 // /api/search?q=php+8
 ```
+
+### Closure URLs
 
 Pass a closure to compute the URL when it is printed. The closure returns
 `[$url, $query]`, the same shape as the internal route handler:
@@ -283,7 +307,7 @@ echo $uri;
 Use named routes for pages in your app. A named route updates when its
 pattern changes, and a hard-coded path does not.
 
-## Redirects and Outside URLs
+### Redirect Methods
 
 `Navigator` has several redirect methods. Each returns a
 `ResponseInterface`, so a controller can return it:
@@ -306,6 +330,8 @@ use Windwalker\Core\Router\Navigator;
 return $nav->redirectTo('front::post_show', ['id' => 42]);
 ```
 
+### Local Redirects
+
 `redirect()` accepts only local URLs. A URL is local when it starts with
 `/` or with the app root:
 
@@ -327,6 +353,8 @@ report an error. A link to another site silently sends the user to your
 home page. Use `redirectOutside()` for an outside URL.
 :::
 
+### Outside Redirects
+
 `redirectOutside()` turns off the check for one redirect:
 
 ```php
@@ -343,11 +371,15 @@ request, such as a `return` parameter, because it lets an attacker send
 users to any site.
 :::
 
+### Back Navigation
+
 `back()` uses the `Referer` header only when it is a local URL. Otherwise
 it returns the app root. The header comes from the client, so do not use
 it for security decisions.
 
 ## Current Page and Active State
+
+### Current Route
 
 `self()` builds a URL for the matched route. It keeps the route variables
 and drops the query string, unless you allow some query values:
@@ -372,6 +404,8 @@ $nav->self(new NavOptions(allowQuery: ['page']));
 `selfNoQuery()` is the same as `self()` with `withoutQuery` set. Use
 `redirectSelf()` to send the user back to the current route.
 
+### Active Menu Items
+
 Check the active route in a menu:
 
 ```blade
@@ -391,12 +425,32 @@ a route with `extra('menu', ...)`, and `isActive()` matches it too.
 
 ## Navigation Options
 
-`NavOptions` changes one link or redirect. The `mode` decides the shape of
-the URL:
+### URL Mode
 
-- `NavMode::PATH` (default): a path from the app root, such as `/post/42`.
+`NavOptions` changes one link or redirect. The `mode` decides the shape of
+the URL.
+
+`NavMode::PATH` (default) returns a path that starts at the site root. The
+site root is detected automatically, so the same route works in any
+installation. If the site lives in a subdirectory, such as `/website/www`,
+the subdirectory is part of the path:
+
+```php
+<?php
+
+/** @var Navigator $nav */
+
+// Site at https://example.com/website/www/
+$nav->to('front::post_show')->id(42);
+// /website/www/post/42
+
+// Site at https://example.com/
+$nav->to('front::post_show')->id(42);
+// /post/42
+```
+
 - `NavMode::FULL`: includes the scheme and host, such as
-  `https://example.com/post/42`.
+  `https://example.com/website/www/post/42`.
 - `NavMode::RAW`: returns the path without resolving the app root.
 
 ```php
@@ -418,6 +472,8 @@ $nav->to('front::post_show', ['id' => 42], new NavOptions(
 you build the URL in your own code.
 :::
 
+### Other Options
+
 The other options are:
 
 - `mute`: a missing route returns `#` instead of throwing.
@@ -432,6 +488,8 @@ The other options are:
 - `base`: a prefix added by `absolute()`.
 - `extra`: free-form data for event listeners. See
   [Events](#navigation-events).
+
+### Defaults with withOptions()
 
 Options passed to a call override the Navigator's defaults for that call.
 To change the defaults for every link in a scope, use `withOptions()`. It
@@ -458,10 +516,15 @@ work but are deprecated. Use `NavOptions` in new code.
 
 ## Muted Links and Debug Mode
 
+### Muted Links in Views
+
 The `$nav` variable in views is a Navigator with `mute` enabled. A link to
 an unknown route renders as `#`, so one bad name does not break the page.
-When the app runs in debug mode, `debugAlert` is also enabled, and the link
-shows a message:
+
+### Debug Mode
+
+When the app runs in debug mode, `debugAlert` is also enabled. The link
+then shows a message instead of `#`:
 
 ```blade
 <a href="{{ $nav->to('front::missing') }}">Missing</a>
@@ -480,6 +543,8 @@ A mistyped route name in a view renders `#` without any error in
 production. Check the names in debug mode, or call `has()` in tests.
 :::
 
+### Muting One Link
+
 Use `mute()` on one link when a route can be missing on purpose:
 
 ```php
@@ -491,6 +556,8 @@ $uri = $nav->to('front::home')->mute();
 ```
 
 ## Navigation Events
+
+### Event Types
 
 Navigation emits three events while it builds a URL:
 
@@ -504,9 +571,12 @@ Navigation emits three events while it builds a URL:
 They live in the `Windwalker\Core\Router\Event` namespace. All three are
 skipped when `ignoreEvents` is set.
 
+### Using extra in a Listener
+
 The `extra` option carries your own data into the events. Core does not
-read it. This example adds a `utm_source` query value to links built with
-`extra: ['source' => ...]`:
+read it. This example uses it to prefix the path with a locale, such as
+`/ja/post/42`. An explicit `locale` in `extra` replaces the current locale,
+so the current locale is not read at all in that case:
 
 ```php
 <?php
@@ -515,45 +585,74 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
+use Windwalker\Core\Language\LangService;
 use Windwalker\Core\Router\Event\AfterRouteBuildEvent;
 use Windwalker\Event\Attributes\EventSubscriber;
 use Windwalker\Event\Attributes\ListenTo;
 
 #[EventSubscriber]
-class NavTrackingSubscriber
+class NavLocaleSubscriber
 {
-    #[ListenTo(AfterRouteBuildEvent::class)]
-    public function addSource(AfterRouteBuildEvent $event): void
-    {
-        $source = $event->options->extra['source'] ?? null;
+    public function __construct(protected LangService $lang) {}
 
-        if ($source !== null) {
-            $event->query['utm_source'] = $source;
+    #[ListenTo(AfterRouteBuildEvent::class)]
+    public function addLocale(AfterRouteBuildEvent $event): void
+    {
+        $locale = $event->options->extra['locale'] ?? null;
+
+        if ($locale === null) {
+            $locale = $this->lang->getLanguage()->getLocale();
         }
+
+        $event->url = $locale . '/' . $event->url;
     }
 }
 ```
 
-Attach the subscriber to a route, as shown in the
-[Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle)
-page. Then build the link with the option:
+The `url` at this point is relative to the site root, so the prefix goes
+in front of it. The routes must accept the same prefix when a request
+arrives. See [Route Groups](/documentation/framework/http-routing/routing)
+for how to define them.
+
+### Registering the Subscriber
+
+Register the subscriber in the `listeners` config, under the `Navigator`
+class. The listener then attaches to the Navigator's own event dispatcher:
 
 ```php
 <?php
 
-use App\Listener\NavTrackingSubscriber;
+// etc/app/main.config.php
+
+use App\Listener\NavLocaleSubscriber;
+use Windwalker\Core\Router\Navigator;
+
+return [
+    'listeners' => [
+        Navigator::class => [
+            NavLocaleSubscriber::class,
+        ],
+    ],
+];
+```
+
+Because the subscriber is registered on the Navigator, it applies to every
+link, not only to one route. With the fallback to the current locale, every
+URL then gets the locale prefix. Make sure the routes accept it.
+
+In a view, pass an explicit locale with the option:
+
+```php
+<?php
+
 use Windwalker\Core\Router\NavOptions;
 
-/** @var RouteCreator $router */
+/** @var Navigator $nav */
 
-$router->get('post_show', '/post/{id}')
-    ->handler(PostController::class, 'show')
-    ->subscribe(NavTrackingSubscriber::class);
-
-// In a view:
-// $nav->to('front::post_show', ['id' => 42],
-//     new NavOptions(extra: ['source' => 'sidebar']));
-// /post/42?utm_source=sidebar
+$nav->to('front::post_show', [], new NavOptions(
+    extra: ['locale' => 'ja'],
+))->id(42);
+// /ja/post/42
 ```
 
 ::: tip
