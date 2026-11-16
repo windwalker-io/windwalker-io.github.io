@@ -60,10 +60,11 @@ declare(strict_types=1);
 namespace App\Module\Front\Profile;
 
 use Windwalker\Core\Application\AppContext;
-use Windwalker\Core\Controller\Controller;
+use Windwalker\Core\Attributes\Controller;
 use Windwalker\Http\Response\JsonResponse;
 
-class ProfileController extends Controller
+#[Controller]
+class ProfileController
 {
     public function avatar(AppContext $app): JsonResponse
     {
@@ -156,4 +157,66 @@ matters.
 ::: info
 `moveTo()` can be called only once per file. A second call, or a failed
 move, throws a `RuntimeException`.
+:::
+
+## Upload Error Messages
+
+`getError()` returns a number, not a message. Use
+`Windwalker\Http\Helper\UploadedFileHelper::getUploadMessage()` to turn
+the code into a readable message:
+
+```php
+<?php
+
+use Windwalker\Http\Helper\UploadedFileHelper;
+
+$file = $app->file('avatar');
+
+if ($file->getError() !== UPLOAD_ERR_OK) {
+    $message = UploadedFileHelper::getUploadMessage(
+        $file->getError(),
+    );
+
+    return new JsonResponse(['error' => $message], 400);
+}
+```
+
+The method maps every `UPLOAD_ERR_*` constant to a short English
+message. An unknown code returns `Unknown upload error`.
+
+::: tip
+Unicorn's upload service uses this helper when it throws an upload
+error. Use it in your own code to keep the messages consistent.
+:::
+
+## Folder Uploads and Full Paths
+
+When the browser uploads a folder, each file needs its relative path.
+PHP 8.1 and later provide this path as `full_path` in `$_FILES`.
+Windwalker stores it on the `UploadedFile` object.
+
+The `Windwalker\Http\FullPathAwareInterface` marks objects that expose
+this path:
+
+```php
+<?php
+
+use Windwalker\Http\FullPathAwareInterface;
+
+$file = $app->file('photo');
+
+if ($file instanceof FullPathAwareInterface) {
+    $fullPath = $file->getFullPath();
+}
+```
+
+`getFullPath()` returns the path the browser sent, or `null` when no
+path was sent. A normal single-file upload has no full path.
+
+Unicorn uses this path to keep the folder structure of an uploaded
+folder. It reads the folder with `dirname($file->getFullPath())`.
+
+::: warning
+The full path comes from the client. Do not write it to disk without
+checks. Strip `..` segments and limit the result to your target folder.
 :::

@@ -83,10 +83,11 @@ declare(strict_types=1);
 
 namespace App\Module\Front\Post;
 
-use Windwalker\Core\Controller\Controller;
+use Windwalker\Core\Attributes\Controller;
 use Windwalker\Http\Response\JsonResponse;
 
-class PostController extends Controller
+#[Controller]
+class PostController
 {
     public function show(string $id): JsonResponse
     {
@@ -163,8 +164,9 @@ the response is decided by the app's error handling.
 
 ## Handlers
 
-A handler can be a `Controller` subclass, a `[Class, method]` pair, or a
-closure. Use `handler()` to set one handler for all methods:
+A handler can be a controller class, a `[Class, method]` pair, or a
+closure. A controller class is marked with the `#[Controller]` attribute.
+See [Controllers](/documentation/framework/http-routing/controllers). Use `handler()` to set one handler for all methods:
 
 ```php
 <?php
@@ -323,8 +325,9 @@ $router->group('member')
 ::: warning
 A middleware of an outer scope can read the scope value only with
 `getUrlVars()`. Use `$app->getUrlVars()['org_id']` in
-`OrganizationMiddleware`, not `$app->input('org_id')`. A query string such
-as `?org_id=2` overrides the route value in `input()`.
+`OrganizationMiddleware`, not `$app->input('org_id')`. `input()` returns
+the route value when it is set, and falls back to a query value such as
+`?org_id=2` only when the route value is `null` or empty.
 :::
 
 Host guards work the same way. A group with a host protects every route
@@ -395,7 +398,8 @@ from `{id}` without any extra code:
 ```php
 <?php
 
-class PostController extends Controller
+#[Controller]
+class PostController
 {
     public function show(string $id): JsonResponse
     {

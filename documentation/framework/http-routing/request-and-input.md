@@ -32,8 +32,11 @@ The input has three sources:
 - The query string, such as `?page=2`.
 - The parsed body of a `POST`, `PUT`, or `PATCH` request.
 
-When the same name appears in more than one source, the later source
-wins. The order is route variables, then query string, then body:
+When the same name appears in more than one source, the body wins over
+the other two. A route variable wins over the query string, unless the
+route variable is `null` or an empty string. Then the query value is used.
+In the first example, the route variable wins over the query string, and
+the body wins over both:
 
 ```text
 Route:       /article/{id}   id = 1
@@ -41,6 +44,15 @@ Query:       ?id=2
 Body:        id=3
 
 input('id')  →  3
+```
+
+The next example has no route value, so the query value is used:
+
+```text
+Route:       /article/{id}   id = null
+Query:       ?id=2
+
+input('id')  →  2
 ```
 
 ## Showcase: An Article Controller
@@ -71,17 +83,18 @@ namespace App\Module\Front\Article;
 
 use Windwalker\Core\Application\AppContext;
 use Windwalker\Core\Attributes\Assert;
+use Windwalker\Core\Attributes\Controller;
 use Windwalker\Core\Attributes\Filter;
 use Windwalker\Core\Attributes\Request\BodyValue;
 use Windwalker\Core\Attributes\Request\Header;
 use Windwalker\Core\Attributes\Request\InputCompact;
 use Windwalker\Core\Attributes\Request\QueryParam;
 use Windwalker\Core\Attributes\Request\RouteParam;
-use Windwalker\Core\Controller\Controller;
 use Windwalker\Data\Collection;
 use Windwalker\Http\Response\JsonResponse;
 
-class ArticleController extends Controller
+#[Controller]
+class ArticleController
 {
     public function list(
         AppContext $app,
@@ -156,7 +169,8 @@ $params = $app->input('q', 'page')->dump();
 
 Pass named arguments to validate the input. Each name is a field, and
 each value is a filter and assert syntax. A failed rule throws
-`ValidateFailException`, which carries status code `400`:
+`ValidateFailException`, which carries status code `400`. See
+[Validation & Filter](/documentation/framework/http-routing/validation-and-filter#validating-input-by-name):
 
 ```php
 <?php
@@ -229,7 +243,8 @@ public function show(#[Input('article_id')] string $id): JsonResponse
 
 Use the source-specific attributes when only one source should be read:
 
-- `#[QueryParam]`: reads the query string and route variables only.
+- `#[QueryParam]`: reads the query string. A route variable with the same
+  name wins, unless it is `null` or an empty string.
 - `#[BodyValue]`: reads the parsed body only.
 - `#[RouteParam]` (or its alias `#[UrlVar]`): reads route variables only.
 - `#[Header('Name')]`: reads a request header.
@@ -247,9 +262,9 @@ public function update(
 ```
 
 ::: warning
-`#[Input]` reads the merged input, so a body value can replace a query
-value with the same name. When the source matters, use `#[QueryParam]`
-or `#[BodyValue]` instead.
+`#[Input]` reads the merged input, so a body value replaces a route variable
+or a query value with the same name. When the source matters, use
+`#[QueryParam]` or `#[BodyValue]` instead.
 :::
 
 ### Defaults and Required Parameters
@@ -276,9 +291,8 @@ nullable parameter then receives `''`, not `null`.
 
 ## Validating and Filtering Input
 
-`Filter` transforms a value. `Assert` checks it. `Required` checks that a
-value is present. Attach them to an injected parameter, with the input
-attribute first:
+Filters transform a value, and asserts and required checks reject invalid
+values. Attach them to an injected parameter, with the input attribute first:
 
 ```php
 <?php
@@ -298,67 +312,8 @@ public function search(
 }
 ```
 
-### Filters
-
-Filters run in the order you list them. A string such as `'int'` calls
-the filter service. Pass the filter syntax as a string, and keep the
-filter and the assert on the same parameter.
-
-If you are on PHP 8.5 or later, you can also pass first-class callables
-such as `trim(...)`. Chain several callbacks in one `Filter`. They run
-from left to right:
-
-```php
-<?php
-
-use Windwalker\Core\Attributes\Filter;
-use Windwalker\Core\Attributes\Request\Input;
-
-public function tag(
-    #[Input, Filter(trim(...), strtolower(...), strip_tags(...))]
-    ?string $tag = null,
-): JsonResponse {
-    //
-}
-```
-
-With the input `" <b>PHP</b> "`, the value becomes `"php"`. Each
-callback receives the output of the previous one.
-
-If you are on PHP 8.6 or later, you can use partial function application.
-A `?` marks the argument that receives the value:
-
-```php
-<?php
-
-use Windwalker\Core\Attributes\Filter;
-use Windwalker\Core\Attributes\Request\Input;
-
-public function slug(
-    #[Input, Filter(trim(?), str_replace(' ', '-', ?), strtolower(?))]
-    ?string $slug = null,
-): JsonResponse {
-    //
-}
-```
-
-With the input `"  Hello World PHP "`, the value becomes
-`"hello-world-php"`.
-
-See the [Filter](/documentation/components/filter/) component for every
-filter and assert rule.
-
-### Assert and Required
-
-A failed `Assert` throws a `ValidateException`. The message is
-`Invalid type of field "page"`, and it adds the rule detail in debug mode.
-A missing `Required` value throws `Field "q" is required.`.
-
-::: warning
-`Assert` skips `null` by default, because its `$nullable` argument
-defaults to `true`. A `null` value passes without a check. Add `Required`
-when the field must be present.
-:::
+The rules, the failure messages, and the order of the steps are covered on
+the [Validation & Filter](/documentation/framework/http-routing/validation-and-filter) page.
 
 ## Request Objects
 
@@ -650,12 +605,12 @@ hidden `_method` field:
 | Attribute | Reads from | Section |
 | --- | --- | --- |
 | `#[Input]` | Merged input: route variables, query string, body | [Input Attribute](#input-attribute) |
-| `#[QueryParam]` | Query string and route variables | [Source-Specific Attributes](#source-specific-attributes) |
+| `#[QueryParam]` | Query string; a non-null route variable of the same name wins | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[BodyValue]` | Parsed body only | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[RouteParam]` / `#[UrlVar]` | Route variables only | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[Header('Name')]` | One request header, `''` when missing | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[InputCompact('a', 'b')]` | Several fields, as a `Collection` | [Showcase](#showcase-an-article-controller) |
 | `#[File]` | Uploaded file | [Uploaded Files](/documentation/framework/http-routing/uploaded-files) |
-| `#[Filter(...)]` | Transforms the value, in order | [Filters](#filters) |
-| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Assert and Required](#assert-and-required) |
-| `#[Required]` | Checks that the value is present | [Assert and Required](#assert-and-required) |
+| `#[Filter(...)]` | Transforms the value, in order | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#filters) |
+| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#asserts) |
+| `#[Required]` | Checks that the value is present | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#required) |

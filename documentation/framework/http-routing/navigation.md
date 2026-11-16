@@ -86,10 +86,12 @@ declare(strict_types=1);
 
 namespace App\Module\Front\Post;
 
+use Windwalker\Core\Attributes\Controller;
 use Windwalker\Core\Router\Navigator;
 use Windwalker\Core\Router\RouteUri;
 use Windwalker\Http\Response\JsonResponse;
 
+#[Controller]
 class PostController
 {
     public function index(Navigator $nav): JsonResponse
