@@ -7,17 +7,13 @@ title: App Secret
 
 ## Introduction
 
-Every Windwalker application has one master secret, stored in the
-`APP_SECRET` environment variable. Framework features that need a stable
-key, such as encryption and signing, derive their keys from this value.
-The secret must be unique to each environment, kept out of the code, and
-never shared.
+Every Windwalker application has one root secret, read from the
+`APP_SECRET` environment variable. The framework uses it as the input
+for keys that protect data, so one value in the environment controls
+every derived key. Keep it unique to each environment and out of the code.
 
 This page covers the secret itself. For how environment files are loaded,
-see the [environment variables](/documentation/framework/core-concepts/applications/environment-variables)
-page. For the keys of third-party services, see the
-[storing API keys](/documentation/framework/core-concepts/applications/environment-variables#storing-api-keys-and-secrets)
-section of the same page.
+see [environment variables](/documentation/framework/core-concepts/applications/environment-variables).
 
 ## Minimal Setup
 
@@ -27,16 +23,16 @@ Generate a secret with the `crypt:secret` command:
 php windwalker crypt:secret
 ```
 
-The command prints a random key with the `base64url:` prefix. The prefix
-tells the framework how to decode the value. Put the output in `.env.local`
-on the machine that uses it:
+The command prints a random value with the `base64url:` prefix. The
+prefix tells the framework how to decode it. Add the output to your
+environment file:
 
 ```dotenv
 # .env.local
 APP_SECRET=base64url:...
 ```
 
-The configuration reads the value into `app.secret`:
+The application configuration reads the variable into `app.secret`:
 
 ```php
 // etc/conf/app.config.php
@@ -44,6 +40,39 @@ return [
     'secret' => env('APP_SECRET'),
 ];
 ```
+
+::: info
+`crypt:secret --replace` writes to `.env` by default, not `.env.local`.
+Use `--output` to write the value to a file of your choice.
+:::
+
+## A Complete Example
+
+The following is a designed example, not a framework class. A service
+that signs download links asks `SecretKeeperInterface` for a key derived
+for that one purpose:
+
+```php
+use Windwalker\Core\Application\SecretKeeperInterface;
+
+class DownloadSigner
+{
+    public function __construct(
+        protected SecretKeeperInterface $secrets,
+    ) {}
+
+    public function sign(string $path, int $expires): string
+    {
+        $key = $this->secrets->getSecret('download-link');
+
+        return hash_hmac('sha256', "$path|$expires", $key);
+    }
+}
+```
+
+The service receives the keeper through its constructor, so the
+application container supplies it. The derived key differs from the root
+secret and from keys derived for other purposes.
 
 ## A Complete Example
 
@@ -75,9 +104,10 @@ reveal a key that is used for sessions or encryption.
 
 ## Derived Keys
 
-Pass a purpose name to `getSecret()` to derive a 32-byte key with
-HKDF-SHA256. Use one name for each purpose, and store the name in a
-constant so that the same name is used for signing and verification:
+`getSecret()` takes an optional purpose name. With a name, it returns a
+32-byte key derived with HKDF-SHA256. The name is the HKDF info string,
+and no salt is used. Use one name per purpose, kept in a constant so
+signing and verification use the same value (designed example):
 
 ```php
 final class KeyPurpose
@@ -88,55 +118,57 @@ final class KeyPurpose
 $key = $secrets->getSecret(KeyPurpose::DOWNLOAD_LINK);
 ```
 
-Calling `getSecret()` without a name returns the decoded master secret.
-Use that form only when a library requires the raw secret. Prefer a
-derived key in all other cases.
+Without a name, `getSecret()` returns the decoded root secret. Use that
+form only when a library needs the raw value.
+
+The framework itself uses this pattern. `TaskPayload` signs task
+payloads with a key derived for the `task.run` purpose.
 
 ::: warning
 A purpose name must match exactly. A changed or misspelled name derives a
-different key, so existing signatures and encrypted data stop verifying.
+different key, so existing signatures stop verifying.
+:::
+
+## Empty Secret Behavior
+
+If `APP_SECRET` is not set, `env()` returns `null`, and the keeper
+returns an empty string for the unnamed call. The named call fails:
+
+- `getSecret()` with no name returns `''` and raises no error.
+- `getSecret('name')` throws a `ValueError` from `hash_hkdf()`.
+- Task signing throws a `LogicException` ("An application secret is
+  required") when the secret is empty.
+
+::: warning
+An unset secret does not stop unnamed calls. Check that `APP_SECRET` is
+set in every environment before you deploy.
 :::
 
 ## Rotating the Secret
 
-Changing `APP_SECRET` changes every key derived from it. Data that was
-protected with the old secret cannot be verified with the new one. The
-framework reads a single secret, so a rotation needs a migration plan:
+Changing `APP_SECRET` changes every key derived from it, so signatures
+and encrypted data made with the old value no longer verify. The source
+does not define a rotation procedure, so plan the migration yourself.
 
-- Reissue short-lived tokens, such as download links, after the change.
-- Decrypt and re-encrypt stored data with the new secret, if you keep any.
-- Schedule the change during a low-traffic window.
-
-::: info
-Rotate the secret after a suspected leak, and when a team member who knew
-the value leaves. Routine rotation is optional, but each rotation has a
-cost, as described above.
+::: warning
+Rotation invalidates data protected with the old secret. Re-encrypt
+stored data and reissue signed links before you retire the old value.
 :::
 
 ## Storage and Safety
 
-Store the secret in `.env.local` or in the server environment. Keep a
-separate secret for each environment, and never reuse the production value
-on a developer machine.
+Keep a separate secret for each environment, and keep it out of the code.
 
 ::: warning
-Never commit `APP_SECRET` to git, and never print it in logs, error pages,
-or debug output. Debug output can include `$_SERVER`, which contains every
-environment variable. Keep `APP_DEBUG` at `0` on public servers.
+Never commit `APP_SECRET` to git. Do not print it in logs or error
+pages. Store it in `.env.local` or in the server environment.
 :::
-
-::: warning
-If `APP_SECRET` is not set, `getSecret()` without a name returns an empty
-string and raises no error. Calling it with a name fails with a
-`ValueError`. Set the secret before you deploy the application.
-:::
-
-Keep a copy of the secret in a password manager or a secret store, so that
-a lost server does not make the stored data unreadable.
 
 ## Related Pages
 
-- [Encryption](/documentation/framework/core-concepts/security/encryption) for protecting
-  data at rest.
-- [Hashing](/documentation/framework/core-concepts/security/hashing) for one-way hashes
-  such as passwords.
+- [Encryption](/documentation/framework/core-concepts/security/encryption)
+  for protecting data at rest.
+- [Hashing](/documentation/framework/core-concepts/security/hashing)
+  for one-way hashes such as passwords.
+- [Crypt component](/documentation/components/crypt/) for the
+  standalone cryptography package.

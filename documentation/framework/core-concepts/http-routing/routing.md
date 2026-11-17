@@ -176,7 +176,8 @@ the response is decided by the app's error handling.
 
 A handler can be a controller class, a `[Class, method]` pair, or a
 closure. A controller class is marked with the `#[Controller]` attribute.
-Use `handler()` to set one handler for all methods:
+Use `handler()` (or its alias `controller()`) to set one handler for all
+methods:
 
 ```php
 <?php
@@ -412,6 +413,22 @@ $router->get('file_show', '/files[/{path:.+}]');
 
 `/posts` and `/posts/2` both match `post_list`. `/files/a/b/c` gives
 `path` the value `a/b/c`.
+
+Optional parts can be nested, and a placeholder can sit next to literal
+text. Each `[` opens an optional part, and the brackets must close in
+order:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+// Matches /post, /post/42 and /post/42/grid.
+$router->get('post_index', '/post[/{id}[/{layout}]]');
+
+// Matches /post/42-hello-world with id=42 and alias=hello-world.
+$router->get('post_slug', '/post/{id:\d+}-{alias}');
+```
 
 Route parameters reach the handler as URL variables. The simplest way is a
 method argument with the same name. A controller method receives `$id`
