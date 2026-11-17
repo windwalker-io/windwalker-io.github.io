@@ -281,7 +281,7 @@ reads only the `app` configuration and provides these methods:
 
 A service that needs the entire application can inject
 `ApplicationInterface` instead. For how the container resolves these
-bindings, see the [dependency injection](/documentation/framework/core-concepts/dependency-injection)
+bindings, see the [dependency injection](/documentation/framework/core-concepts/dependency-injection/dependency-injection)
 page.
 
 ## Storing API Keys and Secrets
@@ -349,7 +349,7 @@ proxies record URLs in their access logs.
 
 ::: warning
 Store a secret in the database only after encrypting it with the
-[encryption](/documentation/framework/security/encryption) service.
+[encryption](/documentation/framework/core-concepts/security/encryption) service.
 Plain text in a table is readable by anyone who can read a backup.
 :::
 
@@ -359,7 +359,7 @@ leaked, and remove the key from the service's console when the team member
 or the server that used it is retired.
 
 For the master secret that the framework uses internally, see the
-[App Secret](/documentation/framework/security/app-secret) page.
+[App Secret](/documentation/framework/core-concepts/security/app-secret) page.
 
 
 ## Packages and Environment Modules

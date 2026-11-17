@@ -146,7 +146,7 @@ Replacing a protected definition throws a `DefinitionException`.
 
 `providers` lists service provider classes, and the application registers
 each one during boot. The provider is covered on the
-[Service Providers](/documentation/framework/core-concepts/dependency-injection#service-providers)
+[Service Providers](/documentation/framework/core-concepts/dependency-injection/dependency-injection#service-providers)
 page.
 
 ```php
@@ -258,7 +258,7 @@ The closure runs at the first lookup, so the environment is read then.
 ::: info
 A stateless client can be shared across requests in a long-running server.
 Keep per-request data, such as a user's token, out of it. See
-[Container Layers](/documentation/framework/core-concepts/layers).
+[Container Layers](/documentation/framework/core-concepts/applications/layers).
 :::
 
 ## Tagged Bindings
@@ -454,7 +454,7 @@ class ChatProvider implements ServiceProviderInterface
 
 Each tag has its own shared object. The provider is also the place for logic
 that reads configuration values. See
-[Service Providers](/documentation/framework/core-concepts/dependency-injection#service-providers).
+[Service Providers](/documentation/framework/core-concepts/dependency-injection/dependency-injection#service-providers).
 
 ### Showcase: An AI Assistant Application
 

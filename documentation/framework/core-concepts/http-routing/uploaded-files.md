@@ -21,7 +21,7 @@ The file layer has two parts:
 
 Uploaded files do not come from the query string or the parsed body.
 Read those with `input()`, as described in
-[Request & Input](/documentation/framework/http-routing/request-and-input):
+[Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input):
 
 ```php
 <?php

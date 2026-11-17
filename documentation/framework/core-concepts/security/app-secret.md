@@ -14,9 +14,9 @@ The secret must be unique to each environment, kept out of the code, and
 never shared.
 
 This page covers the secret itself. For how environment files are loaded,
-see the [environment variables](/documentation/framework/core-concepts/environment-variables)
+see the [environment variables](/documentation/framework/core-concepts/applications/environment-variables)
 page. For the keys of third-party services, see the
-[storing API keys](/documentation/framework/core-concepts/environment-variables#storing-api-keys-and-secrets)
+[storing API keys](/documentation/framework/core-concepts/applications/environment-variables#storing-api-keys-and-secrets)
 section of the same page.
 
 ## Minimal Setup
@@ -136,7 +136,7 @@ a lost server does not make the stored data unreadable.
 
 ## Related Pages
 
-- [Encryption](/documentation/framework/security/encryption) for protecting
+- [Encryption](/documentation/framework/core-concepts/security/encryption) for protecting
   data at rest.
-- [Hashing](/documentation/framework/security/hashing) for one-way hashes
+- [Hashing](/documentation/framework/core-concepts/security/hashing) for one-way hashes
   such as passwords.

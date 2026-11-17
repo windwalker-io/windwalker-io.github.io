@@ -19,11 +19,11 @@ The input layer has three parts:
 - Injection attributes, such as `#[Input]` and `#[QueryParam]`: they
   read a value from the request and pass it to a method parameter.
 
-The [Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle)
+The [Request Lifecycle](/documentation/framework/core-concepts/applications/request-lifecycle)
 shows when the request is created and matched to a route. The
-[HTTP Basics](/documentation/framework/http-routing/http-basics) page
+[HTTP Basics](/documentation/framework/core-concepts/http-routing/http-basics) page
 introduces the PSR-7 objects. Uploaded files are covered on the
-[Uploaded Files](/documentation/framework/http-routing/uploaded-files) page.
+[Uploaded Files](/documentation/framework/core-concepts/http-routing/uploaded-files) page.
 
 ### Input Sources
 
@@ -171,7 +171,7 @@ $params = $app->input('q', 'page')->dump();
 Pass named arguments to validate the input. Each name is a field, and
 each value is a filter and assert syntax. A failed rule throws
 `ValidateFailException`, which carries status code `400`. See
-[Validation & Filter](/documentation/framework/http-routing/validation-and-filter#validating-input-by-name):
+[Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter#validating-input-by-name):
 
 ```php
 <?php
@@ -314,7 +314,7 @@ public function search(
 ```
 
 The rules, the failure messages, and the order of the steps are covered on
-the [Validation & Filter](/documentation/framework/http-routing/validation-and-filter) page.
+the [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter) page.
 
 ## Request Objects
 
@@ -469,7 +469,7 @@ Besides the readers in this page, `AppRequest` exposes:
 - `getUri()` and `getMethod()`: the PSR-7 URI and the method the client
   sent.
 - `getSystemUri()`: the request URI split into base and route. See
-  [HTTP Basics](/documentation/framework/http-routing/http-basics#systemuri):
+  [HTTP Basics](/documentation/framework/core-concepts/http-routing/http-basics#systemuri):
 
   ```php
   <?php
@@ -621,8 +621,8 @@ hidden `_method` field:
 | `#[RouteParam]` / `#[UrlVar]` | Route variables only | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[Header('Name')]` | One request header, `''` when missing | [Source-Specific Attributes](#source-specific-attributes) |
 | `#[InputCompact('a', 'b')]` | Several fields, as a `Collection` | [Showcase](#showcase-an-article-controller) |
-| `#[File]` | Uploaded file | [Uploaded Files](/documentation/framework/http-routing/uploaded-files) |
-| `#[Filter(...)]` | Transforms the value, in order | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#filters) |
-| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#asserts) |
-| `#[Required]` | Checks that the value is present | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#required) |
-| `#[MapTo(Class)]` | Converts the value to an enum, object, or entity | [Validation & Filter](/documentation/framework/http-routing/validation-and-filter#mapping-values-with-mapto) |
+| `#[File]` | Uploaded file | [Uploaded Files](/documentation/framework/core-concepts/http-routing/uploaded-files) |
+| `#[Filter(...)]` | Transforms the value, in order | [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter#filters) |
+| `#[Assert('rule')]` | Checks the value, skips `null` by default | [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter#asserts) |
+| `#[Required]` | Checks that the value is present | [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter#required) |
+| `#[MapTo(Class)]` | Converts the value to an enum, object, or entity | [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter#mapping-values-with-mapto) |

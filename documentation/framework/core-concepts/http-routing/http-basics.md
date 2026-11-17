@@ -15,12 +15,12 @@ turns the result of your code into a response. It has four main parts:
 - `SystemUri`: a normalized view of the URL the app is served from.
 - Routes and navigation: match a URL to a handler, and build URLs back.
 
-The [Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle)
+The [Request Lifecycle](/documentation/framework/core-concepts/applications/request-lifecycle)
 shows the order in which these parts run. This page introduces the objects
-and how they behave. The [Routing](/documentation/framework/http-routing/routing),
-[Navigation](/documentation/framework/http-routing/navigation),
-[Request & Input](/documentation/framework/http-routing/request-and-input),
-and [Responses](/documentation/framework/http-routing/responses) pages cover
+and how they behave. The [Routing](/documentation/framework/core-concepts/http-routing/routing),
+[Navigation](/documentation/framework/core-concepts/http-routing/navigation),
+[Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input),
+and [Responses](/documentation/framework/core-concepts/http-routing/responses) pages cover
 each part in detail.
 
 ## PSR-7 Messages
@@ -56,9 +56,9 @@ use Windwalker\Http\Response\JsonResponse;
 $response = new JsonResponse(['status' => 'ok'], 200);
 ```
 
-The [Responses](/documentation/framework/http-routing/responses) page
+The [Responses](/documentation/framework/core-concepts/http-routing/responses) page
 lists every response class and the `response()` builder. The
-[Request & Input](/documentation/framework/http-routing/request-and-input)
+[Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input)
 page covers reading input in detail.
 
 ::: warning
@@ -89,9 +89,9 @@ $q = $app->input('q');
 $route = $app->getMatchedRoute()?->getName();
 ```
 
-The [Request & Input](/documentation/framework/http-routing/request-and-input)
+The [Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input)
 page explains the two layers, the input cache, and the value-read events in
-its [The AppRequest Object](/documentation/framework/http-routing/request-and-input#the-apprequest-object)
+its [The AppRequest Object](/documentation/framework/core-concepts/http-routing/request-and-input#the-apprequest-object)
 section.
 
 ## Middlewares (PSR-15)
@@ -163,7 +163,7 @@ return [
 ];
 ```
 
-The [Middleware](/documentation/framework/http-routing/middleware) page
+The [Middleware](/documentation/framework/core-concepts/http-routing/middleware) page
 covers the order of execution, route groups, and middleware attributes.
 
 ## SystemUri
@@ -226,9 +226,9 @@ $router->get('post_show', '/post/{id}')
 ```
 
 `RoutingMiddleware` matches the request's `route` against these patterns.
-The [Routing](/documentation/framework/http-routing/routing) page covers
+The [Routing](/documentation/framework/core-concepts/http-routing/routing) page covers
 route files, groups, and matching rules, and the
-[Controllers](/documentation/framework/http-routing/controllers) page covers
+[Controllers](/documentation/framework/core-concepts/http-routing/controllers) page covers
 the handler methods.
 
 `Navigator` works in the other direction. It builds a URL from a route name
@@ -246,5 +246,5 @@ $url = $nav->to('front::post_show')->id(42); // /post/42
 return $nav->redirect('/post/42');
 ```
 
-The [Navigation](/documentation/framework/http-routing/navigation) page
+The [Navigation](/documentation/framework/core-concepts/http-routing/navigation) page
 explains the redirect rules, including which URLs `redirect()` accepts.

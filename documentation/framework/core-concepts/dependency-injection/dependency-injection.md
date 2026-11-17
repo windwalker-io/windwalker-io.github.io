@@ -50,9 +50,9 @@ services.
   [Service Providers](#service-providers).
 - **Service variants**: configure DI keys and pick one of several
   implementations at runtime. See
-  [Service Variants](/documentation/framework/core-concepts/service-variants).
+  [Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants).
 - **Layers**: the runtime, application, and request containers. See
-  [Container Layers](/documentation/framework/core-concepts/layers).
+  [Container Layers](/documentation/framework/core-concepts/applications/layers).
 - **Attributes**: `#[Inject]`, `#[Autowire]`, `#[Service]`, and others. See
   the [DI attributes](/documentation/components/di/attributes) page.
 
@@ -185,7 +185,7 @@ echo $checkout->checkout(1200); // charge-1200
 ::: info
 `CheckoutService` is shared for the whole application, so it outlives a
 single request in a long-running server. See
-[Container Layers](/documentation/framework/core-concepts/layers).
+[Container Layers](/documentation/framework/core-concepts/applications/layers).
 :::
 
 Without the provider, `retrieve()` throws, because the class is not
@@ -237,7 +237,7 @@ A provider can implement these interfaces. Each runs at a different time:
   at the end of each web request.
 
 The request interfaces are from `Windwalker\Core\DI`. See
-[Container Layers](/documentation/framework/core-concepts/layers#request-hooks)
+[Container Layers](/documentation/framework/core-concepts/applications/layers#request-hooks)
 for details.
 
 ```php
@@ -293,7 +293,7 @@ call it itself.
 Shared objects that a provider creates in `boot()` live in the application
 container. In a long-running server they persist across requests, so keep
 per-request state out of them. See
-[Container Layers](/documentation/framework/core-concepts/layers).
+[Container Layers](/documentation/framework/core-concepts/applications/layers).
 :::
 
 ## Injecting Dependencies
@@ -332,7 +332,7 @@ object created with `new` keeps its `#[Inject]` properties empty.
 ### Injecting by Tag
 
 Add `tag` to `#[Inject]` to pick one of several variants. The tag is passed to
-the binding, as described in [Service Variants](/documentation/framework/core-concepts/service-variants).
+the binding, as described in [Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants).
 Assume the interface is bound in `etc/di.config.php`:
 
 ```php

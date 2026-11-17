@@ -21,7 +21,7 @@ The validation layer has four parts:
   failed rule throws `ValidateFailException`.
 
 The rule syntax comes from the
-[Filter](/documentation/components/filter/) component. [Request & Input](/documentation/framework/http-routing/request-and-input)
+[Filter](/documentation/components/filter/) component. [Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input)
 explains how the values are read:
 
 ```php
@@ -37,7 +37,7 @@ public function search(
 }
 ```
 
-The [Exceptions](/documentation/framework/http-routing/exceptions) page
+The [Exceptions](/documentation/framework/core-concepts/http-routing/exceptions) page
 explains how exceptions become responses.
 
 For conditions that are not field rules, such as a missing record or a
@@ -369,7 +369,7 @@ section explains how the framework handles it.
 
 A failed rule throws an exception. A `ValidateFailException` from `input()`,
 or a `ValidateException` from `#[Assert]` and `#[Required]`, is then handled
-as described on the [Exceptions](/documentation/framework/http-routing/exceptions)
+as described on the [Exceptions](/documentation/framework/core-concepts/http-routing/exceptions)
 page. A form request redirects back with a warning, and a `GET` request
 renders the error page.
 
@@ -386,7 +386,7 @@ if (!$posts->existsBySlug($slug)) {
 }
 ```
 
-The [Exceptions](/documentation/framework/http-routing/exceptions#throwing-validation-errors)
+The [Exceptions](/documentation/framework/core-concepts/http-routing/exceptions#throwing-validation-errors)
 page shows how to pass several messages and when to catch the exception.
 
 ## Asserting Request Conditions

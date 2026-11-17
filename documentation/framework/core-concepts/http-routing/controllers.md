@@ -22,9 +22,9 @@ The controller layer has three parts:
 - `ControllerDispatcher`: runs the route's handler. It creates the
   controller and calls the method through the container.
 
-Routes are defined in the [Routing](/documentation/framework/http-routing/routing)
+Routes are defined in the [Routing](/documentation/framework/core-concepts/http-routing/routing)
 page. The method arguments use the input attributes from
-[Request & Input](/documentation/framework/http-routing/request-and-input).
+  [Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input).
 A route points at a controller method, and the framework passes the route
 variable to the argument:
 
@@ -472,7 +472,7 @@ public function ping(): string
 
 The conversion rules, the response builder, redirects, downloads, and
 JSON API responses are described in
-[Responses](/documentation/framework/http-routing/responses).
+[Responses](/documentation/framework/core-concepts/http-routing/responses).
 
 ## Error Handling
 
@@ -496,7 +496,7 @@ public function show(string $id, PostRepository $posts): JsonResponse
 
 After the throw, the framework takes over: it renders the error page or
 flashes a warning and redirects back, depending on the request method and
-the client. See [Exceptions](/documentation/framework/http-routing/exceptions)
+the client. See [Exceptions](/documentation/framework/core-concepts/http-routing/exceptions)
 for the rules.
 
 ## Flash Messages

@@ -403,7 +403,7 @@ $router->group('admin')
     });
 ```
 
-The [Routing](/documentation/framework/http-routing/routing) page shows
+The [Routing](/documentation/framework/core-concepts/http-routing/routing) page shows
 the full admin route file.
 
 ::: warning

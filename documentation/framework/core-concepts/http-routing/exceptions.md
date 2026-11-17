@@ -23,7 +23,7 @@ The error layer has these parts:
 - `UnauthorizedException`, for a request that needs a login or is denied.
 - `#[JsonApi]` and `ApiException`, for JSON error responses.
 
-The [Controllers](/documentation/framework/http-routing/controllers) page
+The [Controllers](/documentation/framework/core-concepts/http-routing/controllers) page
 shows how a method returns values:
 
 ```php
@@ -35,7 +35,7 @@ public function ping(): string
 }
 ```
 
-The [Validation & Filter](/documentation/framework/http-routing/validation-and-filter)
+The [Validation & Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter)
 page explains the rules that throw validation exceptions. A required
 parameter throws `ValidateException` when it is missing:
 
@@ -401,7 +401,7 @@ message. Check the log to see the real message.
 ## JSON API Errors
 
 With the `#[JsonApi]` attribute (see
-[Middleware Attributes](/documentation/framework/http-routing/middleware#middleware-attributes)),
+[Middleware Attributes](/documentation/framework/core-concepts/http-routing/middleware#middleware-attributes)),
 an exception is rendered as a JSON error with the same status code:
 
 ```php

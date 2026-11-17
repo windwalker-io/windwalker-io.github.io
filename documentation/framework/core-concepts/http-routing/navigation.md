@@ -24,7 +24,7 @@ The navigation system has four parts:
 - Navigation events: hooks that run while a URL is built.
 
 Route names and patterns are defined in the
-[Routing](/documentation/framework/http-routing/routing) page.
+[Routing](/documentation/framework/core-concepts/http-routing/routing) page.
 
 ## Getting the Navigator
 
@@ -645,7 +645,7 @@ $router->group('locale')
     });
 ```
 
-The [Routing](/documentation/framework/http-routing/routing) page covers
+The [Routing](/documentation/framework/core-concepts/http-routing/routing) page covers
 groups and their options in full.
 
 ### Registering the Subscriber

@@ -22,7 +22,7 @@ process differs:
 - A WebSocket server boots once and handles connection events and messages
   over time.
 
-The three [application layers](/documentation/framework/core-concepts/layers)
+The three [application layers](/documentation/framework/core-concepts/applications/layers)
 decide what survives between requests. This page follows a request through
 those layers and lists the events you can listen to along the way.
 
@@ -117,7 +117,7 @@ class Application extends WebApplication
 ```
 
 For how services are registered, see
-[Dependency Injection](/documentation/framework/core-concepts/dependency-injection).
+[Dependency Injection](/documentation/framework/core-concepts/dependency-injection/dependency-injection).
 
 ## Request Context
 
@@ -147,7 +147,7 @@ class ProfileService
 
 Services that are provided at the request layer are created once per
 request and discarded with the request container. See
-[Application Layers](/documentation/framework/core-concepts/layers) for
+[Application Layers](/documentation/framework/core-concepts/applications/layers) for
 the `providedIn` values.
 
 ## Request Flow
@@ -426,7 +426,7 @@ releases it when the response is sent.
 Because each request gets its own layer 3 container, objects from one
 request are released with that container. Keep per-request state in
 request-level services, and keep long-lived state in application-level
-services. See [Application Layers](/documentation/framework/core-concepts/layers#long-running-servers).
+services. See [Application Layers](/documentation/framework/core-concepts/applications/layers#long-running-servers).
 
 ::: warning
 `runCliServerRequest()` catches exceptions and writes them to the server

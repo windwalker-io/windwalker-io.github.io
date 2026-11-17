@@ -25,7 +25,7 @@ The response layer has four parts:
   route group.
 
 Redirect methods on `Navigator` are described in
-[Navigation](/documentation/framework/http-routing/navigation#redirect-methods).
+[Navigation](/documentation/framework/core-concepts/http-routing/navigation#redirect-methods).
 A controller can return one directly:
 
 ```php
@@ -37,7 +37,7 @@ return $nav->redirectTo('front::post_show', ['id' => 42]);
 ```
 
 Controller methods are described in
-[Controllers](/documentation/framework/http-routing/controllers). A method
+[Controllers](/documentation/framework/core-concepts/http-routing/controllers). A method
 that returns a value is shown there with a route:
 
 ```php
@@ -375,7 +375,7 @@ return response()->redirect('/post/42', 302);
 ```
 
 A redirect returned from a controller is checked against the rule in
-[Local Redirects](/documentation/framework/http-routing/navigation#local-redirects).
+[Local Redirects](/documentation/framework/core-concepts/http-routing/navigation#local-redirects).
 A `Location` that is not local is replaced with the app root:
 
 ```php
@@ -430,7 +430,7 @@ $nav->redirectInstant('/post/42');
 // Not reached.
 ```
 
-See [Navigation](/documentation/framework/http-routing/navigation#redirect-methods)
+See [Navigation](/documentation/framework/core-concepts/http-routing/navigation#redirect-methods)
 for all `Navigator` redirect methods.
 :::
 
@@ -716,7 +716,7 @@ public function show(string $id): array
 }
 ```
 
-The [Exceptions](/documentation/framework/http-routing/exceptions#json-api-errors)
+The [Exceptions](/documentation/framework/core-concepts/http-routing/exceptions#json-api-errors)
 page describes how the message is chosen.
 
 To apply the format to every method of a route group, add

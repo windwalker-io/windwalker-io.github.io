@@ -166,7 +166,7 @@ class Dashboard
 
 The container passes the tag to the binding. Bind the interface with a
 closure that reads the tag, as shown on the
-[Service Variants](/documentation/framework/core-concepts/service-variants)
+[Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants)
 page. If no entry matches the tag, the untagged entry is used when it exists.
 
 ### Options

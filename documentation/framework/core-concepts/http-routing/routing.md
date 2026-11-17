@@ -19,7 +19,7 @@ The routing system has four parts:
 - `Route`: one route, with its pattern, methods, handlers, and middlewares.
 - `Router`: matches a request to a route. `RoutingMiddleware` calls it.
 - `Navigator`: builds URLs from route names. See
-  [Navigation](/documentation/framework/http-routing/navigation).
+  [Navigation](/documentation/framework/core-concepts/http-routing/navigation).
 
 ```php
 <?php
@@ -31,7 +31,7 @@ use Windwalker\Core\Router\Navigator;
 echo $nav->to('front::post_show')->id(42); // /post/42
 ```
 
-The [Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle)
+The [Request Lifecycle](/documentation/framework/core-concepts/applications/request-lifecycle)
 shows where routing runs in the request.
 
 ## Loading Route Files
@@ -187,7 +187,7 @@ $router->get('post_show', '/post/{id}')
     ->handler(PostController::class, 'show');
 ```
 
-The [Controllers](/documentation/framework/http-routing/controllers) page
+The [Controllers](/documentation/framework/core-concepts/http-routing/controllers) page
 covers the attribute, the task methods, and the injection rules.
 
 ```php
@@ -433,7 +433,7 @@ class PostController
 Read them in other ways when needed:
 
 - With the `#[RouteParam]` attribute on a parameter. See
-  [Request & Input](/documentation/framework/http-routing/request-and-input):
+  [Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input):
 
   ```php
   <?php
@@ -472,7 +472,7 @@ variables, then query string. A query value such as `?id=7` does not replace
 the `{id}` value of `/post/42`. A body field named `id` does replace it. For
 a value that must come from the route, read it with a method argument,
 `#[RouteParam]`, or `getUrlVars()`. See
-[Request & Input](/documentation/framework/http-routing/request-and-input)
+[Request & Input](/documentation/framework/core-concepts/http-routing/request-and-input)
 for the full list of input methods.
 :::
 
@@ -572,7 +572,7 @@ class RoutingLogSubscriber
 ```
 
 Register the subscriber in the `listeners` config, as shown in the
-[Request Lifecycle](/documentation/framework/core-concepts/request-lifecycle).
+[Request Lifecycle](/documentation/framework/core-concepts/applications/request-lifecycle).
 The `RoutingMiddleware` constructor also accepts a `$preMatch` closure, which
 runs before the router, and a `$fallback` closure, which runs when no route
 matches.

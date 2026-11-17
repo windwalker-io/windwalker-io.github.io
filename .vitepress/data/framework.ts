@@ -45,87 +45,123 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
     {
       text: 'Core Concepts',
       items: [
-        { text: 'Environment Variables', link: `/${frameworkRoutePrefix}/core-concepts/environment-variables` },
-        { text: 'Dependency Injection', link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection` },
-        { text: 'Service Variants', link: `/${frameworkRoutePrefix}/core-concepts/service-variants` },
-        { text: 'Application Layers', link: `/${frameworkRoutePrefix}/core-concepts/layers` },
-        { text: 'Request Lifecycle', link: `/${frameworkRoutePrefix}/core-concepts/request-lifecycle` },
-      ]
-    },
-    {
-      text: 'HTTP & Routing',
-      items: [
-        { text: 'HTTP Basics', link: `/${frameworkRoutePrefix}/http-routing/http-basics` },
-        { text: 'Routing', link: `/${frameworkRoutePrefix}/http-routing/routing` },
-        { text: 'Navigation', link: `/${frameworkRoutePrefix}/http-routing/navigation` },
-        { text: 'Middleware', link: `/${frameworkRoutePrefix}/http-routing/middleware` },
-        { text: 'Controllers', link: `/${frameworkRoutePrefix}/http-routing/controllers` },
-        { text: 'Request & Input', link: `/${frameworkRoutePrefix}/http-routing/request-and-input` },
-        { text: 'Validation & Filter', link: `/${frameworkRoutePrefix}/http-routing/validation-and-filter` },
-        { text: 'Exceptions', link: `/${frameworkRoutePrefix}/http-routing/exceptions` },
-        { text: 'Uploaded Files', link: `/${frameworkRoutePrefix}/http-routing/uploaded-files` },
-        { text: 'Responses', link: `/${frameworkRoutePrefix}/http-routing/responses` },
-      ]
-    },
-    {
-      text: 'Core Systems',
-      items: [
-        { text: 'Renderer', link: `/${frameworkRoutePrefix}/core-systems/renderer` },
-        { text: 'Views', link: `/${frameworkRoutePrefix}/core-systems/views` },
-        { text: 'Edge Templates', link: `/${frameworkRoutePrefix}/core-systems/edge-templates` },
-        { text: 'Asset Management', link: `/${frameworkRoutePrefix}/core-systems/asset-management` },
-        { text: 'Shared State', link: `/${frameworkRoutePrefix}/core-systems/shared-state` },
-        { text: 'Session & Cookies', link: `/${frameworkRoutePrefix}/core-systems/session-and-cookies` },
-        { text: 'API Systems', link: `/${frameworkRoutePrefix}/core-systems/api-systems` },
-        { text: 'Events', link: `/${frameworkRoutePrefix}/core-systems/events` },
-        { text: 'Filesystem', link: `/${frameworkRoutePrefix}/core-systems/filesystem` },
-        { text: 'Error Handling', link: `/${frameworkRoutePrefix}/core-systems/error-handling` },
-        { text: 'Logging', link: `/${frameworkRoutePrefix}/core-systems/logging` },
-        { text: 'Helpers', link: `/${frameworkRoutePrefix}/core-systems/helpers` },
+        {
+          text: 'Applications',
+          link: `/${frameworkRoutePrefix}/core-concepts/applications/environment-variables`,
+          collapsed: true,
+          items: [
+            { text: 'Environment Variables', link: `/${frameworkRoutePrefix}/core-concepts/applications/environment-variables` },
+            { text: 'Application Layers', link: `/${frameworkRoutePrefix}/core-concepts/applications/layers` },
+            { text: 'Request Lifecycle', link: `/${frameworkRoutePrefix}/core-concepts/applications/request-lifecycle` },
+          ]
+        },
+        {
+          text: 'Dependency Injection',
+          link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection/dependency-injection`,
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection/dependency-injection` },
+            { text: 'Service Variants', link: `/${frameworkRoutePrefix}/core-concepts/dependency-injection/service-variants` },
+          ]
+        },
+        {
+          text: 'HTTP & Routing',
+          link: `/${frameworkRoutePrefix}/core-concepts/http-routing/http-basics`,
+          collapsed: true,
+          items: [
+            { text: 'HTTP Basics', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/http-basics` },
+            { text: 'Routing', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/routing` },
+            { text: 'Navigation', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/navigation` },
+            { text: 'Middleware', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/middleware` },
+            { text: 'Controllers', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/controllers` },
+            { text: 'Request & Input', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/request-and-input` },
+            { text: 'Validation & Filter', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/validation-and-filter` },
+            { text: 'Exceptions', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/exceptions` },
+            { text: 'Uploaded Files', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/uploaded-files` },
+            { text: 'Responses', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/responses` },
+          ]
+        },
+        {
+          text: 'Views',
+          link: `/${frameworkRoutePrefix}/core-concepts/views/views`,
+          collapsed: true,
+          items: [
+            { text: 'Renderer', link: `/${frameworkRoutePrefix}/core-concepts/views/renderer` },
+            { text: 'Views', link: `/${frameworkRoutePrefix}/core-concepts/views/views` },
+            { text: 'Edge Templates', link: `/${frameworkRoutePrefix}/core-concepts/views/edge-templates` },
+            { text: 'Asset Management', link: `/${frameworkRoutePrefix}/core-concepts/views/asset-management` },
+            { text: 'View Components', link: `/${frameworkRoutePrefix}/core-concepts/views/view-components` },
+          ]
+        },
+        {
+          text: 'User States',
+          link: `/${frameworkRoutePrefix}/core-concepts/user-states/user`,
+          collapsed: true,
+          items: [
+            { text: 'User', link: `/${frameworkRoutePrefix}/core-concepts/user-states/user` },
+            { text: 'Shared State', link: `/${frameworkRoutePrefix}/core-concepts/user-states/shared-state` },
+            { text: 'Session & Cookies', link: `/${frameworkRoutePrefix}/core-concepts/user-states/session-and-cookies` },
+          ]
+        },
+        {
+          text: 'Security',
+          link: `/${frameworkRoutePrefix}/core-concepts/security/app-secret`,
+          collapsed: true,
+          items: [
+            { text: 'App Secret', link: `/${frameworkRoutePrefix}/core-concepts/security/app-secret` },
+            { text: 'Authentication', link: `/${frameworkRoutePrefix}/core-concepts/security/authentication` },
+            { text: 'Authorization', link: `/${frameworkRoutePrefix}/core-concepts/security/authorization` },
+            { text: 'CSRF Protection', link: `/${frameworkRoutePrefix}/core-concepts/security/csrf-protection` },
+            { text: 'Validation', link: `/${frameworkRoutePrefix}/core-concepts/security/validation` },
+            { text: 'Encryption', link: `/${frameworkRoutePrefix}/core-concepts/security/encryption` },
+            { text: 'Hashing', link: `/${frameworkRoutePrefix}/core-concepts/security/hashing` },
+          ]
+        },
+        { text: 'API Systems', link: `/${frameworkRoutePrefix}/core-concepts/api-systems` },
+        { text: 'Events', link: `/${frameworkRoutePrefix}/core-concepts/events` },
+        { text: 'Filesystem', link: `/${frameworkRoutePrefix}/core-concepts/filesystem` },
+        { text: 'Error Handling', link: `/${frameworkRoutePrefix}/core-concepts/error-handling` },
+        { text: 'Logging', link: `/${frameworkRoutePrefix}/core-concepts/logging` },
+        { text: 'Helpers', link: `/${frameworkRoutePrefix}/core-concepts/helpers` },
       ]
     },
     {
       text: 'Services',
       items: [
-        { text: 'User', link: `/${frameworkRoutePrefix}/services/user` },
+        {
+          text: 'Database',
+          link: `/${frameworkRoutePrefix}/services/database/getting-started`,
+          collapsed: true,
+          items: [
+            { text: 'Getting Started', link: `/${frameworkRoutePrefix}/services/database/getting-started` },
+            { text: 'Entities', link: `/${frameworkRoutePrefix}/services/database/entities` },
+            { text: 'Query Builder', link: `/${frameworkRoutePrefix}/services/database/query-builder` },
+            { text: 'ORM', link: `/${frameworkRoutePrefix}/services/database/orm` },
+            { text: 'Pagination', link: `/${frameworkRoutePrefix}/services/database/pagination` },
+            { text: 'Migrations', link: `/${frameworkRoutePrefix}/services/database/migrations` },
+            { text: 'Seeders', link: `/${frameworkRoutePrefix}/services/database/seeders` },
+            { text: 'Connection Pool', link: `/${frameworkRoutePrefix}/services/database/connection-pool` },
+            { text: 'Backup & Export', link: `/${frameworkRoutePrefix}/services/database/backup-and-export` },
+          ]
+        },
         { text: 'Cache', link: `/${frameworkRoutePrefix}/services/cache` },
         { text: 'Language', link: `/${frameworkRoutePrefix}/services/language` },
         { text: 'DateTime', link: `/${frameworkRoutePrefix}/services/datetime` },
-        { text: 'View Components', link: `/${frameworkRoutePrefix}/services/view-components` },
         { text: 'Form', link: `/${frameworkRoutePrefix}/services/form` },
         { text: 'Http Client', link: `/${frameworkRoutePrefix}/services/http-client` },
         { text: 'Mailer', link: `/${frameworkRoutePrefix}/services/mailer` },
-        { text: 'Sub-Process', link: `/${frameworkRoutePrefix}/services/sub-process` },
-        { text: 'Concurrency', link: `/${frameworkRoutePrefix}/services/concurrency` },
-        { text: 'Queue', link: `/${frameworkRoutePrefix}/services/queue` },
-        { text: 'Scheduler', link: `/${frameworkRoutePrefix}/services/scheduler` },
+        {
+          text: 'Background Tasks',
+          link: `/${frameworkRoutePrefix}/services/background-tasks/sub-process`,
+          collapsed: true,
+          items: [
+            { text: 'Sub-Process', link: `/${frameworkRoutePrefix}/services/background-tasks/sub-process` },
+            { text: 'Concurrency', link: `/${frameworkRoutePrefix}/services/background-tasks/concurrency` },
+            { text: 'Queue', link: `/${frameworkRoutePrefix}/services/background-tasks/queue` },
+            { text: 'Scheduler', link: `/${frameworkRoutePrefix}/services/background-tasks/scheduler` },
+          ]
+        },
         { text: 'Testing', link: `/${frameworkRoutePrefix}/services/testing` },
-      ]
-    },
-    {
-      text: 'Security',
-      items: [
-        { text: 'App Secret', link: `/${frameworkRoutePrefix}/security/app-secret` },
-        { text: 'Authentication', link: `/${frameworkRoutePrefix}/security/authentication` },
-        { text: 'Authorization', link: `/${frameworkRoutePrefix}/security/authorization` },
-        { text: 'CSRF Protection', link: `/${frameworkRoutePrefix}/security/csrf-protection` },
-        { text: 'Validation', link: `/${frameworkRoutePrefix}/security/validation` },
-        { text: 'Encryption', link: `/${frameworkRoutePrefix}/security/encryption` },
-        { text: 'Hashing', link: `/${frameworkRoutePrefix}/security/hashing` },
-      ]
-    },
-    {
-      text: 'Database',
-      items: [
-        { text: 'Getting Started', link: `/${frameworkRoutePrefix}/database/getting-started` },
-        { text: 'Entities', link: `/${frameworkRoutePrefix}/database/entities` },
-        { text: 'Query Builder', link: `/${frameworkRoutePrefix}/database/query-builder` },
-        { text: 'ORM', link: `/${frameworkRoutePrefix}/database/orm` },
-        { text: 'Pagination', link: `/${frameworkRoutePrefix}/database/pagination` },
-        { text: 'Migrations', link: `/${frameworkRoutePrefix}/database/migrations` },
-        { text: 'Seeders', link: `/${frameworkRoutePrefix}/database/seeders` },
-        { text: 'Connection Pool', link: `/${frameworkRoutePrefix}/database/connection-pool` },
-        { text: 'Backup & Export', link: `/${frameworkRoutePrefix}/database/backup-and-export` },
       ]
     },
     {

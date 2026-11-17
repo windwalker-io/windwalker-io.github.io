@@ -61,7 +61,7 @@ Environment variables provide the values that change between machines,
 such as database credentials and the debug switch. Windwalker loads
 them from `.env` files in the project root, and the configuration files
 read them with the `env()` helper. The
-[environment variables](/documentation/framework/core-concepts/environment-variables)
+[environment variables](/documentation/framework/core-concepts/applications/environment-variables)
 page covers the loading order, the `APP_ENV` and `APP_DEBUG` settings,
 and the handling of secrets.
 
