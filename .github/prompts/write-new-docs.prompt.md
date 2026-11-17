@@ -61,6 +61,7 @@ Success criteria:
 Validation after completion (mandatory):
 - Re-open every created or changed file and check it against `documentation-style.instructions.md` and the Final self-check above. Fix any violation before reporting.
 - Check every heading and section of the outline or summary. Any section that is still a brief outline, summary, or bullet list instead of a formal manual section must be expanded with the full narrative flow, realistic examples, and reminders. Do not leave any unfinished section behind, not even the second half of the page.
+- Re-check all pages follows `## User Outline` and no section is left.
 - Repeat the check until no section is left as an outline or summary.
 - Confirm every referenced path and section in the prompt and the pages exists.
 - Run `yarn build` in the site root and report the result.

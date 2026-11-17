@@ -86,21 +86,21 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           link: `/${frameworkRoutePrefix}/core-concepts/views/views`,
           collapsed: true,
           items: [
-            { text: 'Renderer', link: `/${frameworkRoutePrefix}/core-concepts/views/renderer` },
+            { text: 'Layout Rendering', link: `/${frameworkRoutePrefix}/core-concepts/views/renderer` },
             { text: 'Views', link: `/${frameworkRoutePrefix}/core-concepts/views/views` },
             { text: 'Edge Templates', link: `/${frameworkRoutePrefix}/core-concepts/views/edge-templates` },
             { text: 'Asset Management', link: `/${frameworkRoutePrefix}/core-concepts/views/asset-management` },
             { text: 'View Components', link: `/${frameworkRoutePrefix}/core-concepts/views/view-components` },
+            { text: 'HTML Frame', link: `/${frameworkRoutePrefix}/core-concepts/views/html-frame` },
           ]
         },
         {
-          text: 'User States',
-          link: `/${frameworkRoutePrefix}/core-concepts/user-states/user`,
+          text: 'State Control',
+          link: `/${frameworkRoutePrefix}/core-concepts/state-control/shared-state`,
           collapsed: true,
           items: [
-            { text: 'User', link: `/${frameworkRoutePrefix}/core-concepts/user-states/user` },
-            { text: 'Shared State', link: `/${frameworkRoutePrefix}/core-concepts/user-states/shared-state` },
-            { text: 'Session & Cookies', link: `/${frameworkRoutePrefix}/core-concepts/user-states/session-and-cookies` },
+            { text: 'Shared State', link: `/${frameworkRoutePrefix}/core-concepts/state-control/shared-state` },
+            { text: 'Session & Cookies', link: `/${frameworkRoutePrefix}/core-concepts/state-control/session-and-cookies` },
           ]
         },
         {
@@ -169,6 +169,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
       items: [
         {
           text: 'Getting Started',
+          link: `/${frameworkRoutePrefix}/frontend/overview`,
+          collapsed: true,
           items: [
             {
               text: 'Overview',
@@ -186,6 +188,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         },
         {
           text: 'Development',
+          link: `/${frameworkRoutePrefix}/frontend/javascript`,
+          collapsed: true,
           items: [
             {
               text: 'JavaScript Development',

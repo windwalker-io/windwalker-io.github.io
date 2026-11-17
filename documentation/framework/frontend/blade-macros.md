@@ -35,9 +35,8 @@ visual marker and guards against leaking code into the page if a
 macro is accidentally left outside its block.
 :::
 
-The macro is started from PHP with its name (`inline:home`). The
-view's helper creates the `importSync` call for you when the
-`<script>` has `lang="ts"` and content.
+The macro is loaded when the view renders its `<script>` block with
+`lang="ts"` and content. You do not call it yourself.
 
 ### Passing Props
 
@@ -221,12 +220,12 @@ A script macro goes through four steps:
    dashes.
 3. **Bundle**: the file is bundled under the key `inline:<macro-id>`.
 4. **Compile**: when Blade renders the view, the `<script data-macro>`
-   tag is replaced with a call to
-   `$asset->importSyncByApp('inline:<macro-id>', $props)`. The
-   `data-prop:*` attributes become the props object.
+   tag is replaced with a call that loads the module under the key
+   `inline:<macro-id>`. The `data-prop:*` attributes become the props
+   object.
 
-At runtime, the call becomes `App.importSync()`, which loads the module
-and runs its `export default` or `onMacroReady()` handlers.
+At runtime, the module runs its `export default` or `onMacroReady()`
+handlers.
 
 ### Default Scan Directories
 
@@ -303,7 +302,7 @@ Then open the matching file in `tmp/fusion/jsmodules/`. Check it for
 the code that Fusion bundled.
 
 To see the PHP that Blade generated, open the file in `cache/renderer/`
-that matches the view. Search for `importSyncByApp` to confirm the key
+that matches the view. Search for `inline:<macro-id>` to confirm the key
 and props. If a change does not appear, delete the cached file, or the
 whole folder, so Blade compiles it again.
 
