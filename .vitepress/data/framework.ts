@@ -184,6 +184,10 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           link: `/${frameworkRoutePrefix}/frontend/blade-macros`,
         },
         {
+          text: 'Vue Development',
+          link: `/${frameworkRoutePrefix}/frontend/vue`,
+        },
+        {
           text: 'Styles and Assets',
           link: `/${frameworkRoutePrefix}/frontend/styles-and-assets`,
         },
