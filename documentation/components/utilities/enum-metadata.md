@@ -132,6 +132,53 @@ Status::Draft->isHidden();    // false
 `fromTitle()`. Code that builds a list for users must check `isHidden()`
 itself.
 
+## Default Values with preprocessValue
+
+`wrap()` and `tryWrap()` call `preprocessValue()` before they look up
+the case. Override it to map an empty input to a default case:
+
+```php
+enum Status: string implements EnumRichInterface
+{
+    use EnumRichTrait;
+
+    #[Title('Draft')]
+    case Draft = 'draft';
+
+    #[Title('Published')]
+    case Published = 'published';
+
+    public static function preprocessValue(mixed $value): mixed
+    {
+        return $value ?: self::Draft;
+    }
+}
+
+Status::wrap(null);        // Status::Draft
+Status::wrap('');          // Status::Draft
+Status::wrap('published'); // Status::Published
+```
+
+::: warning
+`?:` also replaces `0`, `'0'`, and `false`. If one of your case values
+is falsy, check for `null` or `''` explicitly instead:
+
+```php
+public static function preprocessValue(mixed $value): mixed
+{
+    return $value === null || $value === ''
+        ? self::DEFAULT_VALUE
+        : $value;
+}
+```
+:::
+
+::: info
+`tryWrap()` also runs `preprocessValue()` before its `null` check, so
+`tryWrap(null)` returns the default case, not `null`. `sameAs()` uses
+`tryWrap()` internally, so it follows the same rule.
+:::
+
 ## Metadata Methods
 
 The trait provides a getter and a collection method for each attribute:
@@ -153,6 +200,9 @@ Status::tryFromTitle('Unknown');  // null
 
 | Method | Parameters | Description |
 |--------|------------|-------------|
+| `preprocessValue()` | `mixed $value` | Hook run by `wrap()` and `tryWrap()`; override to set a default. |
+| `wrap()` | `mixed $value` | The case for a value, after `preprocessValue()`. Throws on no match. |
+| `tryWrap()` | `mixed $value` | Like `wrap()`, but returns `null` when no case matches. |
 | `getTitle()` | `?LanguageInterface $lang = null, ...$args` | Title of the case, translated when a language is given. |
 | `getTitles()` | None | Titles keyed by case value. |
 | `getTransItems()` | `LanguageInterface $lang, ...$args` | Translated titles keyed by case value. |

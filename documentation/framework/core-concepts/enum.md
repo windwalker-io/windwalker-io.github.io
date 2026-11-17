@@ -87,6 +87,56 @@ $cases = ItemState::assocCases();
 
 The `values()` method is deprecated. Use `assocCases()` instead.
 
+## Preprocessing Values
+
+Override `preprocessValue()` to clean up input before `wrap()` and
+`tryWrap()` match it to a case. Use it to set a default for empty
+values, or to convert old values that are still stored in the database.
+
+```php
+enum ItemState: string implements EnumRichInterface
+{
+    use EnumRichTrait;
+
+    case ENABLED = 'enabled';
+    case DISABLED = 'disabled';
+
+    public static function preprocessValue(mixed $value): mixed
+    {
+        // Empty values fall back to the default case
+        if ($value === null || $value === '') {
+            return self::ENABLED;
+        }
+
+        // Convert an old value to the current one
+        if ($value === 'on') {
+            return 'enabled';
+        }
+
+        return $value;
+    }
+}
+
+ItemState::wrap(null);   // ItemState::ENABLED
+ItemState::wrap('on');   // ItemState::ENABLED
+ItemState::wrap('');     // ItemState::ENABLED
+```
+
+::: info
+`preprocessValue()` runs only in `wrap()` and `tryWrap()`. Native
+`from()` and `tryFrom()` skip it, so call `wrap()` when the value comes
+from outside the code, such as a database column or a request.
+:::
+
+::: tip
+Avoid `$value ?: self::DEFAULT` for this. It also treats `0` and `'0'`
+as empty. Check for `null` and `''` explicitly.
+:::
+
+This is useful when an enum is bound to an entity. Leftover empty
+values or old strings in the database are converted when the entity
+reads them, so the rest of the code only sees current cases.
+
 ## Titles and Metadata
 
 Attributes such as `Title`, `Icon`, `Color`, `Meta`, and `Hidden`
