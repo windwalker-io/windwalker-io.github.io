@@ -247,7 +247,7 @@ class UserDto
         get => $this->user->email;  
     }
 
-    public string $address {
+    public UserAddress $address {
         get => $this->user->address;  
     }
 
