@@ -132,6 +132,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           ]
         },
         { text: 'Events', link: `/${frameworkRoutePrefix}/core-concepts/events` },
+        { text: 'Enum', link: `/${frameworkRoutePrefix}/core-concepts/enum` },
         { text: 'Filesystem', link: `/${frameworkRoutePrefix}/core-concepts/filesystem` },
         { text: 'Error Handling', link: `/${frameworkRoutePrefix}/core-concepts/error-handling` },
         { text: 'Logging', link: `/${frameworkRoutePrefix}/core-concepts/logging` },
