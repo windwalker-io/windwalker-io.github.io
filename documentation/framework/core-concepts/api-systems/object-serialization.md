@@ -224,6 +224,57 @@ The two kinds of record differ in one important way. A clean `Record`
 exposes every key it holds, while a `RecordTrait` class exposes only the
 properties you declare and expose.
 
+## DTO
+
+Modern PHP makes hand-written DTOs easy to build. Windwalker does not
+provide a dedicated DTO class for wrapping data. Use a custom class as
+the DTO instead.
+
+The following example is a DTO that wraps an entity:
+
+```php
+class UserDto
+{
+    public int $id {
+        get => $this->user->id;
+    }
+
+    public string $username {
+        get => $this->user->username;  
+    }
+
+    public string $email {
+        get => $this->user->email;  
+    }
+
+    public string $address {
+        get => $this->user->address;  
+    }
+
+    public function __construct(
+        protected User $user
+    ) {
+    }
+}
+
+// In controller
+return new UserDto($user);
+```
+
+The following example aggregates several sources into one DTO:
+
+```php
+return new ProjectPerformanceDto(
+    $project,
+    supervisorId: $supervisor->id,
+    supervisorName: $supervisor->name,
+    month: $month,
+    data: $this->performanceRepository->findByProject($project->id),
+    reporter: $this->userRepository->findByProject($project->id),
+);
+```
+
+
 ## DateTime Values
 
 Values of the framework `Chronos` class serialize to ISO 8601 strings:
