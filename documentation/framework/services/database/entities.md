@@ -17,13 +17,25 @@ layout: doc
   - 例如 created / modified / created_by / modified_by 等欄位的自動處理
   - computed property 的使用方式，如何在 entity 內部做一些自動化的欄位計算
   - 介紹一些 app 層內才能用的 attributes
-- Enum 欄位
-  - 如何搭配 Enum 來使用，並且在 entity 層面做一些自動化的轉換
-  - 介紹 Windwalker 的 Enum 類別，如何建立自己的 Enum 類別
-- JSON 欄位與結構化欄位
-  - 如何搭配 SQL json 欄位使用
-  - 如何將 json wrap 進 RecordInterface 為基礎的自訂物件中
-- DateTime 處理
+- 各類常用欄位類型
+  - Enum 欄位
+    - 如何搭配 Enum 來使用，並且在 entity 層面做一些自動化的轉換
+    - 介紹 Windwalker 的 Enum 類別，如何建立自己的 Enum 類別
+  - JSON 欄位與結構化 Record 欄位
+    - 會自動產生 #[JsonObject] ，但 Record type 要自己掛上去
+    - 如果需要 $[JsonArry]，也可以自己改
+    - 如何將 json wrap 進 RecordInterface 為基礎的自訂物件中
+  - DateTime 處理
+    - 會自動產生 Chronos 欄位
+    - 建議欄位 nullable 不要用 null-date
+    - serialize 後的格式
+    - 可以直接吃 zoned 的字串回來，用 ServerTimeCast 自動轉回 UTC
+  - Date
+    - 可以用 Temporal like 的 PlainDate 存放 (支援自動產生)
+  - Time
+    - 可以用 Temporal like 的 PlainTime 存放 (支援自動產生)
+  - String MonthDay
+    - 單純用 string 來存月日等格式，也可以用 Temporal like 的 PlainMonthDay 存放，只是要手動編寫
 - Entity 的 serialization
   - 參考 core-concepts/api-systems/object-serialization.md 
 - 任何你覺得值得追加的項目

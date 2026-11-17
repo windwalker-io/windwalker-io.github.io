@@ -4,21 +4,50 @@ layout: doc
 
 # DateTime
 
-## User Outline
+The DateTime package provides time handling for Windwalker applications.
+It replaces ad-hoc `DateTime` usage with a small set of classes that
+keep time zones explicit.
+Application code can read the current time, convert between the
+server and local time zones, and store dates without manual offset math.
 
-- Chronos 介紹
-  - 基本概念、用法
-  - 額外 properties 與 methods
-  - 與 DateTime 的差異
-  - helper 函式介紹
-  - 如何用在 Entity 內
-- Clock 介紹
-  - 基本概念、用法
-  - 各個 Clock 變體介紹
-- ChronosService 介紹
-  - 注入方式
-  - 時區設定與轉換
-  - properties 與 methods
-- Temporal Like API
-  - 建立新的 Temporal Like API 頁面 
-- 任何你覺得值得追加的項目
+## Overview
+
+The DateTime area has four main parts:
+
+- **Chronos**: an immutable date-time object that extends `DateTimeImmutable`.
+- **Clock**: a static source of "now", which can be replaced in tests.
+- **ChronosService**: a service that knows the application's local and
+  server time zones.
+- **Temporal-like types**: `PlainDate`, `PlainTime`, `PlainDateTime`,
+  and `Instant`, modeled after the TC39 Temporal proposal.
+
+`Chronos` is the object you will use most.
+`ChronosService` decides which time zone a value should be shown in.
+`Clock` decides what "now" means.
+
+## Topics
+
+- [Chronos](./datetime/chronos)
+- [Clock](./datetime/clock)
+- [ChronosService](./datetime/chronos-service)
+- [Temporal-like Types](./datetime/temporal-types)
+
+## Use as Standalone Component
+
+`Chronos` and `Clock` do not depend on the framework container.
+Create a value with the static `Chronos::wrap()` method.
+
+```php
+use Windwalker\Core\DateTime\Chronos;
+
+$date = Chronos::wrap('2026-05-01 10:00:00', 'Asia/Taipei');
+
+echo $date->format('Y-m-d H:i:s'); // 2026-05-01 10:00:00
+```
+
+## Use in Windwalker
+
+In a Windwalker application, `ChronosService` reads the
+`app.timezone` and `app.server_timezone` configuration values.
+Obtain it from the container or inject it into a constructor.
+See [ChronosService](./datetime/chronos-service) for details.

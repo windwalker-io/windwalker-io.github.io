@@ -160,7 +160,18 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         },
         { text: 'Cache', link: `/${frameworkRoutePrefix}/services/cache` },
         { text: 'Language', link: `/${frameworkRoutePrefix}/services/language` },
-        { text: 'DateTime', link: `/${frameworkRoutePrefix}/services/datetime` },
+        {
+          text: 'DateTime',
+          link: `/${frameworkRoutePrefix}/services/datetime`,
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: `/${frameworkRoutePrefix}/services/datetime` },
+            { text: 'Chronos', link: `/${frameworkRoutePrefix}/services/datetime/chronos` },
+            { text: 'Clock', link: `/${frameworkRoutePrefix}/services/datetime/clock` },
+            { text: 'ChronosService', link: `/${frameworkRoutePrefix}/services/datetime/chronos-service` },
+            { text: 'Temporal Types', link: `/${frameworkRoutePrefix}/services/datetime/temporal-types` },
+          ]
+        },
         { text: 'Form', link: `/${frameworkRoutePrefix}/services/form` },
         { text: 'Http Client', link: `/${frameworkRoutePrefix}/services/http-client` },
         { text: 'Mailer', link: `/${frameworkRoutePrefix}/services/mailer` },

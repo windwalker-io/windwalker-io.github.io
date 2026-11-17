@@ -149,6 +149,9 @@ namespace. Their methods are static, so call them directly.
 
 ### Arr
 
+[Arr](../../components/utilities/arr.md) is the array helper. Its full
+method reference is on its component page.
+
 `Arr::set()` sets a value on an array with a dot-separated key. It
 creates the nested keys when they are missing.
 
@@ -165,6 +168,9 @@ Arr::set($data, 'database.port', 3306);
 
 ### Str
 
+[Str](../../components/utilities/str.md) is the string helper. Its full
+method reference is on its component page.
+
 `Str::truncate()` shortens a string to a maximum length and can add a
 suffix. It breaks on a word boundary by default.
 
@@ -176,8 +182,9 @@ $summary = Str::truncate($article->body, 120, '...');
 
 ### Env
 
-`Env::get()` reads an environment variable. `Env::set()` writes both
-`$_SERVER` and `$_ENV`.
+[Env](../../components/utilities/helpers.md#environment) reads and sets
+environment variables. `Env::get()` reads an environment variable.
+`Env::set()` writes both `$_SERVER` and `$_ENV`.
 
 ```php
 use Windwalker\Utilities\Env;
@@ -194,9 +201,9 @@ to your services. This keeps the rest of the code easy to test.
 
 ### Path
 
-`Windwalker\Filesystem\Path` provides path cleaning and checks. Use it
-whenever you accept a file name from user input. See
-[Filesystem](./filesystem.md) for the safety rules.
+[Path](../../components/filesystem/path-utilities.md) provides path
+cleaning and checks. Use it whenever you accept a file name from user
+input. See [Filesystem](./filesystem.md) for the safety rules.
 
 ## Debug Helper: `ds()`
 
