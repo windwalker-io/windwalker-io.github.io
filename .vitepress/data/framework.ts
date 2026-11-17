@@ -112,12 +112,25 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
             { text: 'Authentication', link: `/${frameworkRoutePrefix}/core-concepts/security/authentication` },
             { text: 'Authorization', link: `/${frameworkRoutePrefix}/core-concepts/security/authorization` },
             { text: 'CSRF Protection', link: `/${frameworkRoutePrefix}/core-concepts/security/csrf-protection` },
+            { text: 'Content Security Policy', link: `/${frameworkRoutePrefix}/core-concepts/security/content-security-policy` },
             { text: 'Validation & Filter', link: `/${frameworkRoutePrefix}/core-concepts/security/validation` },
             { text: 'Encryption', link: `/${frameworkRoutePrefix}/core-concepts/security/encryption` },
             { text: 'Hashing', link: `/${frameworkRoutePrefix}/core-concepts/security/hashing` },
           ]
         },
-        { text: 'API Systems', link: `/${frameworkRoutePrefix}/core-concepts/api-systems` },
+        {
+          text: 'API Systems',
+          link: `/${frameworkRoutePrefix}/core-concepts/api-systems`,
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: `/${frameworkRoutePrefix}/core-concepts/api-systems` },
+            { text: 'JSON API Response', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/json-api` },
+            { text: 'Routing & Input', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/routing-and-input` },
+            { text: 'Error Codes', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/error-codes` },
+            { text: 'Middlewares & CORS', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/middlewares-and-cors` },
+            { text: 'Entity Serialization', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/entity-serialization` },
+          ]
+        },
         { text: 'Events', link: `/${frameworkRoutePrefix}/core-concepts/events` },
         { text: 'Filesystem', link: `/${frameworkRoutePrefix}/core-concepts/filesystem` },
         { text: 'Error Handling', link: `/${frameworkRoutePrefix}/core-concepts/error-handling` },

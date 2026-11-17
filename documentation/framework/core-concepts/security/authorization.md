@@ -126,25 +126,19 @@ policies are available as soon as the provider is added.
 
 ### Custom Policy Classes
 
-Implement `PolicyInterface` when a rule needs its own dependencies.
-The container resolves the class from the config entry, so the
-constructor can receive services:
+Implement `PolicyInterface` when a rule needs its own logic. The container
+can inject services into the class through its constructor, as the config
+entry resolves it:
 
 ```php
-// Designed app example. AccessService is provided by Luna.
-use Lyrasoft\Luna\Access\AccessService;
 use Windwalker\Authorization\PolicyInterface;
 
 class ArticleEditPolicy implements PolicyInterface
 {
-    public function __construct(
-        protected AccessService $accessService,
-    ) {
-    }
-
     public function authorize(mixed $user, mixed ...$args): bool
     {
-        if ($this->accessService->userIsRole($user, 'admin')) {
+        // Replace isAdmin() with the check in your own User class.
+        if ($user?->isAdmin()) {
             return true;
         }
 
@@ -168,24 +162,18 @@ Check for administrators first, then the ownership rule. Put the
 bypass in the policy so every caller gets it:
 
 ```php
-// Designed app example. AccessService is provided by Luna.
-use Lyrasoft\Luna\Access\AccessService;
 use Windwalker\Authorization\AuthorizationInterface;
 use Windwalker\Authorization\PolicyProviderInterface;
 
 class ArticlePolicyProvider implements PolicyProviderInterface
 {
-    public function __construct(
-        protected AccessService $accessService,
-    ) {
-    }
-
     public function register(AuthorizationInterface $auth): void
     {
         $auth->addPolicy(
             'article.delete',
             function (mixed $user, mixed ...$args): bool {
-                if ($this->accessService->userIsRole($user, 'admin')) {
+                // Replace isAdmin() with the check in your own User class.
+                if ($user?->isAdmin()) {
                     return true;
                 }
 
@@ -238,9 +226,9 @@ callable nor a `PolicyInterface`, throws an `InvalidArgumentException`.
 - `cannot($policy, $user = null, ...$args)`: the negation of `can()`.
 
 Pass the user as the second argument, and the policy arguments after it.
-If `$user` is `null`, `AuthService` asks the user retrieve handler for
-the current user. Luna sets this handler to its `UserService`. Without
-Luna, or another handler, the current user is `null`.
+`AuthService` does not look up the user for you. Get it with
+`AuthService::getUser()`, which calls the handler set by
+`setUserRetrieveHandler()`. The default handler returns `null`.
 
 ```php
 // Designed example: pass the user explicitly, then the arguments.

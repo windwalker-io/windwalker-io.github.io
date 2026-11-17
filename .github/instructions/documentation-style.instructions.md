@@ -22,6 +22,7 @@
 - Use containers sparingly. Do not mark routine details as warnings.
 - Do not document a bug as a reminder. Report it to the framework maintainers as an issue, with reproduction steps and the affected file and line, and document only the intended behavior.
 - Show a short, realistic code example for every case or variant. Do not describe a variant in one abstract sentence.
+- Show errors, exception messages, and status codes as code blocks next to the code that triggers them, using `// ERROR: ...` comments. Do not describe them in prose, for example `// ERROR: Throws Field "name" is missing in request.`.
 - To introduce the methods, properties, or syntax of a class, use one large code block with inline comments for each use case. Let the example carry the explanation, and avoid prose lists or tables for each member.
 - Present enumerations as bulleted lists, one item per line, with a short description when it helps.
 - Keep code lines at 75 characters or fewer. Break longer lines vertically, with one argument, array item, or chained call per line.

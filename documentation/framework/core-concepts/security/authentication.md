@@ -35,7 +35,7 @@ declare(strict_types=1);
 
 namespace App\Config;
 
-use Lyrasoft\Luna\Auth\LunaAuthMethod;
+use Windwalker\Core\Auth\Method\DatabaseMethod;
 use Windwalker\Core\Provider\AuthProvider;
 
 use function Windwalker\DI\create;
@@ -55,7 +55,7 @@ return [
     'factories' => [
         'methods' => [
             'database' => create(
-                LunaAuthMethod::class,
+                DatabaseMethod::class,
                 options: [],
             ),
         ],
@@ -83,7 +83,7 @@ class LoginService
 
 ## Complete Example
 
-A new starter app has no Luna method, so this example defines every method
+A new starter app has no built-in user entity, so this example defines every method
 itself. The config file `etc/conf/auth.config.php` lists two methods:
 `database` and `ldap`. Windwalker runs them in that order. The `database`
 method runs first. The `ldap` method runs only when the database method
@@ -208,9 +208,8 @@ to the table after a successful login. Make sure the table is writable by
 the application.
 :::
 
-The host's Luna method (`Lyrasoft\Luna\Auth\LunaAuthMethod`) follows the
-same pattern. It resolves the user table from `user.entity` through the
-ORM, and it accepts `email` as an extra login name by default.
+The config file `etc/conf/auth.config.php` lists the methods. The examples
+use the framework's `DatabaseMethod`, and an app can add its own class.
 
 ## Custom Methods
 
