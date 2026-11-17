@@ -165,6 +165,35 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
       ]
     },
     {
+      text: 'Frontend Integration',
+      items: [
+        {
+          text: 'Overview',
+          link: `/${frameworkRoutePrefix}/frontend/overview`,
+        },
+        {
+          text: 'Setup and Build',
+          link: `/${frameworkRoutePrefix}/frontend/setup`,
+        },
+        {
+          text: 'JavaScript Development',
+          link: `/${frameworkRoutePrefix}/frontend/javascript`,
+        },
+        {
+          text: 'Blade Macros',
+          link: `/${frameworkRoutePrefix}/frontend/blade-macros`,
+        },
+        {
+          text: 'Styles and Assets',
+          link: `/${frameworkRoutePrefix}/frontend/styles-and-assets`,
+        },
+        {
+          text: 'Dev Server and Live Reload',
+          link: `/${frameworkRoutePrefix}/frontend/dev-server`,
+        },
+      ]
+    },
+    {
       text: 'Packages',
       items: [
         { text: 'Package Installation', link: `/${frameworkRoutePrefix}/packages/package-installation` },

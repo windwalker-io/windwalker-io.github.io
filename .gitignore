@@ -12,9 +12,6 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Extra #
-!.gitkeep
-
 # Configuration #
 .env
 .env.local
@@ -34,3 +31,5 @@ Thumbs.db
 /tmp/*
 /.vitepress/tmp/*
 
+# Extra #
+!.gitkeep

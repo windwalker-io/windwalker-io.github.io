@@ -10,6 +10,12 @@ Input (one of these):
 - A set of existing documents (for example drafts, old pages, or notes) that the user points to. Use them as source material, but verify every API, option, and default against the source before using it. If these documents contain headings, treat them as the user's intended table of contents and follow that order where possible so readers can learn step by step. The order is not mandatory: add, merge, or change sections when it improves the manual. Headings only describe the topic to cover, so rewrite them into clear, polished headings suited to the manual's style.
 - A request to read the source code directly. Locate the package source as described below and build the documentation from it.
 
+User Outline:
+- If this prompt file or the user's input contains a "User Outline" section, treat it as the user's direct instructions for this task.
+- Follow the User Outline's structure, headings, page list, and order exactly. When it conflicts with the general rules below, the User Outline wins, except for the verification and style rules in `documentation-style.instructions.md`, which always apply.
+- Use the User Outline as the page structure. Do not add, merge, or reorder sections unless the User Outline allows it.
+- If the User Outline is missing details needed to write a section, ask the user before creating the file.
+
 Locating sources:
 - Follow `.github/skills/source-lookup/README.md` to locate the host app and read the package source, `README.md`, `docs/`, and the package's own instructions. Do not search the whole filesystem.
 
