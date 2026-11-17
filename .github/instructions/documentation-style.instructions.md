@@ -22,11 +22,12 @@
 - Use containers sparingly. Do not mark routine details as warnings.
 - Do not document a bug as a reminder. Report it to the framework maintainers as an issue, with reproduction steps and the affected file and line, and document only the intended behavior.
 - Show a short, realistic code example for every case or variant. Do not describe a variant in one abstract sentence.
+- To introduce the methods, properties, or syntax of a class, use one large code block with inline comments for each use case. Let the example carry the explanation, and avoid prose lists or tables for each member.
 - Present enumerations as bulleted lists, one item per line, with a short description when it helps.
 - Keep code lines at 75 characters or fewer. Break longer lines vertically, with one argument, array item, or chained call per line.
 - Before reporting a doc change as complete, check fenced blocks with awk for lines over 75 characters. Run `yarn build` when the change affects content, links, or navigation.
 - Component docs focus on standalone usage, because the package is installed alone in a user's project. Show the simplest entry point without the framework.
-- The Overview includes `Use as Standalone Component` and `Use in Windwalker` sections. The framework section may show DI. Assume DI is configured: do not create a `Container`. Obtain the component with `container->get()`, `app->retrieve()`, or `app->make()` for non-singletons, or inject it in a constructor. Follow the [component doc page template](../skills/templates/component-doc-page.md).
+- The Overview includes `Use as Standalone Component` and `Use in Windwalker` sections. The framework section may show DI. Assume DI is configured: do not create a `Container`. Obtain the component with `container->get()`, `app->retrieve()`, or `app->make()` for non-singletons, or inject it in a constructor. Follow the [component doc page template](../docs/templates/component-doc-page.md).
 - Topic pages mention the host app only as background, such as a config override. Do not repeat DI examples or command-line usage there. Link to the dedicated sections instead.
 - Keep the Overview short: the package, its main parts, and how they relate. Put details on topic pages.
 - Topic pages follow this narrative order, and no step may be skipped:
@@ -39,4 +40,4 @@
 - Keep prose short. Use one sentence per idea, state the rule first, and cut filler, repeated explanations, and restated headings. Never change code examples while shortening text.
 - Remove temporary files, scripts, and test pages created during the task.
 
-For how to locate and verify framework source, see [source-lookup/README.md](../skills/source-lookup/README.md). For the page structure, see [component-doc-page.md](../skills/templates/component-doc-page.md). For the reusable rewrite workflow, see [rewrite-docs.prompt.md](../prompts/rewrite-docs.prompt.md).
+For how to locate and verify framework source, see [source-lookup/README.md](../skills/source-lookup/README.md). For the page structure, see [doc-page.md](../docs/templates/doc-page.md), and for component Overviews, [component-doc-page.md](../docs/templates/component-doc-page.md). For the reusable rewrite workflow, see [rewrite-docs.prompt.md](../prompts/rewrite-docs.prompt.md).

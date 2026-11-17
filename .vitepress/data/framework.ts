@@ -112,7 +112,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
             { text: 'Authentication', link: `/${frameworkRoutePrefix}/core-concepts/security/authentication` },
             { text: 'Authorization', link: `/${frameworkRoutePrefix}/core-concepts/security/authorization` },
             { text: 'CSRF Protection', link: `/${frameworkRoutePrefix}/core-concepts/security/csrf-protection` },
-            { text: 'Validation', link: `/${frameworkRoutePrefix}/core-concepts/security/validation` },
+            { text: 'Validation & Filter', link: `/${frameworkRoutePrefix}/core-concepts/security/validation` },
             { text: 'Encryption', link: `/${frameworkRoutePrefix}/core-concepts/security/encryption` },
             { text: 'Hashing', link: `/${frameworkRoutePrefix}/core-concepts/security/hashing` },
           ]

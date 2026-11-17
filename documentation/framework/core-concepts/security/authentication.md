@@ -83,8 +83,63 @@ class LoginService
 
 ## Complete Example
 
-The following example is designed for this page. It uses the host's
-configured methods to check a login and returns the matched user data.
+A new starter app has no Luna method, so this example defines every method
+itself. The config file `etc/conf/auth.config.php` lists two methods:
+`database` and `ldap`. Windwalker runs them in that order. The `database`
+method runs first. The `ldap` method runs only when the database method
+does not succeed, and it receives the same credential array.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Config;
+
+use App\Auth\LdapMethod;
+use Windwalker\Core\Auth\Method\DatabaseMethod;
+use Windwalker\Core\Provider\AuthProvider;
+
+use function Windwalker\DI\create;
+use function Windwalker\ref;
+
+return [
+    'providers' => [
+        AuthProvider::class,
+    ],
+
+    'authentication' => [
+        'methods' => [
+            // Runs first.
+            'database' => ref('auth.factories.methods.database'),
+            // Runs only if the database method fails.
+            'ldap' => ref('auth.factories.methods.ldap'),
+        ],
+    ],
+
+    'factories' => [
+        'methods' => [
+            'database' => create(
+                DatabaseMethod::class,
+                options: [
+                    'table' => 'users',
+                    'login_name' => ['username', 'email'],
+                ],
+            ),
+            'ldap' => create(
+                LdapMethod::class,
+                host: env('LDAP_HOST'),
+            ),
+        ],
+    ],
+];
+```
+
+`App\Auth\LdapMethod` is the class from [Custom Methods](#custom-methods).
+Put the cheaper local source first, so most logins never reach the
+directory server.
+
+The service below checks the login and returns the matched user data:
 
 ```php
 use Windwalker\Core\Auth\AuthService;
@@ -117,10 +172,6 @@ class LoginService
     }
 }
 ```
-
-The host's login controller (`Lyrasoft\Luna\Module\Front\Auth\AuthController`)
-uses the same flow through `UserService::attemptToLogin()`, which is not
-part of this example.
 
 ## Built-in Database Method
 
@@ -220,21 +271,21 @@ every method that ran:
 
 ```php
 use Psr\Log\LoggerInterface;
+use Windwalker\Core\Application\AppContext;
 use Windwalker\Core\Auth\AuthService;
 
-class LoginService
+class LoginController
 {
-    public function __construct(
-        protected AuthService $auth,
-        protected LoggerInterface $logger,
-    ) {
-    }
-
-    public function login(string $username, string $password): bool
-    {
+    public function login(
+        AuthService $auth,
+        AppContext $app,
+        LoggerInterface $logger,
+        string $username,
+        string $password,
+    ): bool {
         $resultSet = null;
 
-        $result = $this->auth->authenticate(
+        $result = $auth->authenticate(
             [
                 'username' => $username,
                 'password' => $password,
@@ -243,19 +294,49 @@ class LoginService
         );
 
         if ($result === false) {
+            $userMessage = null;
+
             foreach ($resultSet->getResults() as $name => $item) {
-                $this->logger->info(
-                    "Auth method $name failed: " . $item->getStatus()
-                );
+                $detail = $item->exception?->getMessage()
+                    ?? $item->getStatus();
+                $message = "Auth method $name failed: $detail";
+
+                $logger->info($message);
+                
+                $userMessage ??= $this->getUserMessage($item);
             }
+            
+            // Show only the first error to the user.
+            $app->addMessage($userMessage, 'warning');
 
-            return false;
+            return $app->nav->back();
         }
+        
+        $app->addMessage('Login successful', 'success');
 
-        return true;
+        return $app->to('home');
+    }
+    
+    protected function getUserMessage(AuthResult $result): ?string
+    {
+        return match ($result->getStatus()) {
+            AuthResult::EMPTY_CREDENTIAL
+                => 'Please enter a username and password.',
+            AuthResult::USER_NOT_FOUND,
+            AuthResult::INVALID_PASSWORD,
+            AuthResult::INVALID_CREDENTIAL
+                => 'Invalid username or password.',
+            default => null,
+        };
     }
 }
 ```
+
+::: warning
+The message names the method and its status, which can reveal whether a
+username exists. Use `AppContext::addMessage()` for debugging only, and
+remove it before the app goes to production.
+:::
 
 Methods run in the order of the configuration. If one method fails, the
 next one is tried. The first `SUCCESS` ends the chain, and the failures of
@@ -270,6 +351,66 @@ as "Invalid username or password."
 Do not show `USER_NOT_FOUND` and `INVALID_PASSWORD` to end users. Those
 two messages let attackers find which usernames exist.
 :::
+
+## Result Objects
+
+Each method returns an `AuthResult`. `AuthService` collects them in a
+`ResultSet`. The example below shows what each method is for:
+
+```php
+use Windwalker\Authentication\AuthResult;
+use Windwalker\Authentication\ResultSet;
+
+$credential = ['username' => 'alice', 'password' => 'secret'];
+
+// Build one result per method. Use the status constant that matches
+// why the attempt failed, or the named factory methods.
+$failed = new AuthResult(AuthResult::INVALID_PASSWORD, $credential);
+$ok = AuthResult::success($credential);
+$error = AuthResult::authorizeFail(
+    $credential,
+    new RuntimeException('Role missing'),
+);
+
+// AuthResult::status holds the raw status string, such as 'SUCCESS'.
+$status = $ok->status;
+$ok->getStatus();          // Same value, through a getter.
+$ok->isSuccess();          // True only for SUCCESS.
+$failed->isFailure();      // True for every other status.
+$error->getException();    // The Throwable, or null.
+$error->exception;         // Public property, same value.
+$ok->getCredential();      // The array the method received.
+
+// A ResultSet is keyed by method name. addResult() returns the set,
+// so calls can be chained.
+$resultSet = new ResultSet([
+    'database' => $failed,
+]);
+$resultSet->addResult('ldap', $ok);
+
+$resultSet->isSuccess();        // True if any method succeeded.
+$resultSet->isFailure();        // The reverse.
+$resultSet->count();            // Number of methods that ran.
+$resultSet->first();            // The first result, whatever its status.
+$resultSet->getFirstSuccess();  // The first SUCCESS, or null.
+$resultSet->getFirstFailure();  // The first failure, or null.
+$resultSet->getResults();       // All results, keyed by method name.
+
+// Loop over the results for logging.
+foreach ($resultSet as $name => $result) {
+    echo $name . ': ' . $result->getStatus();
+}
+
+// The auth flow sets matchedMethod when a method succeeds.
+$resultSet->matchedMethod = 'ldap';
+$resultSet->getMatchedMethod();  // 'ldap'
+$resultSet->getMatchedResult();  // The 'ldap' AuthResult.
+```
+
+`AuthResult` also has factory methods named after each status, such as
+`userNotFound()`, `emptyCredential()`, `invalidUsername()`, and
+`invalidCredential()`. An unknown method name throws a
+`BadMethodCallException`.
 
 ## Details
 

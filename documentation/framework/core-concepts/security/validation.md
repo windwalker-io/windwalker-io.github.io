@@ -1,9 +1,9 @@
 ---
 layout: doc
-title: Validation & Filtering
+title: Validation & Filter
 ---
 
-# Validation & Filtering
+# Validation & Filter
 
 Input from forms, query strings, and APIs is untrusted. Windwalker splits
 the work into two steps:
@@ -14,7 +14,7 @@ the work into two steps:
 
 Both are driven by the same rule names, so one syntax string can do either.
 
-## Minimal Usage
+## Quick Start
 
 Call the global `filter()` and `validate()` functions. Both delegate to
 `FilterService`, the service that owns the rule factory:
@@ -47,7 +47,16 @@ $filter = $container->get(FilterService::class);
 $filter->validate($input['age'], 'int', strict: true);
 ```
 
-For request-level rules, such as attributes on route handlers, see
+The rule argument must be a string or an array. First-class callables such
+as `strval(...)` are not accepted here:
+
+::: info
+Callables work only in the lower-level API. Pass them to
+`FilterFactory::createChainFromSyntax()` as clauses in an array, which the
+factory wraps in a `CallbackFilter`.
+:::
+
+For request-level rules, such as route attributes, see
 [Validation and Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter).
 The [Filter component](/documentation/components/filter/) documents the
 rule engine itself.
@@ -94,22 +103,58 @@ function registerUser(array $input): array
 
 Keep `$e->getMessage()` for developers. Show users a generic message.
 
-## Filter Rules
+## Rule Reference
 
-Filter rules return a transformed value. They do not reject input.
+Every rule name the `FilterService` factory registers is listed below.
+Chain rules with `|`. Pass parameters with `name(key: value)`.
 
-- `string`, `int`, `float`, `bool`, `array`, `object`: cast to that type.
-- `alnum`: keeps `A-Z`, `a-z`, and `0-9`.
-- `cmd`: keeps letters, digits, `_`, `.`, and `-`.
-- `words`: keeps letters and `_`. Digits and spaces are removed.
-- `email`: removes characters that are not valid in an email address.
-- `url`: removes characters that are not valid in a URL.
-- `abs`: returns the absolute value.
-- `neg`: returns the negative of the value.
-- `func(name)`: applies a callable by name.
-- `default(value)`: replaces an empty value with `value`.
+```php
+// Scalar and type rules
+'abs'                 // absolute value
+'neg'                 // negative value
+'raw'                 // no cleaning; validates only
+'required'            // fails on empty input
+'string'              // also string([strict])
+'int'                 // also int([strict])
+'float'               // also float([strict])
+'bool'                // also bool([strict])
+'array'               // also array([strict])
+'object'              // also object([strict])
 
-Examples:
+// Character rules
+'alnum'               // keeps A-Z, a-z, 0-9
+'cmd'                 // keeps letters, digits, _ . -
+'words'               // keeps letters and _
+'email'               // email address characters
+'url'                 // URL characters
+
+// Network address rules
+'ip'                  // IPv4 or IPv6 address
+'ipv4'                // IPv4 address
+'ipv6'                // IPv6 address
+
+// Parameterized rules
+'range(min: 1, max: 10)'   // clamps numbers to bounds (same as clamp)
+'clamp(min: 1, max: 10)'   // clamps numbers to bounds
+'length(max: 50)'          // maximum length, UTF-8 by default
+'regex(regex: "/\\d+/", type: "match")'   // match or replace
+'default(guest)'           // value used when input is empty
+'func(strtolower)'         // named callable
+```
+
+::: info
+`range` extends `clamp` and has the same behavior. Use either name.
+:::
+
+## Filtering
+
+Filter rules return a transformed value. They never reject input. Each
+character rule keeps only the characters it names:
+
+- `alnum` keeps `A-Z`, `a-z`, and `0-9`.
+- `cmd` keeps letters, digits, `_`, `.`, and `-`.
+- `words` keeps letters and `_`, so digits and spaces are removed.
+- `email` and `url` remove characters that are invalid in that format.
 
 ```php
 $filter->filter('Hello World 9', 'words');   // 'HelloWorld'
@@ -119,9 +164,7 @@ $filter->filter('ABCdef', 'func(strtolower)'); // 'abcdef'
 $filter->filter(null, 'default(guest)');     // 'guest'
 ```
 
-### Parameterized Filters
-
-`length` and `regex` filter by changing the value:
+Parameterized rules change the value with their options:
 
 ```php
 // Truncate to 3 characters
@@ -136,7 +179,7 @@ $filter->filter('a1b22', "regex(regex: '/\\d+/', type: 'replace')");
 // 'ab'
 ```
 
-`range` clamps numbers to the bounds:
+`range` and `clamp` limit numbers to the bounds:
 
 ```php
 $filter->filter(20, 'range(min: 1, max: 10)');  // 10
@@ -148,25 +191,15 @@ $filter->filter(0, 'range(min: 1, max: 10)');   // 1
 value silently. Call `validate()` when out-of-range input must be rejected.
 :::
 
-## Validate Rules
+## Validation
 
 Validation rules throw `ValidateException` when the value fails. A value
-passes when filtering does not change it.
-
-- `required`: fails on an empty string or `null`.
-- `int`, `string`, and other casts: pass when the value is already that
-  type, or when it converts cleanly. A numeric string such as `'25'`
-  passes `int` with the default comparison.
-- `email`: fails when the value contains characters or formatting an
-  email address cannot have. A trailing space fails.
-- `length(max: n)`: fails when the string is longer than `n`.
-- `range(min: n, max: m)`: fails when the number is outside the bounds.
-- `regex(regex: '...', type: 'replace')`: fails when the pattern matches.
-- `raw`: always passes.
+passes when filtering does not change it. A numeric string such as `'25'`
+passes `int` with the default comparison.
 
 ```php
-validate('', 'required');                   // throws
-validate('150', 'range(min: 13, max: 120)'); // throws
+validate('', 'required');                       // throws
+validate('150', 'range(min: 13, max: 120)');    // throws
 validate('25', 'int|range(min: 13, max: 120)'); // passes
 ```
 
@@ -179,7 +212,7 @@ so it is never a safe default. For HTML output, escape values with
 `htmlspecialchars()` or your template engine. Filtering is not escaping.
 :::
 
-## Array Input
+## Validating a Payload
 
 Pass an array of `field => rules` pairs to validate a whole payload.
 Fields without a rule are not checked:
@@ -212,11 +245,9 @@ code, such as IDs or flags, where a string would be a bug.
 
 ## Error Handling
 
-- `validate()` returns `true` when the value passes.
 - `validate()` throws `Windwalker\Filter\Exception\ValidateException` on the
-  first failing rule in a chain.
-- `ValidateException` extends `UnexpectedValueException`. Catch it to
-  show a message, or let it bubble up to your error handler.
+  first failing rule in a chain. Catch it to show a message, or let it
+  reach your error handler.
 - `filter()` never throws for bad input. It returns a changed value.
 
 ::: tip

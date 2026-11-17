@@ -6,12 +6,10 @@ This directory holds reusable operational knowledge and task-oriented guidance f
 
 - build and validation workflows
 - content conventions for docs changes
-- architecture-oriented repository patterns
 - reusable task and prompt templates
 
 ## Organization
 
-- `architecture/`: system-level and design guidance
 - `build/`: commands and validation workflow
 - `browser-testing/`: inspecting rendered pages with `playwright-core` (includes a reusable example script)
 - `source-lookup/`: locating the host app and framework source, and verifying APIs against it

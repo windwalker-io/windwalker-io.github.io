@@ -1,6 +1,6 @@
 # Component doc Overview page template
 
-Use this template when writing the `Overview` page for a component or package. The Overview is a guide to the package: what it is for, how its main parts relate, and where to go next. Feature details belong on topic pages. Replace each bracketed placeholder and remove sections that do not apply.
+Use this template when writing the `Overview` page for a component or package. For all other pages, follow `.github/docs/templates/doc-page.md`. The Overview is a guide to the package: what it is for, how its main parts relate, and where to go next. Feature details belong on topic pages. Replace each bracketed placeholder and remove sections that do not apply.
 
 ```md
 ---

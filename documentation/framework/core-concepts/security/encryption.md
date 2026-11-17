@@ -23,9 +23,6 @@ The Crypt package provides the cipher and the value objects around it:
 - `Key`: a key object. It extends `HiddenString`.
 - `HiddenString`: holds a sensitive value. Call `get()` to read it.
 
-`OpensslCipher` is legacy. Its constructor throws on OpenSSL 3.0 and later,
-so do not use it on current systems.
-
 ## Minimal Usage
 
 Create a `SodiumCipher`, generate a key, and pass the same key to `encrypt()`
@@ -178,37 +175,53 @@ class TokenRepository
 ## Key Rotation
 
 When you rotate a key, data encrypted with the old key must still decrypt.
-Keep the old keys, encrypt with the newest, and try each key on decrypt.
-The following wrapper is a design of this manual. It catches only
-`UnexpectedValueException`, which `SodiumCipher` throws when the
-authentication check fails for the key:
+`RotatingCipher` is a design of this manual, not a built-in class. It
+implements `CipherInterface`, so it can replace `SodiumCipher` anywhere that
+interface is type-hinted. Its constructor takes only the old keys. The current
+key is passed to `encrypt()` and `decrypt()` as usual.
+
+`decrypt()` tries the key you pass first, then each old key. It catches only
+`UnexpectedValueException`, which `SodiumCipher` throws when the authentication
+check fails:
 
 ```php
+use Windwalker\Crypt\HiddenString;
+use Windwalker\Crypt\Key;
 use Windwalker\Crypt\Symmetric\CipherInterface;
+use Windwalker\Crypt\Symmetric\SodiumCipher;
 
-class RotatingCipher
+class RotatingCipher implements CipherInterface
 {
+    protected SodiumCipher $cipher;
+
     /**
-     * @param  string[]  $keyStrings  Newest key first.
+     * @param  string[]|Key[]  $oldKeys  Keys retired by rotation.
      */
     public function __construct(
-        protected CipherInterface $cipher,
-        protected array $keyStrings,
+        protected array $oldKeys = [],
     ) {
+        $this->cipher = new SodiumCipher();
     }
 
-    public function encrypt(string $value): string
-    {
-        return $this->cipher->encrypt($value, $this->keyStrings[0]);
+    public function encrypt(
+        HiddenString|string $str,
+        Key|string $key,
+        string|callable $encoder = ENCODER_BASE64URLSAFE
+    ): string {
+        // Always write with the current key, never with an old one.
+        return $this->cipher->encrypt($str, $key, $encoder);
     }
 
-    public function decrypt(string $encrypted): string
-    {
-        foreach ($this->keyStrings as $keyString) {
+    public function decrypt(
+        string $str,
+        Key|string $key,
+        string|callable $encoder = ENCODER_BASE64URLSAFE
+    ): HiddenString {
+        $keys = [$key, ...$this->oldKeys];
+
+        foreach ($keys as $candidate) {
             try {
-                return $this->cipher
-                    ->decrypt($encrypted, $keyString)
-                    ->get();
+                return $this->cipher->decrypt($str, $candidate, $encoder);
             } catch (\UnexpectedValueException) {
                 // Wrong key for this value; try the next one.
             }
@@ -216,7 +229,20 @@ class RotatingCipher
 
         throw new \RuntimeException('No key could decrypt the value.');
     }
+
+    public static function generateKey(?int $length = null): Key
+    {
+        return SodiumCipher::generateKey($length);
+    }
 }
+
+// Current key is the newest; old keys stay until no record uses them.
+$cipher = new RotatingCipher(oldKeys: [$oldKeyString]);
+
+$encrypted = $cipher->encrypt('api-token-123', $newKeyString);
+
+// Decrypts with $newKeyString, or falls back to $oldKeyString.
+$plain = $cipher->decrypt($legacyEncrypted, $newKeyString)->get();
 ```
 
 ::: tip
@@ -225,8 +251,8 @@ an old key only after no record depends on it.
 :::
 
 ::: warning
-A malformed encrypted string raises a different exception, which this wrapper
-does not catch. This is intended, so corrupt data is not skipped silently.
+The wrapper cannot tell a wrong key from corrupt data. Both fail the MAC
+check, so both end in the `RuntimeException` after every key is tried.
 :::
 
 ## Use in Windwalker

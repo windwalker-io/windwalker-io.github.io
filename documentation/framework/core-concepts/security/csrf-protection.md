@@ -103,31 +103,32 @@ methods and functions only. To check a group of routes, add
   `put`, `patch`, and `delete`.
 - `inputMethod`: the input source for the token on non-API requests.
 - `invalidMessage`: the message of the exception on failure.
-- `onInvalid`: a callback that runs instead of throwing the exception.
+
+Attach it to a route or a group with `middleware()`. Pass the options as
+named arguments; the class is resolved through DI:
 
 ```php
+<?php
+
 use Windwalker\Core\Middleware\CsrfMiddleware;
 
-$middleware = new CsrfMiddleware(
-    excludes: ['/webhooks/*'],
-    workingMethods: ['post', 'delete'],
-    invalidMessage: 'The form expired. Reload the page and try again.',
-);
+/** @var RouteCreator $router */
+
+$router->group('member')
+    ->prefix('/member')
+    ->middleware(
+        CsrfMiddleware::class,
+        excludes: ['/webhooks/*'],
+        workingMethods: ['post', 'delete'],
+        invalidMessage: 'The form expired. Reload and retry.',
+    )
+    ->register(function (RouteCreator $router) {
+        // ...
+    });
 ```
 
 A string that starts with `/` is matched against the request URI, and
 `*` works as a wildcard. Other strings are matched against route names.
-
-```php
-use Windwalker\Core\Middleware\CsrfMiddleware;
-
-// Example design: show a message and redirect instead of a 403 error.
-$middleware = new CsrfMiddleware(
-    onInvalid: function (): void {
-        // Redirect or render a page here.
-    },
-);
-```
 
 ::: tip
 Use `excludes` for a specific route, such as a webhook that sends its
@@ -150,21 +151,33 @@ A form field sent in the body is not accepted for API calls.
 ## Forms
 
 - `@csrf` (Edge): renders a hidden `anticsrf` field with the token.
+- `<x-csrf />`: the component form of `@csrf`. It resolves to the same
+  `layout.security.csrf` view, so it works without Unicorn.
 - `CsrfService::input()`: returns the same hidden field as an element
   object for forms built in PHP.
 
-## Unicorn Integration
+## Sending the Token from JavaScript
 
-Unicorn exposes the token from the session in its page data and sends it
-in the `X-CSRF-Token` header on every request made by its `http-client`.
+AJAX requests cannot use the hidden field. Send the token in the
+`X-CSRF-Token` header. Render the token into a `<meta>` tag in your layout
+and read it in JavaScript:
 
-Unicorn's form helper adds the hidden `anticsrf` field only when it
-creates the form itself. Forms rendered by Edge get the field from
-`@csrf`.
+```blade
+<?php
 
-For a plain `fetch()` call, read the token and send it in the header:
+use Windwalker\Core\Security\CsrfService;
+
+$csrf = $app->retrieve(CsrfService::class);
+?>
+
+<meta name="csrf-token" content="{{ $csrf->getToken() }}">
+```
 
 ```js
+const csrfToken = document
+    .querySelector('meta[name="csrf-token"]')
+    .getAttribute('content');
+
 const response = await fetch('/api/posts', {
     method: 'POST',
     headers: {
@@ -175,7 +188,14 @@ const response = await fetch('/api/posts', {
 });
 ```
 
-Example design: `csrfToken` comes from the server-rendered page data.
+::: info
+The token is stored in the session, so it stays the same for the whole
+session. Reading it in a layout does not change it.
+:::
+
+With Unicorn, you do not need the `<meta>` tag. `useHttpClient()` adds
+the `X-CSRF-Token` header to every axios request automatically. See the
+Unicorn RAD documentation for details.
 
 ## Using CsrfService Directly
 
@@ -219,17 +239,3 @@ If no session is available, `CsrfService` treats the check as passed and
 the token is an empty string. The protection is silently disabled, so
 make sure sessions are enabled on every route that needs the check.
 :::
-
-## CORS Is Not a CSRF Defense
-
-CORS (Cross-Origin Resource Sharing) controls which origins may read the
-responses of your API. It does not stop another site from sending a
-request. Keep CSRF checks on for every request that changes data, even
-when CORS is configured.
-
-::: info
-Windwalker includes a `CorsMiddleware` class with the options `enabled`,
-`allow_origins`, `configure`, and `send_instantly`. Its route wiring is
-not covered on this page.
-:::
-

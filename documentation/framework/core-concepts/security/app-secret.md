@@ -17,15 +17,18 @@ see [environment variables](/documentation/framework/core-concepts/applications/
 
 ## Minimal Setup
 
-Generate a secret with the `crypt:secret` command:
+The framework generates `APP_SECRET` automatically when the application
+is first set up. You only need to generate a new value when you rotate
+the secret. Use the `crypt:secret` command with `--replace` to write the
+new value into `.env` without pasting it by hand:
 
 ```bash
-php windwalker crypt:secret
+php windwalker crypt:secret --replace
 ```
 
 The command prints a random value with the `base64url:` prefix. The
-prefix tells the framework how to decode it. Add the output to your
-environment file:
+prefix tells the framework how to decode it. Without `--replace`, add
+the printed output to your environment file:
 
 ```dotenv
 # .env.local
@@ -45,6 +48,18 @@ return [
 `crypt:secret --replace` writes to `.env` by default, not `.env.local`.
 Use `--output` to write the value to a file of your choice.
 :::
+
+If you run this command without `--replace`, the output is a plain random value, so you can also use it
+outside the application:
+
+- Copy it by hand into a secret or key setting of another system.
+- Change the encoding format with the command options when the target
+  system expects a different format.
+- Omit the prefix when the consumer does not expect `base64url:`.
+
+Run `php windwalker crypt:secret --help` to see the available options.
+Without `--replace`, the command works as a simple password or key
+generator.
 
 ## A Complete Example
 
@@ -73,6 +88,10 @@ class DownloadSigner
 The service receives the keeper through its constructor, so the
 application container supplies it. The derived key differs from the root
 secret and from keys derived for other purposes.
+
+`getSecret()` is also available on `AppContext` and `ApplicationInterface`.
+Inject `SecretKeeperInterface` when you do not want to depend on the whole
+application. The service then depends only on the secret.
 
 ## A Complete Example
 
@@ -120,6 +139,11 @@ $key = $secrets->getSecret(KeyPurpose::DOWNLOAD_LINK);
 
 Without a name, `getSecret()` returns the decoded root secret. Use that
 form only when a library needs the raw value.
+
+::: tip
+Do not use the raw root secret directly, for any purpose. Derive a new
+key with a purpose name instead, so each use gets its own key.
+:::
 
 The framework itself uses this pattern. `TaskPayload` signs task
 payloads with a key derived for the `task.run` purpose.

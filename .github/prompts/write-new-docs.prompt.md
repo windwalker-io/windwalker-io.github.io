@@ -21,11 +21,12 @@ Locating sources:
 
 Step 0 (mandatory, before writing anything):
 - Read `.github/instructions/documentation-style.instructions.md` in full.
-- If the scope is a component, also read `.github/skills/templates/component-doc-page.md` in full.
+- Always read `.github/docs/templates/doc-page.md` in full.
+- If the scope is a component, also read `.github/docs/templates/component-doc-page.md` in full.
 - Reply with a short list of the rules you will apply, including where reminders go and the line-length limit, before creating any file.
 
 - Follow `.github/instructions/documentation-style.instructions.md` for writing rules.
-- If the scope is a component, follow `.github/skills/templates/component-doc-page.md` for page structure. Otherwise, follow the structure of the existing pages in the same area under `documentation/`.
+- If the scope is a component, follow `.github/docs/templates/component-doc-page.md` for page structure. Otherwise, follow `.github/docs/templates/doc-page.md` and the structure of the existing pages in the same area under `documentation/`.
 - Study the Overview sections of existing pages in the same area (for component scope, under `documentation/components/`) to match tone and layout.
 - For component packages, focus on standalone usage (without the framework). In the Overview, include the main framework entry point (DI examples are allowed there). On topic pages, mention framework-level behavior only briefly as background, for example when a config setting can control it. Do not write large DI, service provider, or command-line examples on topic pages; those belong to their own dedicated section.
 

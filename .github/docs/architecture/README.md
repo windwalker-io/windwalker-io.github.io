@@ -19,3 +19,7 @@ This repo is a VitePress documentation site for the Windwalker PHP framework. Ke
 - `.github/workflows/deploy.yml` for deployment
 
 Keep these files aligned when changing docs structure or navigation.
+
+## Topic notes
+
+- [llms-output.md](./llms-output.md): how `llms.txt`, page `.md` copies, and the skills zip are generated.

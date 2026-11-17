@@ -11,8 +11,8 @@ This directory stores project documentation that is meant for contributors, agen
 
 ## Organization
 
-- `architecture/`: high-level architecture and repository context
-- `templates/`: reusable doc and task templates
+- `architecture/`: high-level architecture and repository context, including `llms-output.md` (generated llms.txt, page `.md` copies, and skills zip)
+- `templates/`: reusable doc templates (`doc-page.md`, `component-doc-page.md`)
 
 ## Maintenance
 

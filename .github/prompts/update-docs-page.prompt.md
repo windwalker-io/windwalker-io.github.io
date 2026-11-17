@@ -6,7 +6,7 @@ Requirements:
 2. Before writing, research the real usage as described in "Reading real usage for documentation" in `.github/skills/source-lookup/README.md`. Do not search the whole filesystem.
 3. Complete the whole section, not only the sentence the user wrote. Fix nearby gaps that the research shows, and add missing examples, but do not change unrelated sections.
 3a. When completing information the user provided, do not stop at a brief explanation or summary. For each usage scenario, add a realistic code example and a full scenario description: the problem, the setup, the code that runs end to end, and what the reader gets from it. Ground every example in the source and tests.
-4. Follow `.github/instructions/documentation-style.instructions.md` for all writing, reminder, and formatting rules, including the code line length limit and the ban on the word "Pitfall".
+4. Follow `.github/instructions/documentation-style.instructions.md` for all writing, reminder, and formatting rules, including the code line length limit and the ban on the word "Pitfall". For page structure and how to introduce methods or syntax, follow `.github/docs/templates/doc-page.md`.
 5. Do not change framework or host app source code.
 6. Keep frontmatter unchanged unless the change requires it.
 
