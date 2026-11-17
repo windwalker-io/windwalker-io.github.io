@@ -127,8 +127,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
             { text: 'JSON API Response', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/json-api` },
             { text: 'Routing & Input', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/routing-and-input` },
             { text: 'Error Codes', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/error-codes` },
-            { text: 'Middlewares & CORS', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/middlewares-and-cors` },
-            { text: 'Entity Serialization', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/entity-serialization` },
+            { text: 'CORS', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/cors` },
+            { text: 'Object Serialization', link: `/${frameworkRoutePrefix}/core-concepts/api-systems/object-serialization` },
           ]
         },
         { text: 'Events', link: `/${frameworkRoutePrefix}/core-concepts/events` },

@@ -37,6 +37,30 @@ the response `code`:
 throw new ApiException('User not found', 'USER_NOT_FOUND', 404);
 ```
 
+::: tip
+A string `code` is the most useful field for the frontend. Each failure can
+carry its own name, such as `USER_NOT_FOUND` or `EMAIL_TAKEN`, so client
+code branches on the cause instead of parsing the message or status:
+
+```js
+const res = await fetch('/api/users/' + id);
+const body = await res.json();
+
+if (!body.success) {
+    switch (body.code) {
+        case 'USER_NOT_FOUND':
+            showNotFound();
+            break;
+        case 'EMAIL_TAKEN':
+            showEmailField();
+            break;
+        default:
+            showGenericError(body.message);
+    }
+}
+```
+:::
+
 ## Defining error codes with an enum
 
 For a set of errors shared across endpoints, define a backed enum. Put

@@ -240,6 +240,28 @@ only fragments you control, such as a generated block of markup. Do not
 run them over a whole page or untrusted user input.
 :::
 
+## Static Files Served by the Web Server
+
+`SimpleCspMiddleware` only adds the header to responses that PHP
+returns. Files that Apache or Nginx serve directly, such as CSS, JS, and
+images, do not need their own CSP header. The page's policy controls
+whether the browser may load them.
+
+Static `.html` files are different. They bypass PHP, so they get no
+header and the browser applies no policy. Add the header in the web
+server config for those files:
+
+```nginx
+location ~* \.html$ {
+    add_header Content-Security-Policy "default-src 'self'";
+}
+```
+
+::: warning
+Without a header, a static HTML page runs with no CSP protection, and
+nothing reports an error.
+:::
+
 ## Disabling the Policy
 
 Set `enabled: false` to skip both the nonce and the header. This is

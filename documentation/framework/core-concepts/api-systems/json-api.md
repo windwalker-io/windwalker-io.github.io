@@ -79,6 +79,27 @@ class UserController
 ```
 
 A response with a non-JSON `Content-Type` is also returned unchanged.
+Attachment responses use `application/octet-stream` by default, so they
+pass through the same way:
+
+```php
+use Windwalker\Core\Attributes\JsonApi;
+use Windwalker\Http\Response\AttachmentResponse;
+
+#[JsonApi]
+public function export(): AttachmentResponse
+{
+    $file = \Windwalker\fs('users.csv')->getStream();
+
+    return (new AttachmentResponse($file))
+        ->withFilename('users.csv')
+        ->withContentType('text/csv');
+}
+```
+
+Because redirects and attachments skip both the envelope and the JSON
+headers, when you have multiple routes wrapped in `JsonApiMiddleware` scope, 
+you can still return these responses without breaking the API.
 
 Return a `JsonResponse` when you need a specific status code:
 

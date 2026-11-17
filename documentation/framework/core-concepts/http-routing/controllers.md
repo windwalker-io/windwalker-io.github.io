@@ -412,6 +412,190 @@ cannot see the dependency at a glance. Use a method argument when only one
 method needs the service.
 :::
 
+### Calling Internal Methods with `call()`
+
+A helper method on a controller can also need several services. Instead of
+passing each service by hand, call the method with `AppContext::call()`.
+The container resolves every type-hinted parameter:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Module\Front\Post;
+
+use Windwalker\Core\Attributes\Controller;
+use Windwalker\Core\Application\AppContext;
+
+#[Controller]
+class PostController
+{
+    public function index(AppContext $app): string
+    {
+        // Auto-injects PostService; $page is set manually.
+        return $app->call($this->renderList(...), ['page' => 2]);
+    }
+
+    protected function renderList(
+        PostService $posts,
+        int $page = 1,
+    ): string {
+        return $posts->renderPage($page);
+    }
+}
+```
+
+Parameters that are not type-hinted services are matched by name. The
+`['page' => 2]` argument overrides `$page` and replaces its default value.
+Use this to pass a value into a method without changing its signature.
+
+## Calling Other Controllers (HMVC)
+
+HMVC means one controller calls another controller directly, inside the same
+request. Use it to reuse a full controller action, such as rendering a
+sidebar from another page's controller. Create the target controller with
+`make()`, then call the method with `call()`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Module\Front\Post;
+
+use Windwalker\Core\Application\AppContext;
+use Windwalker\Core\Attributes\Controller;
+use Windwalker\Core\Attributes\Request\BodyValue;
+
+#[Controller]
+class PostController
+{
+    public function index(AppContext $app): string
+    {
+        $sidebar = $app->make(SidebarController::class);
+
+        return $app->call($sidebar->show(...), ['category' => 'news']);
+        // Sidebar: news
+    }
+}
+
+#[Controller]
+class SidebarController
+{
+    public function show(
+        #[BodyValue]
+        string $category,
+    ): string {
+        return "Sidebar: {$category}";
+    }
+}
+```
+
+`make()` creates a new controller object each time, so each call gets a
+fresh instance. The `['category' => 'news']` argument supplies the value
+that `#[BodyValue]` would otherwise read from the request.
+
+### Use `dispatchController()`
+
+The `dispatch*()` methods run a controller as a full request. They pick the
+task, apply task mapping, and handle the return value. `call()` only runs one
+method, and it skips that routing step.
+
+Use `dispatchController()` when the target method reads its values from
+attributes such as `#[BodyValue]` and `#[QueryParam]`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Module\Front\Post;
+
+use Windwalker\Core\Application\AppContext;
+
+class PostPage
+{
+    public function show(AppContext $app): string
+    {
+        // Attribute values come from the current request.
+        return $app->dispatchController(
+            [SidebarController::class, 'show'],
+        );
+    }
+}
+```
+
+`input()` is read-only in a controller. It returns values from the current
+request and cannot inject new ones. To pass values that the method reads from
+`input()`, or from attributes, use `dispatchWithInput()` with an array. The
+array replaces the request's body:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Module\Front\Post;
+
+use Windwalker\Core\Application\AppContext;
+
+class PostPage
+{
+    public function show(AppContext $app): string
+    {
+        return $app->dispatchWithInput(
+            [SidebarController::class, 'show'],
+            ['category' => 'news'],
+        );
+    }
+}
+```
+
+To simulate a complete request, pass a `ServerRequestInterface` instead of
+an array. The target controller then sees the headers, query, body, and
+route values of that request:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Module\Front\Post;
+
+use Windwalker\Core\Application\AppContext;
+use Windwalker\Http\Factory\ServerRequestFactory;
+
+class PostPage
+{
+    public function show(AppContext $app): string
+    {
+        // Build a new Request
+        $request = new ServerRequestFactory()->createServerRequest(
+            'POST',
+            '/sidebar',
+        )->withParsedBody(['category' => 'news']);
+        
+        // Or modify current request to simulate a new request.
+        $request = $app->getAppRequest()->getServerRequest()
+            ->withMethod('POST')
+            ->withRequestTarget('/sidebar')
+            ->withParsedBody(['category' => 'news']);
+
+        // Dispatch with custom Request
+        return $app->dispatchWithInput(
+            [SidebarController::class, 'show'],
+            $request,
+        );
+    }
+}
+```
+
+::: warning
+`dispatchWithInput()` restores the original request after the call. Do not
+rely on it to change the request for code that runs after the call returns.
+:::
+
 ## Task Mapping
 
 The `#[TaskMapping]` attribute renames tasks at the class level. Use it when

@@ -8,6 +8,9 @@ Windwalker Core treats an API as a set of controller methods that return
 JSON. Routing, input, and entity layers are shared with page controllers,
 so an API endpoint does not need a separate framework stack.
 
+The chapter is not only for public APIs. Local AJAX calls from your own
+pages can use the same controllers, envelope, errors, and CORS settings.
+
 This chapter explains how the pieces work. Use the source for full
 method signatures.
 
@@ -21,7 +24,7 @@ method signatures.
   into JSON with an HTTP status.
 - **Middlewares**: CORS and JSON response handling run as
   route middlewares.
-- **Entity serialization**: entities convert to JSON with control over
+- **Object serialization**: entities and records convert to JSON with control over
   exposed properties.
 
 ## How the parts fit together
@@ -43,7 +46,7 @@ method signatures.
   attributes, route parameters, and request body values.
 - [Error Handling and Error Codes](./api-systems/error-codes.md): throwing
   API errors and defining error code enums.
-- [Middlewares and CORS](./api-systems/middlewares-and-cors.md): API
+- [CORS](./api-systems/cors.md): cross-origin configuration
   middlewares and cross-origin configuration.
-- [Entity Serialization](./api-systems/entity-serialization.md): returning
+- [Object Serialization](./api-systems/object-serialization.md): returning
   entities as JSON and controlling exposed properties.
