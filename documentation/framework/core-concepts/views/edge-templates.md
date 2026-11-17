@@ -16,6 +16,7 @@ layout: doc
   - `@include` 與 `@partial` 的使用方式
   - 元件式版面引入 (不註冊也可以使用，詳細連結到 Views Components 文件)
   - Layout 擺放位置與搜尋順序
+  - 同目錄內可以直接用路徑載入 anonymous components
 - Windwalker 專屬功能
   - 介紹 vendor/windwalker/core/src/Core/Renderer/Edge/WindwalkerExtension.php 內的 Windwalker 專屬功能
   - 若需要引用到其他 service，連結過去

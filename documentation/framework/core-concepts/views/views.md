@@ -16,7 +16,7 @@ layout: doc
   - ViewModel 如何指定目標 templates 入口，或是根據 input 動態指定
   - 基本的 extends global body 方式 (更詳細的移動到 Edge Templates 文件)
   - ViewModel 如何注入其他 service，ex: Services, Repository
-  - ViewModel 如何綁定 ts & scss，細節可以看 frontend 文件
+  - ViewModel 如何綁定 ts & scss，細節可以連結到 frontend javascript development 文件
   - ViewModel 如何使用 HtmlFrame 或 #[ViewMetadata] 來宣告 metadata
   - 多開一個 `HtmlFrame` 頁面來專注介紹這個物件的使用方式
 - 任何你覺得值得追加的項目

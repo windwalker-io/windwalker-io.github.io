@@ -115,14 +115,17 @@ const photos = import.meta.glob(
 
 ### `~/` or No Prefix
 
-- A path that starts with `~/` (or `@vite/`) is processed by Vite,
-  so the file is hashed and listed in the manifest.
-- A path without a prefix is a plain file. Windwalker does not
-  process it, so it is served as-is from `www/` or `public/`.
+- A path that starts with `~/` (or `@vite/`) points to the source
+  file before compilation, so it keeps its source extension, such as
+  `.ts`, `.scss`, or `.svg`. Vite compiles it, hashes the output, and
+  looks up the result in the manifest.
+- A path without a prefix points to the compiled output file name.
+  It only works if you fix the output name explicitly, for example
+  with `dest` in `cssModulizeDeep()` or a fixed name in `cloneAssets()`.
 
-Use `~/` for images that your code or styles reference. Use a plain
-path only for files that must keep a fixed URL, such as favicons
-referenced by external tools.
+Use a prefixed source path by default and let the system handle the
+output. Use a plain output path only when a file must keep a fixed
+name, such as a favicon referenced by external tools.
 
 ::: warning
 Vite removes duplicate files. If the same image is referenced under
