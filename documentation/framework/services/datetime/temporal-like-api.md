@@ -1,9 +1,9 @@
 ---
 layout: doc
-title: Temporal Types
+title: Temporal Like API
 ---
 
-# Temporal Types
+# Temporal Like API
 
 Windwalker provides value objects for dates and times that do not need
 a time zone. They follow the Temporal model: each type holds one

@@ -114,7 +114,7 @@ echo $a->isBefore($b) ? 'yes' : 'no'; // no
 ## Converting to Other Types
 
 Chronos converts to the value objects described in
-[Temporal Types](./temporal-types.md).
+[Temporal Like API](./temporal-like-api.md).
 
 ```php
 $date = Chronos::wrap('2024-03-15 09:30:00', 'Asia/Tokyo');
@@ -302,7 +302,7 @@ class Post
 ```
 
 For calendar-only columns, use the `Temporal` types instead. See
-[Temporal Types](./temporal-types.md).
+[Temporal Like API](./temporal-like-api.md).
 
 ## Using Chronos in Your Code
 

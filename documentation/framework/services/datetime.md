@@ -30,7 +30,7 @@ The DateTime area has four main parts:
 - [Chronos](./datetime/chronos)
 - [Clock](./datetime/clock)
 - [ChronosService](./datetime/chronos-service)
-- [Temporal-like Types](./datetime/temporal-types)
+- [Temporal Like API](./datetime/temporal-like-api)
 
 ## Use as Standalone Component
 

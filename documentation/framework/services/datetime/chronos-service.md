@@ -390,5 +390,5 @@ throws `LogicException`. Pass a timezone string instead, such as
 `toLocal: 'Asia/Tokyo'`, to avoid the dependency.
 :::
 
-See [Temporal Types](./temporal-types.md) for the cast that handles
+See [Temporal Like API](./temporal-like-api.md) for the cast that handles
 calendar dates without time zone conversion.

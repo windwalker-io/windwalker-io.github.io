@@ -168,7 +168,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
             { text: 'Chronos', link: `/${frameworkRoutePrefix}/services/datetime/chronos` },
             { text: 'Clock', link: `/${frameworkRoutePrefix}/services/datetime/clock` },
             { text: 'ChronosService', link: `/${frameworkRoutePrefix}/services/datetime/chronos-service` },
-            { text: 'Temporal Types', link: `/${frameworkRoutePrefix}/services/datetime/temporal-types` },
+            { text: 'Temporal Like API', link: `/${frameworkRoutePrefix}/services/datetime/temporal-like-api` },
           ]
         },
         { text: 'Form', link: `/${frameworkRoutePrefix}/services/form` },
