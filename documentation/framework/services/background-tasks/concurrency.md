@@ -189,6 +189,23 @@ $runner->run(function () use ($pdo) {
 });
 ```
 
+Closures are sent to the child process as serialized code, which needs
+`laravel/serializable-closure`:
+
+```bash
+composer require laravel/serializable-closure
+```
+
+Without it, the runner throws an error before the task starts. Services
+do not need to be captured. Declare them as typed parameters, and Windwalker
+DI injects them in the child process. Use `use()` only for plain values:
+
+```php
+$runner->run(function (MailService $mail) use ($name) {
+    return $mail->send('ops@example.com', 'Hello, ' . $name);
+});
+```
+
 ### Invokable Objects
 
 An invokable object is safer for larger tasks. Declare the services it
@@ -412,6 +429,83 @@ who can submit a payload can run code in your application with the
 application's privileges. Keep the secret private. Signing prevents
 tampering. It is not a sandbox.
 :::
+
+### The task:run Command
+
+`TaskRunner` starts each child with `task:run`. The command accepts one
+payload source and one output mode:
+
+- `--stdin`: read the payload from standard input. This is what the runner uses.
+- `--file=<path>` (`-f`): read the payload from a file.
+- `--code=<payload>` (`-c`): pass the payload as an argument.
+- `--ipc`: publish the result through the configured transport. It expects a
+  request payload, created with `TaskPayload::encodeRequest()`.
+- `--result-file=<path>`: write the JSON result to a file instead of stdout.
+
+Use exactly one payload source. `--ipc` and `--result-file` cannot be
+combined. Without either option, the JSON result goes to stdout.
+
+### Running a Task Manually
+
+To run a task without `TaskRunner`, encode it yourself, save the payload,
+and pass it to `task:run`:
+
+```php
+use Windwalker\Core\Task\TaskPayload;
+
+$payload = (new TaskPayload($app))->encode($task);
+
+file_put_contents('payload.txt', $payload);
+```
+
+```bash
+php windwalker task:run --file=payload.txt
+```
+
+Use `--stdin` with `< payload.txt` to read the same payload from standard
+input. Keep the signed payload private, as described above.
+
+### Signature Format and Verification
+
+A signed payload has three dot-separated parts:
+
+```text
+v1.<base64 serialized data>.<hmac sha256 hex>
+```
+
+The HMAC is computed over `v1.<base64>` with a key derived from the
+application secret for the `task.run` scope:
+
+```php
+$key = $app->getSecret('task.run');
+```
+
+`task:run` verifies the signature before it unserializes anything. To check
+a payload yourself, call `decode()` or `decodeRequest()`, which run the same
+check:
+
+```php
+use Windwalker\Core\Task\TaskPayload;
+
+$payload = file_get_contents('payload.txt');
+
+// Throws if the signature does not match
+$task = (new TaskPayload($app))->decode($payload);
+
+// ERROR: Task payload signature is invalid.
+(new TaskPayload($app))->decode('v1.abc.' . str_repeat('0', 64));
+```
+
+Because the signature covers the whole body, any change to the payload
+invalidates it. A payload signed with a different application secret also
+fails the check. The same secret must be available to the process that
+signs and the process that runs `task:run`.
+
+::: warning
+`TaskPayload` requires a non-empty application secret. Without one, signing
+and verification throw a `LogicException`.
+:::
+
 
 ## Reminders
 

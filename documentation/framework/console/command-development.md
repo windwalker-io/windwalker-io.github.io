@@ -19,6 +19,10 @@ commands, use a [script](./script-runner) instead.
 
 Register a class with a name, then add arguments and options:
 
+You can also generate the class with the `g command` generator. It
+creates the file and asks for a command name to register it in
+`commands.php`. Leave the name empty to skip registration.
+
 ```php
 // src/Command/HelloCommand.php
 namespace App\Command;
@@ -81,7 +85,14 @@ php windwalker hello Simon --shout
 ## Constructor Injection
 
 The command is created by the container. Type-hint the services it
-needs in the constructor, and they are injected automatically:
+needs in the constructor, and they are injected automatically.
+
+Inject `ConsoleApplication` when the command only runs in the console.
+Services that must also work on the web should inject `AppContext`,
+because each application type can expose different features. If a
+service may run in both web and console, inject
+`Windwalker\Core\Application\ApplicationInterface`. It avoids
+environment-specific differences.
 
 ```php
 use Windwalker\Core\Application\ApplicationInterface;
@@ -210,7 +221,8 @@ Throw an exception when a failure should stop the run, and return
 ## Tab Completion
 
 A command can suggest values for its arguments and options. Implement
-`CompletionHandlerInterface` and return the candidate list:
+`CompletionHandlerInterface` and return the candidate list. The
+simplest case checks the completion type:
 
 ```php
 use Windwalker\Console\CompletionContext;
@@ -223,8 +235,12 @@ class CacheReportCommand implements
     public function handleCompletions(
         CompletionContext $context
     ): ?array {
-        if ($context->isArgument()) {
-            return ['default', 'session'];
+        if ($context->isArgument() && $context->name === 'storage') {
+            return ['database', 'redis', 'filesystem'];
+        }
+
+        if ($context->isOption() && $context->name === 'format') {
+            return ['json', 'xml'];
         }
 
         return null;
@@ -234,11 +250,63 @@ class CacheReportCommand implements
 }
 ```
 
+`isArgument()` alone is not always enough. Combine it with the argument name so far, such as `$context->name` and `$context->currentWordIndex`,
+or read the parsed values with `$context->getArgument()` and
+`$context->getOption()`:
+
+```php
+public function handleCompletions(
+    CompletionContext $context
+): ?array {
+    // Suggest pools only for the first argument after `cache:report`.
+    if ($context->isArgument()
+        && $context->name === 'storage'
+    ) {
+        return ['database', 'redis', 'filesystem'];
+    }
+
+    // Suggest formats only after `--format` has been typed.
+    $previous = $context->words[$context->currentWordIndex - 1] ?? '';
+
+    if ($previous === 'format') {
+        return ['table', 'json'];
+    }
+
+    // Use the parsed input when the same argument is already set.
+    if ($context->getArgument('pool') === 'session') {
+        return ['--verbose'];
+    }
+    
+    // You can also return value by injected service
+    if ($context->isOption() && $context->name === 'key') {
+        return $this->cacheReport->getKeys();
+    }
+
+    return null;
+}
+```
+
 Return `null` for anything you do not handle, so the shell falls back
 to its default behavior. Completion is active after you install the
 shell hook from [Basic Commands](./basic-commands#shell-completion).
 
 ## Callable Commands
+
+Callable commands are registered in `resources/registry/commands.php`
+as a closure value. The key is the command name. Windwalker wraps any
+object or closure value with `CommandWrapper` when the registry loads,
+so the closure becomes a command without a class:
+
+```php
+// resources/registry/commands.php
+return [
+    'hello:closure' => static function (IOInterface $io): int {
+        $io->writeln('Hello from a closure.');
+
+        return 0;
+    },
+];
+```
 
 A `CommandWrapper` handler can also be a callable. Windwalker calls it
 with the `io:` named argument, so a closure can read input and write

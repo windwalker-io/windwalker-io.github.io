@@ -206,6 +206,25 @@ $id = $queue->push(new SendMailJob('user@example.com', 'Welcome'));
 // Saved to queue_jobs. Nothing is sent yet.
 ```
 
+### Choosing a Connection by Tag
+
+Each queue connection is registered with a tag, named after the
+connection. You can inject the default connection, or retrieve a named
+one from the container:
+
+```php
+use Windwalker\Core\Queue\Queue;
+
+// Default connection
+$queue = $this->app->retrieve(Queue::class);
+
+// A named connection, selected by tag
+$sqsQueue = $this->app->retrieve(Queue::class, tag: 'sqs');
+```
+
+The same tag lookup works for failers, for example
+`QueueFailerInterface` with `tag: $failerName`.
+
 ## Running the Worker
 
 The worker is a long-running command. It reads the queue, runs each job,
@@ -670,30 +689,64 @@ moment.
 ## Locks and Rate Limits
 
 Some jobs must not run at the same time, for example two jobs that update
-the same order. A middleware can take a lock, and defer the job when the
-lock is busy. Rate limits work the same way, but count how often a job
-runs.
+the same order. Other jobs must not run too often, for example a job that
+calls a rate-limited API. Protect these in the queue, not only in the
+caller. Jobs run in several workers, so a check made when the job is
+enqueued cannot see what other workers are doing at run time. A middleware
+checks the rule just before the job runs.
 
-These features use the `lyrasoft/throttle` package:
+Use the Symfony components for this. They are general-purpose and do not
+depend on Windwalker. See the [Symfony Lock](https://symfony.com/doc/current/components/lock.html)
+and [Symfony Rate Limiter](https://symfony.com/doc/current/rate_limiter.html)
+documentation for the full API:
 
 ```bash
-composer require lyrasoft/throttle
+composer require symfony/lock symfony/rate-limiter
 ```
 
-::: warning Unverified API
-The lock and rate-limit API is not verified in this documentation build.
-The package is not in the framework source this site is checked against.
-Read the `lyrasoft/throttle` documentation for current method names
-before you copy any code.
-:::
 
-The pattern is:
+The middleware below takes a lock on the order, and defers the job when the
+lock is busy. It also applies a rate limit to the job:
 
-- Middleware tries to take a lock on a resource, such as `order.{id}`.
-- If the lock is free, it takes it and calls `next()`.
-- If the lock is busy, it returns `$controller->defer(60)` so the job runs
-  later.
-- It releases the lock after the job finishes, including after a failure.
+```php
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\FlockStore;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
+
+$lockFactory = new LockFactory(new FlockStore());
+
+$limiter = new RateLimiterFactory(
+    [
+        'id' => 'order-sync',
+        'policy' => 'fixed_window',
+        'limit' => 10,
+        'interval' => '1 minute',
+    ],
+    new InMemoryStorage(),
+);
+
+// Inside a queue middleware's handle method:
+$lock = $lockFactory->createLock('order.' . $orderId);
+
+if (!$lock->acquire()) {
+    return $controller->defer(60);
+}
+
+try {
+    if (!$limiter->create('order-sync')->consume()->isAccepted()) {
+        return $controller->defer(60);
+    }
+
+    return $next();
+} finally {
+    $lock->release();
+}
+```
+
+Use a shared store such as Redis in production. `FlockStore` and
+`InMemoryStorage` only protect one machine, and in-memory rate limits reset
+for each process.
 
 ## Keeping the Worker Running
 
@@ -758,11 +811,28 @@ package provides `SyncQueueDriver` and `DatabaseQueueDriver`. To add your
 own, such as a Redis-backed driver, implement
 `Windwalker\Queue\Driver\QueueDriverInterface`.
 
-Driver creation and connection settings are handled by `QueueFactory`
-under the `queue` configuration prefix, and failed-job storage uses the
-`failer_default` key. Read `QueueFactory` in your installed version for
-the exact registration steps before you add a driver. The config body
-is not shown here because it is not verified in this documentation build.
+Register the queue instance in the `queue` config under
+`factories.instances`. Each entry is a closure that returns a `Queue`
+built from your driver. Set `default` to the new name to use it:
+
+```php
+// etc/packages/queue.config.php
+return [
+    'default' => env('QUEUE_DEFAULT', 'redis'),
+
+    'factories' => [
+        'instances' => [
+            'redis' => static fn () => new Queue(
+                new MyRedisQueueDriver(/* connection settings */),
+            ),
+        ],
+    ],
+];
+```
+
+Failed-job storage uses the `failer_default` key, and its factories are
+under `factories.failers`. Read `QueueFactory` in your installed version
+for the exact constructor arguments before you add a driver.
 
 ## Summary
 

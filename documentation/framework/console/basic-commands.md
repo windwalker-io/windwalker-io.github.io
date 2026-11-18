@@ -79,7 +79,7 @@ php windwalker lang:merge
 - `pkg:*`: manage packages.
 - `mig:*`, `db:*`, `seed:*`: database migrations, tools, and seeders.
 - `schedule:*`, `queue:*`, `task:run`: scheduled tasks, queued jobs, and signed tasks.
-- `server:start`, `server:stop`: local development server.
+- `server:start`, `server:stop`: local development server. See [Server](./server).
 
 Run `php windwalker <command> --help` for the arguments of any command.
 

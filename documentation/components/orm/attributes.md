@@ -49,7 +49,7 @@ The attributes are grouped by the element they are placed on.
 - `#[Cast]` and `#[CastNullable]`: the conversions on load and on save. See
   [Entities](./entities#casting).
 - `#[JsonArray]` and `#[JsonObject]`: JSON columns. See
-  [Entities](./entities#json-columns).
+  [Column Types](../../framework/services/database/column-types#json-and-record).
 - `#[CurrentTime]` and `#[CreatedTime]`: the time values written on save. See
   [Entities](./entities#save-time-values).
 - `#[AutoTruncate]`: cuts a string to the column length on save. See

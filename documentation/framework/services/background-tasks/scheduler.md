@@ -254,6 +254,11 @@ and under the `Throwable` type:
 })
 ```
 
+A `try`/`catch` inside the handler has the same effect for its own code.
+`catch()` is different in one way: it also receives any exception that
+escapes the event's run, including failures inside the scheduler itself,
+which a handler-level `try`/`catch` cannot see.
+
 If no `catch()` is set, the runner dispatches a `ScheduleFailureEvent`
 with the exception, and the loop continues.
 
@@ -279,7 +284,8 @@ There are two ways to drive the events.
 ### Single Run: schedule:run
 
 `schedule:run` checks the events due at the current minute, runs them, and
-exits. This is the command that a system cron calls every minute:
+exits. It is meant for crontab, which calls it every minute with
+`* * * * *`:
 
 ```bash
 php windwalker schedule:run
@@ -294,7 +300,8 @@ useful for checking a handler during development.
 ### Long-Running Worker: schedule:worker
 
 `schedule:worker` keeps the process alive and checks the events once per
-minute. It is the cross-platform choice, because it needs no crontab:
+minute. Most Docker images do not run crontab, so the worker is the
+recommended choice in containers. It needs no crontab:
 
 ```bash
 php windwalker schedule:worker
@@ -336,7 +343,9 @@ the next section.
 
 ## Claims and Overlap Protection
 
-The scheduler uses two file-based mechanisms in `@temp`:
+The scheduler uses two file-based mechanisms in `@temp`. The default
+filesystem lock prevents overlap for long-running tasks on one machine,
+for example a task that runs longer than one minute:
 
 - **Lock**: an event is protected by a non-blocking lock. If the previous
   run of the same event is still active, the new run is skipped with reason
@@ -349,6 +358,52 @@ This is why several replicas can share one schedule. Each event due in the
 same minute runs once, no matter how many instances check it. Claims are
 stored under `@temp/scheduler-claims`, and locks under
 `@temp/scheduler-locks`.
+
+The default lock is local to one machine. To prevent overlap across hosts
+or containers, implement `SchedulerLockInterface`. Its `createLock()`
+method returns a Symfony `LockInterface`, so you can use a shared store
+such as Redis:
+
+```php
+use Windwalker\Core\Schedule\ScheduleEvent;
+use Windwalker\Core\Schedule\SchedulerLockInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\Store\RedisStore;
+
+class RedisSchedulerLock implements SchedulerLockInterface
+{
+    public function __construct(private \Redis $redis)
+    {
+    }
+
+    public function createLock(ScheduleEvent $event): LockInterface
+    {
+        $factory = new LockFactory(new RedisStore($this->redis));
+
+        return $factory->createLock('scheduler:' . $event->getName());
+    }
+}
+```
+
+Then bind your class to the interface in your DI bindings, so it replaces
+the default `SchedulerLock`. In `etc/di.config.php`, add an entry to
+`aliases`:
+
+```php
+// etc/di.config.php
+return Arr::mergeRecursive(
+    [
+        // ...
+        'aliases' => [
+            SchedulerLockInterface::class => RedisSchedulerLock::class,
+        ],
+    ]
+);
+```
+
+Use `aliases` to point the interface at your class. The default
+`SchedulerLock` alias is set in `AppProvider`, so your entry overrides it.
 
 ::: warning
 Claims and locks are files. They coordinate only processes that share the

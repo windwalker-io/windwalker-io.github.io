@@ -249,6 +249,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         { text: 'Console Basics', link: `/${frameworkRoutePrefix}/console/console-basics` },
         { text: 'Command Development', link: `/${frameworkRoutePrefix}/console/command-development` },
         { text: 'Basic Commands', link: `/${frameworkRoutePrefix}/console/basic-commands` },
+        { text: 'Server Running', link: `/${frameworkRoutePrefix}/console/server` },
         { text: 'REPL & Code Sandbox', link: `/${frameworkRoutePrefix}/console/repl-and-code-sandbox` },
         { text: 'Script Runner', link: `/${frameworkRoutePrefix}/console/script-runner` },
         { text: 'Cache', link: `/${frameworkRoutePrefix}/console/cache` },
