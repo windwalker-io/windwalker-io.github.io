@@ -30,129 +30,85 @@ For strict requirements, such as many application servers sharing one database, 
 
 ## Setting Up a Pool with Swoole
 
-The pool needs the `swoole` extension and a `SwooleStack`. Pass the stack to `ConnectionPool` explicitly. If you create the adapter without a pool, Windwalker uses a `SingleStack` that holds one connection and cannot serve concurrent coroutines.
-
-Create the pool in the `workerStart` event, not in the master process. Connections and coroutine channels cannot cross a `fork()`.
+The pool needs the `swoole` extension. Set the pool with the `pool` key of a
+connection configuration. Windwalker creates the pool when it starts the
+application, and uses a `SwooleStack` when the code runs inside a Swoole
+coroutine in the CLI server. Otherwise it uses a `SingleStack`, which holds
+one connection and cannot serve concurrent coroutines.
 
 ```php
-use Swoole\Http\Server;
-use Windwalker\Database\DatabaseFactory;
-use Windwalker\Pool\ConnectionPool;
+// etc/database.config.php
+use Windwalker\Database\Driver\DriverOptions;
 use Windwalker\Pool\Enum\Heartbeat;
 use Windwalker\Pool\PoolOptions;
-use Windwalker\Pool\Stack\SwooleStack;
 
-$server = new Server('0.0.0.0', 8080);
-$db = null;
-
-$server->on('workerStart', function () use (&$db) {
-    // Each worker creates its own pool after the fork.
-    $pool = new ConnectionPool(
-        new PoolOptions(
-            maxSize: 10,
-            minSize: 2,
-            waitTimeout: 3,
-            idleTimeout: 60,
-            maxLifetime: 1800,
-            maxUses: 10000,
-            leakTimeout: 30,
-            heartbeat: Heartbeat::LAZY,
-            timerInterval: 10,
-        ),
-        new SwooleStack(10),
-    );
-
-    $db = (new DatabaseFactory())->create(
-        'pdo_mysql',
-        [
-            'host' => '127.0.0.1',
-            'dbname' => 'app',
-            'user' => 'app',
-            'password' => getenv('DB_PASSWORD'),
-            'charset' => 'utf8mb4',
+return [
+    'connections' => [
+        'main' => [
+            'driver' => env('DATABASE_DRIVER'),
+            'options' => fn() => new DriverOptions(
+                host: env('DATABASE_HOST') ?: 'localhost',
+                dbname: env('DATABASE_NAME'),
+                user: env('DATABASE_USER'),
+                password: env('DATABASE_PASSWORD'),
+            ),
+            'pool' => fn() => new PoolOptions(
+                maxSize: 10,
+                minSize: 2,
+                waitTimeout: 3,
+                idleTimeout: 60,
+                maxLifetime: 1800,
+                heartbeat: Heartbeat::LAZY,
+                timerInterval: 10,
+            ),
         ],
-        $pool,
-    );
-});
-
-$server->on('request', function ($request, $response) use (&$db) {
-    // Each request runs in its own coroutine and borrows a connection.
-    $posts = $db->prepare('SELECT id, title FROM posts WHERE state = ?')
-        ->execute([1])
-        ->all();
-
-    $response->end(json_encode($posts));
-});
-
-$server->start();
+    ],
+];
 ```
 
-`DatabaseFactory::create()` accepts the pool as its third argument. The driver then borrows and returns connections automatically on each query. Use the `'pdo_mysql'` driver name for PDO with MySQL. Pool support is not limited to PDO. The same `$pool` argument works for the other drivers the factory creates, such as `'mysqli'` and `'pgsql'`.
+Get the adapter as usual. The driver borrows and returns connections on
+each query, so your code does not change when pooling is enabled.
 
-::: warning
-Do not create the pool in the master process before `start()`. Connections opened before `fork()` are shared by every worker and fail in hard-to-notice ways.
-:::
+```php
+use Windwalker\Database\DatabaseAdapter;
+
+$db = $app->retrieve(DatabaseAdapter::class);
+
+$posts = $db->prepare('SELECT id, title FROM posts WHERE state = ?')
+    ->execute([1])
+    ->all();
+```
+
+To build a pool by hand, for example in a custom Swoole server, see
+[Connection Pool](/documentation/components/database/connections#creating-a-pool-manually).
 
 ### Choosing the Pool Size
 
 The total number of database connections is `workers × maxSize`. Keep that total below the server's connection limit, such as MySQL `max_connections`, and leave headroom for migrations and admin tools.
 
 - Start with `maxSize` between 5 and 20, based on how many requests a worker handles at the same time that use the database.
-- Set `SwooleStack` capacity to the same `maxSize`. The stack stores up to that many idle connections.
 - Set `minSize` lower than or equal to `maxSize`. The pool opens `minSize` connections when it initializes, so this value controls warm-up.
 
 Measure under real load before you increase the size. More connections increase memory on both sides and do not help when the database is the bottleneck.
+
 
 See [Connections](/documentation/components/pool/connections) and [Swoole Stack](/documentation/components/pool/swoole-stack) for the underlying pool behavior.
 
 ## Complete Example
 
-The example below sets up a worker-scoped pool, runs a read query, and runs a write inside a transaction.
+The example below uses the pool configured in `etc/database.config.php`
+and runs a read query and a write inside a transaction. The Swoole server
+only handles the requests; the database adapter comes from the application.
 
 ```php
 use Swoole\Http\Server;
 use Windwalker\Database\DatabaseAdapter;
-use Windwalker\Database\DatabaseFactory;
-use Windwalker\Pool\ConnectionPool;
-use Windwalker\Pool\Enum\Heartbeat;
-use Windwalker\Pool\PoolOptions;
-use Windwalker\Pool\Stack\SwooleStack;
 
 $server = new Server('0.0.0.0', 8080);
-$db = null;
 
-$server->on('workerStart', function () use (&$db) {
-    $pool = new ConnectionPool(
-        new PoolOptions(
-            maxSize: 10,
-            minSize: 2,
-            waitTimeout: 3,
-            maxLifetime: 1800,
-            maxUses: 10000,
-            leakTimeout: 30,
-            heartbeat: Heartbeat::LAZY,
-            timerInterval: 10,
-        ),
-        new SwooleStack(10),
-    );
+$server->on('request', function ($request, $response) use ($app) {
+    $db = $app->retrieve(DatabaseAdapter::class);
 
-    $db = (new DatabaseFactory())->create(
-        'pdo_mysql',
-        [
-            'host' => '127.0.0.1',
-            'dbname' => 'app',
-            'user' => 'app',
-            'password' => getenv('DB_PASSWORD'),
-            'charset' => 'utf8mb4',
-            'afterConnect' => [
-                "SET time_zone = '+00:00'",
-            ],
-        ],
-        $pool,
-    );
-});
-
-$server->on('request', function ($request, $response) use (&$db) {
     if ($request->server['request_uri'] === '/posts') {
         $posts = $db->prepare('SELECT id, title FROM posts')
             ->execute()
@@ -265,17 +221,23 @@ A retry repeats the whole callback. Do not use `useConnection()` directly for a 
 
 ### After-connect Callbacks
 
-`afterConnect` runs each time a connection is opened. Use it for session settings. It accepts a SQL string, a closure, or an array of both.
-
 ```php
-'afterConnect' => [
-    "SET time_zone = '+00:00'",
-    "SET NAMES utf8mb4",
-    function (AbstractDriver $driver) {
-        $driver->execute('SET SESSION sql_mode = "STRICT_ALL_TABLES"');
-    },
-],
+use Windwalker\Database\Driver\AbstractDriver;
+use Windwalker\Database\Driver\DriverOptions;
+
+$options = new DriverOptions(
+    afterConnect: [
+        "SET time_zone = '+00:00'",
+        "SET NAMES utf8mb4",
+        function (AbstractDriver $driver) {
+            $driver->execute(
+                'SET SESSION sql_mode = "STRICT_ALL_TABLES"'
+            );
+        },
+    ],
+);
 ```
+
 
 ::: info
 Callbacks run only for a newly opened connection. A connection reused from the pool keeps the session settings it received when it was opened.

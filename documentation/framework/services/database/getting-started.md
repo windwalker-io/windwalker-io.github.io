@@ -35,33 +35,23 @@ recommended for most applications.
 composer require windwalker/orm
 ```
 
-## Minimal Setup
+## Quick Start
 
-The simplest connection uses a driver name and the host, database,
-user, and password. The driver string follows the form
-`{platform}_{driver}`, for example `pdo_mysql` or `mysqli`.
+The framework builds the adapter from the configuration file, so you
+do not create it yourself. Get the default connection from the
+container and run plain SQL:
 
 ```php
-use Windwalker\Database\DatabaseFactory;
+use Windwalker\Database\DatabaseAdapter;
 
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'host' => 'localhost',
-        'dbname' => 'blog',
-        'user' => 'root',
-        'password' => 'secret',
-    ],
-);
+$db = $app->retrieve(DatabaseAdapter::class);
 
 $rows = $db->prepare('SELECT * FROM posts')->all();
 ```
 
-Inside a Windwalker application, the framework builds the adapter for
-you from the configuration file. You do not need to call
-`DatabaseFactory` yourself.
+## Configuration
 
-## Configuration File
+### Configuration File
 
 The framework ships a `database.config.php` file that reads its values
 from environment variables and returns a `DriverOptions` object.
@@ -104,7 +94,10 @@ Do not commit real credentials. Keep `.env` out of version control and
 use a separate value for each environment.
 :::
 
-## Supported Drivers
+### Supported Drivers
+
+The driver string follows the form `{platform}_{driver}`, for example
+`pdo_mysql` or `mysqli`.
 
 The `pdo_*` drivers use PHP PDO. The native drivers use the PHP
 extension directly. Choose a PDO driver unless you have a reason to use
@@ -119,44 +112,40 @@ a native one.
 - `pgsql`: PostgreSQL through the `pgsql` extension.
 - `sqlsrv`: Microsoft SQL Server through the `sqlsrv` extension.
 
-## Connection Options
+### Connection Options
 
-Options are passed as the second argument to `DatabaseFactory::create()`,
-or set under the connection in the configuration file. The main options
-are:
+Options are set through `DriverOptions`, which the configuration file
+builds for each connection. The main options are:
 
 ```php
-use Windwalker\Database\DatabaseFactory;
+use Windwalker\Database\Driver\DriverOptions;
 
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        // Connection target
-        'host' => 'localhost',
-        'port' => 3306,
-        'dbname' => 'blog',
-        'unix_socket' => null,
-        'dsn' => null,           // Overrides host, port and dbname
+$options = new DriverOptions(
+    // Connection target
+    host: 'localhost',
+    port: 3306,
+    dbname: 'blog',
+    unixSocket: null,
+    dsn: null, // Overrides host, port and dbname
 
-        // Credentials
-        'user' => 'root',
-        'password' => 'secret',
+    // Credentials
+    user: 'root',
+    password: 'secret',
 
-        // Behavior
-        'prefix' => 'wind_',     // Table prefix for '#__' names
-        'charset' => 'utf8mb4',
-        'collation' => null,
-        'strict' => true,        // Enable strict SQL modes (MySQL)
-        'modes' => null,         // Custom SQL modes (MySQL)
-        'debug' => false,
-        'readonlyThrow' => true, // Throw on writes in readonly mode
-        'readonlyNative' => false,
-        'afterConnect' => null,  // SQL string or callable
+    // Behavior
+    prefix: 'wind_', // Table prefix for '#__' names
+    charset: 'utf8mb4',
+    collation: null,
+    strict: true, // Enable strict SQL modes (MySQL)
+    modes: null, // Custom SQL modes (MySQL)
+    debug: false,
+    readonlyThrow: true, // Throw on writes in readonly mode
+    readonlyNative: false,
+    afterConnect: [], // SQL strings or callables run after connect
 
-        // Driver-specific
-        'driverOptions' => [],   // Extra PDO attributes
-        'tls' => null,           // TLS / SSL settings
-    ],
+    // Driver-specific
+    driverOptions: [], // Extra PDO attributes
+    tls: null, // TLS / SSL settings
 );
 ```
 
@@ -168,31 +157,28 @@ Use `#__` in table names. The adapter replaces it with the configured
 `prefix`, so the same SQL works across installations.
 :::
 
-## Using a DSN
+### Using a DSN
 
-A DSN replaces the `host`, `port`, `dbname`, and related fields. Set
-`dsn` when your connection string comes from a single environment
-variable or a cloud provider.
-
-```php
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=blog',
-        'user' => 'blog_user',
-        'password' => 'change-me',
-    ],
-);
-```
-
-With the configuration file, set `DATABASE_DSN` instead of the
-host-related variables:
+Set `DATABASE_DSN` in your `.env` file to use a DSN. The DSN replaces
+the host-related variables:
 
 ```ini
 DATABASE_DRIVER=pdo_mysql
 DATABASE_DSN=mysql:host=127.0.0.1;port=3306;dbname=blog
 DATABASE_USER=blog_user
 DATABASE_PASSWORD=change-me
+```
+
+The same value can be passed as `dsn` in `DriverOptions`:
+
+```php
+use Windwalker\Database\Driver\DriverOptions;
+
+$options = new DriverOptions(
+    dsn: 'mysql:host=127.0.0.1;port=3306;dbname=blog',
+    user: 'blog_user',
+    password: 'change-me',
+);
 ```
 
 When a DSN is set, the framework reads it back into the `host`,
@@ -204,7 +190,67 @@ A DSN is used only by PDO drivers. Native drivers ignore it and use
 `host`, `port`, `dbname`, `user`, and `password`.
 :::
 
-## MySQL Strict Mode
+### Multiple Connections
+
+Define one entry per database under `connections` in the configuration
+file. The `default` key selects which connection the application uses
+when no name is given:
+
+```php
+// etc/packages/database.config.php
+'default' => 'local',
+
+'connections' => [
+    'local' => [
+        'factory' => ref('database.factories.instances.main'),
+        'driver' => env('DATABASE_DRIVER'),
+        'options' => fn() => new DriverOptions(
+            dbname: env('DATABASE_NAME'),
+            user: env('DATABASE_USER'),
+            password: env('DATABASE_PASSWORD'),
+        ),
+    ],
+    'reporting' => [
+        'factory' => ref('database.factories.instances.main'),
+        'driver' => env('REPORTING_DATABASE_DRIVER'),
+        'options' => fn() => new DriverOptions(
+            host: env('REPORTING_DATABASE_HOST'),
+            dbname: env('REPORTING_DATABASE_NAME'),
+            user: env('REPORTING_DATABASE_USER'),
+            password: env('REPORTING_DATABASE_PASSWORD'),
+        ),
+    ],
+],
+```
+
+Each entry becomes its own adapter, connected to its own database.
+The same `DatabaseAdapter` service is available for every name, so you
+can use the default connection and the reporting connection in one
+request.
+
+To receive a specific connection in your code, look it up by tag. A
+tagged service returns the object bound to that tag:
+
+```php
+use Windwalker\Database\DatabaseAdapter;
+
+$reporting = $app->retrieve(DatabaseAdapter::class, tag: 'reporting');
+
+$rows = $reporting->prepare('SELECT * FROM daily_totals')->all();
+```
+
+See [Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants)
+for how tagged services are registered and injected.
+
+### Connection Pool
+
+Set the `pool` option to reuse connections across requests in
+long-running processes. See the [connection pool docs](/documentation/components/pool/)
+for setup and options.
+
+## Driver-Specific Settings
+
+### MySQL Strict Mode
 
 For `pdo_mysql` and `mysqli`, strict mode is enabled by default. The
 framework sets `@@SESSION.sql_mode` after the connection opens, so
@@ -224,22 +270,18 @@ Set `modes` to use your own list. Set `strict` to `false` to keep the
 server's current mode.
 
 ```php
+use Windwalker\Database\Driver\DriverOptions;
+
 // Use a custom list of modes
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'dbname' => 'blog',
-        'modes' => ['STRICT_TRANS_TABLES', 'NO_ZERO_DATE'],
-    ],
+$options = new DriverOptions(
+    dbname: 'blog',
+    modes: ['STRICT_TRANS_TABLES', 'NO_ZERO_DATE'],
 );
 
 // Keep the server defaults and do not change sql_mode
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'dbname' => 'legacy',
-        'strict' => false,
-    ],
+$options = new DriverOptions(
+    dbname: 'legacy',
+    strict: false,
 );
 ```
 
@@ -249,28 +291,30 @@ silently. Check `SELECT @@SESSION.sql_mode` when you rely on a specific
 mode.
 :::
 
-## TLS / SSL
+### TLS / SSL
 
 Set `tls` to enable encrypted connections. Each driver maps these
 values to its own options.
 
 ```php
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'host' => 'db.example.com',
-        'dbname' => 'blog',
-        'user' => 'blog_user',
-        'password' => 'change-me',
-        'tls' => [
-            'key' => '/certs/client-key.pem',
-            'cert' => '/certs/client-cert.pem',
-            'ca' => '/certs/ca.pem',
-            'verify' => true,
-        ],
-    ],
+use Windwalker\Database\Driver\DriverOptions;
+
+$options = new DriverOptions(
+    host: 'db.example.com',
+    dbname: 'blog',
+    user: 'blog_user',
+    password: 'change-me',
+    tls: DriverOptions::tlsOptions(
+        key: '/certs/client-key.pem',
+        cert: '/certs/client-cert.pem',
+        ca: '/certs/ca.pem',
+        verify: true,
+    ),
 );
 ```
+
+`DriverOptions::tlsOptions()` builds the `tls` array for you. It drops
+any argument you leave as `null`, so you only pass the settings you need.
 
 - MySQL (`pdo_mysql`, `mysqli`): `key`, `cert`, `ca`, `capath`, `verify`,
   and `cipherAlgos`.
@@ -285,38 +329,41 @@ accepts any server certificate and the connection is open to
 man-in-the-middle attacks.
 :::
 
-## SQLite
+### SQLite
 
-SQLite uses a file path instead of a host. Set `dbname` to the file,
-or `:memory:` for an in-memory database.
+SQLite uses a file path instead of a host. Set `DATABASE_NAME` to the
+file, or to `:memory:` for an in-memory database.
+
+```ini
+DATABASE_DRIVER=pdo_sqlite
+DATABASE_NAME=/var/www/data/app.sqlite
+```
+
+The same value can be passed as `dbname` in `DriverOptions`:
 
 ```php
+use Windwalker\Database\Driver\DriverOptions;
+
 // File database
-$db = DatabaseFactory::create(
-    'pdo_sqlite',
-    [
-        'dbname' => __DIR__ . '/data/app.sqlite',
-    ],
+$options = new DriverOptions(
+    dbname: __DIR__ . '/data/app.sqlite',
 );
 
 // In-memory database, useful for tests
-$db = DatabaseFactory::create(
-    'pdo_sqlite',
-    [
-        'dbname' => ':memory:',
-    ],
+$options = new DriverOptions(
+    dbname: ':memory:',
 );
 ```
 
 The `readonlyNative` option runs `PRAGMA query_only = 1` after the
 connection opens. Use it for read-only replicas or reporting copies.
 
-## Differences Between Databases
+### Differences Between Databases
 
 The main differences are:
 
 - MySQL: uses `charset` and `collation`, and supports `strict`,
-  `modes`, and `unix_socket`.
+  `modes`, and `unixSocket`.
 - PostgreSQL: uses `sslmode` through `tls`, and `readonlyNative` sets
   `default_transaction_read_only`.
 - SQLite: uses a file path in `dbname`. It has no `host`, `port`,
@@ -327,11 +374,60 @@ The main differences are:
 Use the same query code on every database. Differences only appear in
 the connection options and in SQL that is specific to one engine.
 
-## Basic Usage
+## Connection Behavior
 
-You can get the database through dependency injection in two ways. The
-`DatabaseAdapter` is the low-level service for SQL and the query
-builder. The ORM is built on top of it and maps rows to entities.
+Read-only mode and startup SQL control how a connection behaves after it
+opens.
+
+### Read-Only Mode
+
+Read-only mode protects a connection from accidental writes. It is
+useful for reporting code and replicas.
+
+```php
+use Windwalker\Database\Driver\DriverOptions;
+
+$options = new DriverOptions(
+    dbname: 'blog',
+    readonlyThrow: true,
+    readonlyNative: true,
+);
+
+// ERROR: Throws DatabaseQueryException for write queries
+$db->update('posts')->set('state', 0)->execute();
+```
+
+`readonlyThrow` throws on write queries. Set it to `false` to skip them
+silently. `readonlyNative` also sets the server's read-only session mode.
+
+::: warning
+With `readonlyThrow` set to `false`, write queries return without
+running and without an error. A failed write can go unnoticed.
+:::
+
+### Running SQL After Connect
+
+Use `afterConnect` to run setup SQL each time a connection opens. It
+accepts a SQL string or a callable that receives the driver.
+
+```php
+use Windwalker\Database\Driver\DriverOptions;
+
+$options = new DriverOptions(
+    dbname: 'blog',
+    afterConnect: function ($driver) {
+        $driver->execute('SET time_zone = "+00:00"');
+    },
+);
+```
+
+## Working With Data
+
+### Basic Usage
+
+Inject the services through the constructor. `DatabaseAdapter` is the
+low-level service for SQL and the query builder. `ORM` is built on top
+of it and maps rows to entities.
 
 ```php
 use Windwalker\Database\DatabaseAdapter;
@@ -430,10 +526,28 @@ $post = $orm->mapper(Post::class)->findOne(['id' => 5]);
 See the [ORM docs](/documentation/components/orm/) for mappers, entities,
 and relations.
 
-## Transactions
+### Other Basic Operations
 
-`transaction()` runs a callback inside a transaction. It commits when the
-callback returns, and rolls back when it throws.
+```php
+// Run a statement that does not return rows
+$db->execute('DELETE FROM sessions WHERE expired < ?', [time()]);
+
+// Prepare a statement, then fetch rows
+$rows = $db->prepare('SELECT * FROM posts')->all();
+
+// Record the SQL that would run, without executing write queries
+$sql = $db->pretend(function () use ($db) {
+    $db->update('posts')->set('state', 0)->execute();
+});
+
+// Get a TableManager for schema operations
+$table = $db->getTable('posts');
+```
+
+### Transactions
+
+`transaction()` runs a callback inside a transaction. It commits when
+the callback returns, and rolls back when it throws.
 
 ```php
 $postId = $db->transaction(function (DatabaseAdapter $db) use ($data) {
@@ -456,71 +570,6 @@ $orm->transaction(function () use ($orm, $id) {
 ```
 
 Call `isInTransaction()` to check whether a transaction is already open.
-
-## Other Basic Operations
-
-- `execute($sql, $params)` runs a statement that does not return rows.
-- `prepare($sql)` returns a statement. Call `all()`, `get()`, or
-  `result()` on it.
-- `pretend(callable)` records the SQL that would run without executing
-  write queries. Use it to inspect generated SQL.
-- `getTable('posts')` returns a `TableManager` for schema operations.
-
-## Read-Only Mode
-
-Read-only mode protects a connection from accidental writes. It is
-useful for reporting code and replicas.
-
-```php
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'dbname' => 'blog',
-        'readonlyThrow' => true,
-        'readonlyNative' => true,
-    ],
-);
-
-// ERROR: Throws DatabaseQueryException for write queries
-$db->update('#__posts')->set('state', 0)->execute();
-```
-
-`readonlyThrow` throws on write queries. Set it to `false` to skip them
-silently. `readonlyNative` also sets the server's read-only session mode.
-
-::: warning
-With `readonlyThrow` set to `false`, write queries return without
-running and without an error. A failed write can go unnoticed.
-:::
-
-## Running SQL After Connect
-
-Use `afterConnect` to run setup SQL each time a connection opens. It
-accepts a SQL string or a callable that receives the driver.
-
-```php
-$db = DatabaseFactory::create(
-    'pdo_mysql',
-    [
-        'dbname' => 'blog',
-        'afterConnect' => function ($driver) {
-            $driver->execute('SET time_zone = "+00:00"');
-        },
-    ],
-);
-```
-
-## Connection Pool
-
-Set the `pool` option to reuse connections across requests in long-running
-processes. See the [connection pool docs](/documentation/components/pool/)
-for setup and options.
-
-## Backup and Export
-
-Backup and export are available through the core services. See
-[Backup and Export](/documentation/framework/services/database/backup-and-export)
-for details.
 
 ## Related Pages
 

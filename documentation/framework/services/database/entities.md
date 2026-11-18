@@ -174,6 +174,16 @@ protected function getId(?int $value): ?int
 Hooks run for every property access. Keep them simple, and avoid
 database calls inside them.
 
+## Casting
+
+Casting converts a value between its database form and its PHP type. The
+`#[Cast]` family of attributes handles this for each property. The ORM
+casts, such as `#[CurrentTime]`, `#[CreatedTime]`, and `#[AutoTruncate]`,
+come with the ORM package. The date casts below, such as
+`ServerTimeCast`, `PlainDateCast`, and `PlainTimeCast`, come from the
+application layer and need Windwalker Core. See
+[Casting](/documentation/components/orm/casting) for the full rules.
+
 ### Automatic Timestamps
 
 Use `#[CurrentTime]` to write the current time on every update, and
@@ -249,14 +259,16 @@ short value is acceptable.
 
 ## Column Types
 
+### BigInt Columns
+
+> !review
+> 先說明
+
 ### Enum Columns
 
 Store an enum in a `tinyint` or `varchar` column, and map it to a PHP
-enum with a column comment. Generate the enum with the `g enum` command.
-
-```bash
-php windwalker g enum ItemState --case enabled --case disabled
-```
+enum. The `g enum` command generates the enum class, as described in
+[Enum](/documentation/framework/core-concepts/enum).
 
 ```php
 namespace App\Enum;
@@ -268,9 +280,7 @@ enum ItemState: int
 }
 ```
 
-The entity then uses the enum as the property type. The ORM converts the
-stored value to the enum case when it loads a row, and back to the
-backed value when it saves.
+The entity then uses the enum as the property type.
 
 ```php
 #[Column('state')]
@@ -282,10 +292,24 @@ if ($sakura->state === ItemState::ENABLED) {
 }
 ```
 
-To add labels, colors, or other display data to an enum, implement
-`EnumRichInterface`, which combines the extended and translatable
-interfaces, and `EnumMetaInterface`. See
-[Enum](/documentation/framework/core-concepts/enum) for the details.
+With the `-k` option, `build:entity` adds a property hook to the enum
+property. The hook accepts the enum case or the raw backed value, such as
+`1`, and converts it to the enum.
+
+```php
+#[Column('state')]
+public ItemState $state {
+    set(ItemState|int|string $value) {
+        $this->state = ItemState::wrap($value);
+    }
+}
+```
+
+See [Modeling](/documentation/guides/mvc/modeling) for the full
+`build:entity -k` output and how to add `get` hooks.
+
+To add labels, colors, or other display data to an enum, see
+[Enum](/documentation/framework/core-concepts/enum).
 
 ::: tip
 Use a backed enum for stored values. The stored value is a stable
@@ -311,21 +335,18 @@ public array $options = [];
 public array $tags = [];
 ```
 
-To work with a structured value, attach a `Record` type yourself and wrap
-the decoded array. `build:entity` does not add a `Record` type, so you
-must add it by hand.
+To read a JSON value as an object, wrap the array with `Record::wrap()`.
+A `Record` class uses `RecordTrait` and implements `RecordInterface`. See
+[Object Serialization](/documentation/framework/core-concepts/api-systems/object-serialization)
+for how these objects are serialized.
 
 ```php
 use Windwalker\Data\Record;
 
-#[Column('options')]
-#[JsonObject]
-public ?Record $options = null;
-
-// Wrap an array into a Record
 $record = Record::wrap($sakura->options);
 echo $record->theme;
 ```
+
 
 ### DateTime Columns
 

@@ -57,6 +57,10 @@ or API credentials, so never commit it or print it to logs.
 `Mailer` is registered in the container and can be injected into a
 controller or a service constructor. Use `MailerInterface` as the type hint.
 
+> !review
+> php8.4 new 物件不用包 `()`
+> 另外建議大多改用 mailer->creageMessage() 寫法，這樣建立的 message 有能力直接 renderBody 與 ->send()
+
 ```php
 use Windwalker\Core\Mailer\MailMessage;
 use Windwalker\Core\Mailer\MailerInterface;
@@ -88,6 +92,10 @@ The same injection works in a service class, for example a
 
 A typical flow renders an Edge template into the message body, then sends
 it. This example sends an order receipt.
+
+> !review
+> blade 部分不要用註解，獨立一個 code block 示範
+> 另外需要確認原始碼，直接 new 的 Message 物件可能沒有能力直接 renderBody
 
 ```php
 // views/mail/order-receipt.blade.php
@@ -201,7 +209,7 @@ The DSN in `MAIL_DSN_DEFAULT` selects the transport. Symfony supports
 SMTP, Sendmail, and several API providers. API providers need their own
 bridge package.
 
-For SendGrid, install the bridge:
+For example, if you want to use SendGrid API, install the bridge:
 
 ```bash
 composer require symfony/sendgrid-mailer
@@ -215,6 +223,9 @@ MAIL_DSN_DEFAULT="sendgrid+api://SG.YOUR_API_KEY@default"
 
 `Mailer` passes the DSN to Symfony's `Transport::fromDsn()`, which chooses
 the bridge from the scheme.
+
+> !review
+> 補上 Symfony Mailer 支援的各種 transport 連結，並且說明需要額外安裝的套件
 
 ## Advanced Features
 
@@ -248,6 +259,9 @@ Install the inliner package to enable it:
 ```bash
 composer require tijsverkoyen/css-to-inline-styles
 ```
+
+> !review
+> 確認有沒有要額外掛 Subscriber 才能運作? 還是會自動生效?
 
 ::: info
 Without the package, the subscriber throws a `LogicException` when it runs.

@@ -25,6 +25,9 @@ The file is named `{version}_{name}.php`, for example `202601011200_CreateProduc
 
 A migration file returns an anonymous instance of a class that extends `AbstractMigration`. Mark the `up` method with `#[MigrateUp]` and the `down` method with `#[MigrateDown]`:
 
+The file creates the table with the Schema callback. See
+[Tables](/documentation/components/database/tables) for the schema syntax.
+
 ```php
 <?php
 

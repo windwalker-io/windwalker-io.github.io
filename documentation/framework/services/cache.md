@@ -5,23 +5,72 @@ title: Cache
 
 # Cache
 
-Caching stores the result of expensive work so that later requests can reuse
-it. A product page that needs several database joins and a remote price
-lookup can be computed once and served from the cache for the next few
-minutes. Windwalker's cache service gives the application one place to read,
-write, and expire those values, and lets each part of the application choose
-its own storage through named cache instances.
+Caching keeps the result of expensive work so later requests can reuse it.
+A product page that runs several database joins and a remote price lookup
+can compute its summary once and serve it from the cache for the next few
+minutes. The cache service gives the application one place to read, write,
+and expire these values, and lets each part of the application choose its
+own storage through named cache instances.
 
-In Core, the cache service is provided by `CachePackage` from the
-`windwalker/cache` package and assembled by `CacheFactory`. The default cache
-instance is bound to the PSR-16 `Psr\SimpleCache\CacheInterface`, so a service
-can receive it through its constructor.
+In Windwalker Core, the cache is provided by `CachePackage` from the
+`windwalker/cache` package and assembled by `CacheFactory`.
 
-## Basic Usage in Core
+## Minimal Setup
 
-Inject `CacheInterface` into a service and use `get()`, `set()`, and
-`delete()`. Pass a time to live (TTL) in seconds to `set()` to let the entry
-expire.
+The package is registered in `etc/packages/cache.config.php`. The
+`factories.instances` section defines named cache pools, and the
+`factories.storages` section defines where each pool stores its values.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Config;
+
+use Windwalker\Cache\CachePackage;
+use Windwalker\Core\Attributes\ConfigModule;
+use Windwalker\Core\Factory\CacheFactory;
+
+return #[ConfigModule(
+    name: 'cache',
+    enabled: true,
+    priority: 100,
+    belongsTo: CachePackage::class,
+)]
+static fn() => [
+    'default' => 'global',
+
+    'providers' => [
+        CachePackage::class,
+    ],
+
+    'factories' => [
+        'instances' => [
+            'global' => static fn () => CacheFactory::cachePoolFactory(
+                'file',
+                \Windwalker\Cache\Serializer\PhpSerializer::class,
+            ),
+            'html' => static fn () => CacheFactory::cachePoolFactory(
+                'file',
+                \Windwalker\Cache\Serializer\RawSerializer::class,
+            ),
+        ],
+        'storages' => [
+            'file' => static fn () => CacheFactory::fileStorage(),
+        ],
+    ],
+];
+```
+
+The `default` key selects the instance that the plain `CacheInterface`
+receives. Each name under `instances` is a separate pool with its own
+storage and serializer, so `global` and `html` never share entries.
+
+## Complete Example
+
+A product service caches a summary with `fetch()`. A fragment service uses
+the `html` instance through a tag.
 
 ```php
 <?php
@@ -30,32 +79,25 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Psr\SimpleCache\CacheInterface;
+use Windwalker\Cache\CachePool;
 
 class ProductService
 {
     public function __construct(
-        protected CacheInterface $cache,
+        protected CachePool $cache,
     ) {
     }
 
-    public function getProductSummary(int $id): array
+    public function getSummary(int $id): array
     {
-        $key = 'product.summary.' . $id;
-
-        $summary = $this->cache->get($key);
-
-        if ($summary === null) {
-            $summary = $this->buildSummary($id);
-
-            // Keep the summary for five minutes.
-            $this->cache->set($key, $summary, 300);
-        }
-
-        return $summary;
+        return $this->cache->fetch(
+            'product.summary.' . $id,
+            fn () => $this->buildSummary($id),
+            ttl: 300,
+        );
     }
 
-    public function forgetProductSummary(int $id): void
+    public function forgetSummary(int $id): void
     {
         $this->cache->delete('product.summary.' . $id);
     }
@@ -68,150 +110,196 @@ class ProductService
 }
 ```
 
-The default instance is `global`. To use another instance, inject the
-`CacheFactory` and call `get()` with the instance name.
-
-```php
-use Windwalker\Core\Factory\CacheFactory;
-
-class HtmlFragmentService
-{
-    public function __construct(
-        protected CacheFactory $cacheFactory,
-    ) {
-    }
-
-    public function getFragment(string $name): ?string
-    {
-        return $this->cacheFactory->get('html')->get($name);
-    }
-}
-```
-
-`CacheFactory::get()` returns the same instance for the same name during a
-request. Use it when a service needs a specific instance rather than the
-default one.
-
-## Configuring Cache Instances
-
-The cache is configured in `etc/packages/cache.config.php`. The config has
-two parts. The `factories.instances` section defines the named cache pools,
-and the `factories.storages` section defines how each pool stores its
-values. The `default` key selects the instance that `CacheInterface` uses.
-
 ```php
 <?php
 
 declare(strict_types=1);
 
-use Windwalker\Cache\CachePackage;
-use Windwalker\Cache\CachePool;
-use Windwalker\Cache\Serializer\PhpSerializer;
-use Windwalker\Cache\Serializer\RawSerializer;
-use Windwalker\Cache\Storage\NullStorage;
-use Windwalker\Core\Factory\CacheFactory;
+namespace App\Service;
 
-return [
-    'default' => 'global',
-    'providers' => [
-        CachePackage::class,
-    ],
-    'factories' => [
-        'instances' => [
-            'none' => new CachePool(new NullStorage()),
-            'global' => CacheFactory::cachePoolFactory(
-                'file',
-                PhpSerializer::class,
-            ),
-            'html' => CacheFactory::cachePoolFactory(
-                'file',
-                RawSerializer::class,
-            ),
-        ],
-        'storages' => [
-            'file' => CacheFactory::fileStorage(),
-        ],
-    ],
-];
+use Windwalker\Cache\CachePool;
+use Windwalker\Core\Application\ApplicationInterface;
+
+class FragmentService
+{
+    public function __construct(
+        protected ApplicationInterface $app,
+    ) {
+    }
+
+    public function getFragment(string $name): string
+    {
+        $cache = $this->app->retrieve(CachePool::class, tag: 'html');
+
+        return $cache->fetch(
+            'fragment.' . $name,
+            fn () => $this->render($name),
+            ttl: 600,
+        );
+    }
+
+    protected function render(string $name): string
+    {
+        return '<p>' . htmlspecialchars($name) . '</p>';
+    }
+}
 ```
 
-### How Factories Are Assembled
+`ProductService` receives the default `global` pool through its
+constructor. `FragmentService` asks for the `html` variant by tag, because
+its entries must use `RawSerializer`. See
+[Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants)
+for the tagged binding rules, and
+[Tagged Services](/documentation/components/di/tagged-services)
+for the container API.
 
-Each entry in `factories.instances` is a name mapped to a factory closure
-that returns a `CachePool`. `CacheFactory::cachePoolFactory()` takes these
-arguments:
+## Injecting Cache Variants
 
-- The storage name, such as `'file'`. It is resolved from
-  `factories.storages`.
-- The serializer class, such as `PhpSerializer::class`. It converts values
-  to and from strings.
-- An optional group and default TTL, which are left at their defaults above.
+Each pool is a tagged variant of `CacheInterface`,
+`CacheItemPoolInterface`, and `CachePool`. The tag is the instance name,
+so the same class gives a different pool for each tag.
 
-`CacheFactory::fileStorage()` and `CacheFactory::dbStorage()` return the
-storage factories for the `storages` section. The `none` instance is written
-directly as a `CachePool` with a `NullStorage`, which stores nothing. Use it
-when a service must bypass caching, for example in tests.
+Use constructor injection for the default pool. Use the tag to select
+another pool when the service needs it:
 
-### Where the File Driver Stores Cache Files
+```php
+use Psr\SimpleCache\CacheInterface;
+use Windwalker\Cache\CachePool;
 
-The `file` storage writes to the `@cache` alias. In the host app,
-`@cache` points to `WINDWALKER_CACHE`, which uses the `CACHE_PATH`
-environment variable. If `CACHE_PATH` is not set, the path is `cache/` under
-the project root.
+// Default pool, from the "default" key
+public function __construct(
+    protected CacheInterface $cache,
+) {
+}
 
-Each cache instance gets its own folder under that path. The `global`
-instance writes to `cache/global/`, and the `html` instance writes to
-`cache/html/`. The file name is `~` followed by the SHA-1 hash of the key,
-with the `.data` extension, so keys with special characters are safe to use.
+// A named pool, selected by tag
+$cache = $app->retrieve(CachePool::class, tag: 'html');
+```
 
-```text
-cache/
-├── global/
-│   ├── ~3f786850e387550fdab836ed7e6dc881de23001b.data
-│   └── ...
-└── html/
-    └── ...
+::: tip
+Inject `CachePool` when you need `fetch()`, `modify()`, or `compute()`.
+Inject `CacheInterface` when a library expects a PSR-16 cache.
+:::
+
+## Reading and Writing Values
+
+The primary API is `fetch()`. It reads the key. If the key is missing or
+expired, it calls the handler, stores the returned value, and returns it.
+Use it for any value that can be rebuilt from its source.
+
+```php
+$summary = $cache->fetch(
+    'product.summary.' . $id,
+    fn () => $this->buildSummary($id),
+    ttl: 300,
+);
+```
+
+The handler runs only on a miss, so the expensive work happens once
+per TTL window. The TTL is in seconds. When the pool has a default TTL,
+omit `ttl:` to use it.
+
+Use `get()`, `set()`, and `delete()` only when the value does not come from
+a single handler, for example when a controller stores a value that arrives
+from a form:
+
+```php
+$cache->set('cart.total', 1200, 3600);
+
+$total = $cache->get('cart.total', 0);
+
+$cache->delete('cart.total');
+```
+
+::: info
+`get()` returns the default value when the key is missing. `has()` checks
+existence without reading the value.
+:::
+
+Cache keys must not contain the characters `{}()/\@:`. Use dots or dashes
+to separate parts of a key.
+
+## Assembling Your Own Cache
+
+Each entry in `factories.instances` is a factory closure that returns a
+`CachePool`. `CacheFactory::cachePoolFactory()` combines one storage from
+`factories.storages` with one serializer class. Use it to pair a storage
+with a serializer that suits its values.
+
+This example stores JSON-encoded values in Redis for a pool that other
+services read from other languages:
+
+```php
+'instances' => [
+    'shared' => static fn () => CacheFactory::cachePoolFactory(
+        'redis',
+        \Windwalker\Cache\Serializer\JsonSerializer::class,
+    ),
+],
+'storages' => [
+    'redis' => static function () {
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1', 6379);
+
+        return new \Windwalker\Cache\Storage\RedisStorage($redis);
+    },
+],
 ```
 
 ::: warning
-The file driver creates folders with `0755` permissions, and the cache
-files are readable by any user that can read the PHP process's files. Keep
-`CACHE_PATH` outside the public web root, and do not store passwords, tokens,
-or other secrets in a file cache without a separate protection layer.
+`JsonSerializer` returns arrays and scalars, not objects. Store plain data
+in a pool that uses it. Use `PhpSerializer` when you must store objects.
 :::
 
-::: tip
-Set `CACHE_PATH` in the environment when the cache must live on a different
-disk or a shared volume. Cache files are disposable, so the folder does not
-need backups.
+## Storage Options
+
+Each storage is a named entry in `factories.storages`. The storage decides
+where values live, and the serializer decides how they are encoded.
+
+### File Storage
+
+`CacheFactory::fileStorage()` writes one file per key under the `@cache`
+path. Each instance gets its own folder, and the file name is `~` plus the
+SHA-1 hash of the key with the `.data` extension, so any key is safe.
+
+```text
+cache/
++-- global/
+|   +-- ~3f786850e387550fdab836ed7e6dc881de23001b.data
++-- html/
+    +-- ...
+```
+
+File storage locks each write with `flock()`, so concurrent requests on the
+same host do not corrupt a value.
+
+::: warning
+Folders are created with `0755` permissions. Keep the cache path outside
+the public web root, and do not store passwords or tokens in a file cache
+without a separate protection layer.
 :::
 
-## Database Storage
+> !review
+> 說明如果有必要將 cache path 設定在 public 目錄下時，可以啟用 FilesystemStorage 的 access denied 設定，見 vendor/windwalker/framework/packages/cache/src/Storage/FileStorage.php
 
-`DatabaseStorage` keeps cache entries in a database table instead of files.
-It is useful when several servers must share the same cache, or when the
-file system is read-only. The table defaults to `cache_items`, and the
-storage keeps the key, group, payload, and expiration time in separate
-columns.
+### Database Storage
 
-Create the storage with `CacheFactory::dbStorage()` and add a pool that
-uses it:
+> !review
+> FQCN 都改成 use
+
+`CacheFactory::dbStorage()` keeps entries in a database table. Pass a
+connection name, or `null` for the default connection, and the table name:
 
 ```php
 'factories' => [
     'instances' => [
-        'global' => CacheFactory::cachePoolFactory(
-            'file',
-            PhpSerializer::class,
-        ),
-        'shared' => CacheFactory::cachePoolFactory(
+        'shared' => static fn () => CacheFactory::cachePoolFactory(
             'db',
-            PhpSerializer::class,
+            \Windwalker\Cache\Serializer\PhpSerializer::class,
         ),
     ],
     'storages' => [
-        'file' => CacheFactory::fileStorage(),
-        'db' => CacheFactory::dbStorage(
+        'db' => static fn () => CacheFactory::dbStorage(
             null,
             'cache_items',
         ),
@@ -219,15 +307,43 @@ uses it:
 ],
 ```
 
-The first argument is the database connection name. `null` uses the default
-connection. The table is created automatically when a save fails because the
-table is missing. To create it ahead of time, generate a migration with
-`CacheTableCommand`, or call `DatabaseStorage::createTable()` directly.
+The table defaults to `cache_items`. It stores the key, group, payload, and
+expiration time, and it has a unique index on the key and group. The table
+is created automatically when a save fails because it is missing. You can
+also create it ahead of time with the `cache:table` command or
+`DatabaseStorage::createTable()`.
 
 ::: info
-Expired rows are not removed on every write. By default, `DatabaseStorage`
-prunes them with a probability of 1 percent per save.
+File or Redis storage usually gives better performance than database
+storage, because each read avoids a SQL query. Choose database storage for
+the reasons below, and accept the extra cost for them.
 :::
+
+Database storage is useful in three cases:
+
+- Sharing across hosts. Every server reads and writes the same table, so
+  one server's entry is visible to all others. A file cache is local to one
+  machine unless you mount a shared volume.
+- Locking. Writes go through the database, so the storage stays consistent
+  when several hosts update the same key. The per-key `CacheLock` used by
+  `fetch()` is still file-based, so cross-host locking requires a shared
+  filesystem. See [Cache Pool](/documentation/components/cache/cache-pool).
+- State markers. Entries can be grouped and their expiration updated
+  without rewriting the value, so a marker such as "the import last ran at"
+  can live in the shared store.
+
+Expired rows are not removed on every write. `DatabaseStorage` prunes them
+randomly, with a default probability of 1 percent per save.
+
+## Reminders
+
+- A missing key returns `null` from `get()`, or the handler result from
+  `fetch()`. Do not treat a cached `null` as a miss unless the handler
+  returns one.
+- Use the `none` instance to bypass caching for one service, for example
+  in tests. It stores nothing and always reports a miss.
+- Keep the cache path and database table out of public access, and do not
+  cache secrets without protection.
 
 ## Components Reference
 
@@ -236,9 +352,9 @@ complete component documentation, see:
 
 - [Cache Overview](/documentation/components/cache/index): package
   installation and standalone usage.
-- [CachePool](/documentation/components/cache/cache-pool): pool operations,
-  read-through helpers, locking, and `CacheItem`.
-- [TaggedCachePool](/documentation/components/cache/tagged-pool): tag-based
+- [Cache Pool](/documentation/components/cache/cache-pool): pool
+  operations, read-through helpers, locking, and `CacheItem`.
+- [Tagged Pool](/documentation/components/cache/tagged-pool): tag-based
   invalidation.
 - [Storages](/documentation/components/cache/storages): available storage
   backends.

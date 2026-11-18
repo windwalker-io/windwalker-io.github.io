@@ -326,10 +326,10 @@ expressions (CTEs). They work through the query builder, so the ORM does not
 need extra setup.
 
 ```php
-$query = $orm->createBaseQuery()
+$query = $orm->createQuery()
     ->withRecursive(
         'tree',
-        $orm->createBaseQuery()
+        $orm->createQuery()
             ->select('id', 'parent_id')
             ->from('categories')
             ->where('parent_id', null),
@@ -368,9 +368,9 @@ you need a condition.
 $items = $orm->from(Article::class, 'article')
     ->joinLateral(
         'LEFT',
-        $orm->createBaseQuery()
+        fn(Query $query) => $query
             ->selectRaw('COUNT(*) AS total')
-            ->from('comments', 'c')
+            ->from(Comment::class, 'c')
             ->whereRaw('c.article_id = article.id'),
         'stats',
     )

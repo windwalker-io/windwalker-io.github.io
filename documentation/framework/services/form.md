@@ -1,296 +1,284 @@
 ---
 layout: doc
-title: Form
+title: Form Service
+description: Define, fill, validate and render forms with the Windwalker form service.
 ---
 
-# Form
+# Form Service
 
-# Form
+The form service builds forms from plain PHP objects. A form is defined
+once, then reused to fill values, filter and validate input, and render HTML.
 
-Forms are where untrusted input enters an application.
-A registration page, for example, must render a set of inputs, fill them with existing data when editing, validate what the user submitted, and filter it before it reaches the database.
-The Form service keeps these steps in one definition, so the View and the Controller describe the same fields instead of repeating them.
+When each controller and template builds its own fields, the field names,
+validation rules and markup drift apart. A shared definition keeps them in
+sync.
 
 ## Minimal Setup
 
-A form is built from four parts:
+Create a definition class. Mark each method with `#[FormDefine]` and add
+the fields with `addField()`.
 
-- `FormFactory` creates `Form` instances from the DI container.
-- `Form` holds the fields, fills them, filters, validates, and renders them.
-- `Fieldset` and `NS` attributes group fields into sections and namespaces.
-- Field classes, such as `TextField` and `PasswordField`, describe each input.
-
-Obtain the factory from the container, then create the form from a definition class.
+> !review
+> 可以優先用 `add('name', FieldClass::class)` 的作法來介紹
+> add() 有提供 generics
 
 ```php
-use Windwalker\Core\Form\FormFactory;
-
-// In a constructor or a method that receives the application
-$formFactory = $app->retrieve(FormFactory::class);
-
-$form = $formFactory->create(UserForm::class);
-```
-
-::: info
-`FormFactory` is registered as a shared object, so the same instance is reused across the application.
-:::
-
-## Using Form in a View
-
-This example defines a profile form in a View. It uses a fieldset, a namespace, registered fields, a custom adjustment, and pre-filled data.
-
-```php
-namespace App\View\User;
-
 use Windwalker\Form\Attributes\FormDefine;
-use Windwalker\Form\Attributes\Fieldset;
-use Windwalker\Form\Attributes\NS;
-use Windwalker\Form\Field\PasswordField;
+use Windwalker\Form\Field\EmailField;
 use Windwalker\Form\Field\TextField;
 use Windwalker\Form\Form;
 
-#[FormDefine]
-#[Fieldset('user', 'User')]
-#[NS('user')]
-class UserProfileForm
+class UserForm
 {
-    // Registered fields are added to the form by the attribute resolver
-    public function username(): TextField
+    #[FormDefine]
+    public function define(Form $form): void
     {
-        return (new TextField('username', 'Username'))
+        $form->addField(new TextField('name', 'Name'))
             ->required(true);
-    }
 
-    public function email(): TextField
-    {
-        return (new TextField('email', 'Email'))
+        $form->addField(new EmailField('email', 'Email'))
             ->required(true);
-    }
-
-    public function password(): PasswordField
-    {
-        return (new PasswordField('password', 'Password'))
-            ->attr('placeholder', 'Leave blank to keep');
     }
 }
 ```
 
-The View creates the form, adjusts it, fills it with data, and passes it to the template.
+The form is built by `FormFactory`. Get it from the container, or inject it
+into a constructor.
 
 ```php
-namespace App\View\User;
-
 use Windwalker\Core\Form\FormFactory;
-use Windwalker\Core\View\AbstractView;
 
-class UserProfileView extends AbstractView
+$formFactory = $app->retrieve(FormFactory::class);
+$form = $formFactory->create(UserForm::class);
+```
+
+For more about service lookup, see
+[Service Variants](/documentation/framework/core-concepts/dependency-injection/service-variants).
+
+## Complete Example
+
+The following example defines a form, fills it with stored data, filters
+and validates a submitted request, and renders the result.
+
+```php
+use Windwalker\Core\Form\FormFactory;
+use Windwalker\Form\Attributes\FormDefine;
+use Windwalker\Form\Field\EmailField;
+use Windwalker\Form\Field\PasswordField;
+use Windwalker\Form\Field\TextField;
+use Windwalker\Form\Form;
+
+class UserForm
 {
-    public function prepare(): array
+    #[FormDefine]
+    public function define(Form $form): void
     {
-        $form = $this->container->get(FormFactory::class)
-            ->create(UserProfileForm::class);
+        $form->ns('user', function (Form $form) {
+            $form->addField(new TextField('name', 'Name'))
+                ->required(true);
 
-        // Custom adjustment: add a class to the email input
-        $form->getField('user/email')?->addClass('form-control-lg');
+            $form->addField(new EmailField('email', 'Email'))
+                ->required(true);
 
-        // Pre-fill the fields from the existing record
-        $form->fill([
-            'username' => 'foo',
-            'email' => 'foo@example.com',
-        ]);
+            $form->addField(new PasswordField('password', 'Password'));
+        });
+    }
+}
+
+$form = $formFactory->create(UserForm::class);
+
+// Fill the form with stored data.
+$form->fill([
+    'user' => [
+        'name' => 'Alice',
+        'email' => 'alice@example.com',
+    ],
+]);
+
+// Filter and validate the submitted data.
+$data = $form->filter($input);
+$result = $form->validate($data);
+
+if ($result->isFailure()) {
+    // ERROR: $result->getResult('user/email') reports the failed field.
+    $first = $result->first();
+}
+
+// Render all fields.
+echo $form->renderFields();
+```
+
+## Defining Fields
+
+### Field Classes
+
+Each field is a class in the `Windwalker\Form\Field` namespace. The
+constructor takes the field name and label. Options are set by chained
+calls, such as `required(true)` and `attr()`.
+
+> !review
+> 用 min() 示範，attr() 可以示範 attr('data-bs-toggle', 'tooltip') 之類的自訂屬性
+
+```php
+use Windwalker\Form\Field\DateField;
+use Windwalker\Form\Field\TextareaField;
+
+$form->addField(new TextareaField('bio', 'Biography'));
+
+$form->addField(new DateField('starts_on', 'Start date'))
+    ->attr('min', '2026-01-01');
+```
+
+See the [Fields](/documentation/components/form/fields) reference for the full list of
+field types.
+
+### Adding by Class Name
+
+`add()` creates the field from a class name. It returns the field.
+
+```php
+$bio = $form->add('bio', TextareaField::class);
+```
+
+### Namespaces and Fieldsets
+
+> !review
+> 說明 ns() 產出的 name 會長怎麼樣
+> 詳細看一下 @documentation/components/form 內的文件
+> 依照文件內容增補本篇文件
+
+`ns()` prefixes field names with a namespace. A field named `email` inside
+`ns('user')` has the full name `user/email`. Use `getField()` with that
+full name.
+
+```php
+$form->ns('user', function (Form $form) {
+    $form->addField(new TextField('email', 'Email'));
+});
+
+echo $form->getField('user/email')->getInputName();
+```
+
+`fieldset()` groups fields under a name. `getFieldset()` returns the group.
+
+```php
+$form->fieldset('basic', function (Form $form) {
+    $form->addField(new TextField('id', 'ID'));
+});
+```
+
+::: info
+`getFields()` matches the namespace exactly. It does not match prefixes, so
+`getFields(null, 'user')` does not return fields in `user/profile`.
+:::
+
+### Choices
+
+Select, radio and checkbox fields take their options from a choice list.
+See [Choices](/documentation/components/form/choices) for the option APIs.
+
+## Filling Data
+
+`fill()` assigns an array to the form. JSON-looking strings are decoded by
+default. Pass `false` as the second argument to keep them as plain text.
+
+```php
+$form->fill($data);
+
+// Keep JSON-looking strings as plain text.
+$form->fill($data, false);
+```
+
+`getValues()` returns the current values. `fillTo()` copies the values to
+another object or array. See [Data](/documentation/components/form/data) for the full data
+workflow.
+
+## Filtering and Validation
+
+`filter()` applies each field's filters and skips disabled fields.
+`validate()` checks the data and returns a `ResultSet`.
+
+```php
+$data = $form->filter($input);
+$result = $form->validate($data);
+
+if ($result->isFailure()) {
+    $first = $result->first();
+}
+```
+
+`ResultSet::getResult()` takes the full namespaced field name, such as
+`user/email`. Each `ValidateResult` has these status codes:
+
+- `ValidateResult::STATUS_SUCCESS` (200): the value passed.
+- `ValidateResult::STATUS_REQUIRED` (400): a required value is missing.
+- `ValidateResult::STATUS_FAILURE` (500): a rule rejected the value.
+
+`prepareStore()` returns the filtered and validated values, ready for
+storage.
+
+For the filters and validation rules, see
+[Validation and Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter)
+and the [Filter](/documentation/components/filter/) component.
+
+## Rendering
+
+`renderFields()` renders every field. `renderField()` renders one field by
+its full name.
+
+```php
+echo $form->renderField('user/email');
+```
+
+`setRenderer()` replaces the renderer. The default `FormRenderer` looks up
+the `@theme::form.field-wrapper`, `@theme::form.label` and
+`@theme::form.input` templates. When they are missing, it uses a simple
+built-in renderer.
+
+See [Rendering](/documentation/components/form/rendering) for the rendering API.
+
+## Using Forms in a View
+
+> !review
+> 介紹 CustomForm class 內注入一些外部參數，例如從 input 送進來的內容
+> 然後據此改變 fields 內容
+> FormFactory create() 是支援注入的
+
+Views receive the form from `FormFactory`, fill it with the record, and
+pass it to the template. For the full pattern, see
+[View](/documentation/guides/mvc/view) and [Admin](/documentation/guides/mvc/admin). The Unicorn
+edit-form tutorial is at [Edit Forms](/documentation/guides/rad/edit-forms).
+
+The short example below follows the pattern in those guides.
+
+```php
+use Windwalker\Core\Form\FormFactory;
+
+class UserEditView
+{
+    public function __construct(
+        protected FormFactory $formFactory,
+    ) {
+    }
+
+    public function prepare(array $item): array
+    {
+        $form = $this->formFactory->create(UserForm::class);
+        $form->fill(['user' => $item]);
 
         return compact('form');
     }
 }
 ```
 
-::: info
-The `user/` prefix comes from the `#[NS('user')]` attribute.
-Fields are addressed by `namespace/name` in methods such as `getField()`.
-:::
-
-::: tip
-Use `#[FormDefine]` on each method that registers fields, and keep those methods free of request logic.
-:::
-
-The template renders the whole form or a single field.
-
-```php
-<?= $form->renderFields() ?>
-
-<?= $form->renderField('user/email') ?>
-```
-
-### Defining Fieldsets and Namespaces
-
-`#[Fieldset]` groups fields under a named section with an optional title.
-`#[NS]` prefixes the names of the fields that follow it, so `username` becomes `user/username`.
-Use `ns()` or its alias `group()` when you need the namespace inside a method.
-
-```php
-use Windwalker\Form\Form;
-
-// Inside a definition method
-$form->ns('billing', function (Form $form) {
-    // Field names become billing/...
-});
-```
-
-For the full definition syntax, see [Defining Forms](/documentation/components/form/defining).
-
-### Registering Fields
-
-Fields can be added as an instance, a class name, or a callable.
-
-```php
-use Windwalker\Form\Field\TextField;
-
-// Instance
-$form->addField(new TextField('user/username', 'Username'));
-
-// Named form field with a fieldset
-$form->add('user/email', TextField::class, 'user');
-
-// Callable that receives the form and the name
-$form->add('user/phone', fn ($form, $name) => new TextField($name));
-```
-
-::: info
-`add()` throws `InvalidArgumentException` when the value does not resolve to an `AbstractField`.
-:::
-
-See [Fields](/documentation/components/form/fields) for the available field types and their options.
-
-### Injecting Custom Content to Adjust Fields
-
-A definition can use `Form::register()` or `Form::wrap()` to run closures against the form.
-Fields are also adjusted after creation, using methods like `addClass()`, `addFilter()`, and `addValidator()`.
-
-```php
-use Windwalker\Filter\Rule\CastTo;
-use Windwalker\Filter\Rule\EmailAddress;
-
-$form->getField('user/email')
-    ?->addFilter(new CastTo('string'))
-    ?->addValidator(EmailAddress::class);
-```
-
-### Filling Data
-
-`fill()` sets values on registered fields. Fields that are not registered are ignored.
-
-```php
-// Pre-fill from a record
-$form->fill($user->toArray());
-
-// Fill a nested path
-$form->fillTo('user', $user->toArray());
-```
-
-By default, `fill()` decodes JSON strings and nested JSON values.
-Pass `false` as the second argument to keep them as they are.
-
-```php
-// Keep JSON strings untouched
-$form->fill($data, false);
-```
-
-## Using Form in a Controller
-
-Controllers use the same definition to check and prepare submitted data.
-The request data is passed through `filter()`, `validate()`, and then `prepareStore()`.
-
-```php
-namespace App\Controller\User;
-
-use Windwalker\Core\Form\FormFactory;
-
-// Inside a controller method, with $data holding the request values
-$form = $formFactory->create(UserProfileForm::class);
-
-// Filter first, then validate the filtered data
-$filtered = $form->filter($data);
-$result = $form->validate($filtered);
-
-if ($result->isFailure()) {
-    // Return to the form with the errors
-}
-
-// Keep only the registered fields and prepare them for storage
-$values = $form->prepareStore($filtered);
-
-// Save $values using a repository or model
-```
-
-`validate()` returns a `ResultSet`.
-Use `getResult('user/email')` to read the outcome of a single field.
-
-```php
-$emailResult = $result->getResult('user/email');
-
-if ($emailResult?->isFailure()) {
-    // Show the message for the email field only
-}
-```
+## Reminders
 
 ::: warning
-Do not store request data without calling `validate()` and `prepareStore()`.
-Skipping them stores unchecked values, and `prepareStore()` only returns the fields that are registered in the form.
+Do not store request data without calling `filter()` and `validate()`
+first. Unvalidated input can reach your database.
 :::
-
-::: info
-The framework's own tests call `validate()` on the output of `filter()`, so validators see the cleaned values.
-:::
-
-For the rules that run in the validation step, see [Validation and Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter).
-
-## Customizing Field Layout
-
-`FormRenderer` renders each part of a field through a theme layout when it exists:
-
-- `@theme::form.field-wrapper` wraps the label and input.
-- `@theme::form.label` renders the label.
-- `@theme::form.input` renders the input.
-
-If a layout is missing, the field is rendered by the built-in `SimpleRenderer`.
-Create the layouts in your theme to change the markup for every form.
-
-```php
-// Set a custom renderer on the form
-$form->setRenderer($customRenderer);
-
-// Render one field with the current renderer
-echo $form->renderField('user/email', ['class' => 'mb-3']);
-```
 
 ::: tip
-Customize one layout at a time.
-Start with `form.input` and keep the field wrapper unchanged until the input markup is correct.
+Keep one definition class per form. Controllers, views and renderers should
+all use the same class so the field names stay consistent.
 :::
-
-::: info
-The `@theme::` namespace is resolved through the renderer's paths.
-The configuration that maps this namespace in the host app was not verified in the source.
-:::
-
-For the full renderer options, see [Rendering](/documentation/components/form/rendering).
-
-## Related Topics
-
-- [Form component](/documentation/components/form/index) for standalone usage.
-- [Defining Forms](/documentation/components/form/defining) for attributes and definition syntax.
-- [Fields](/documentation/components/form/fields) for field types and options.
-- [Data](/documentation/components/form/data) for filling and binding.
-- [Rendering](/documentation/components/form/rendering) for renderers and layouts.
-- [Validation and Filter](/documentation/framework/core-concepts/http-routing/validation-and-filter) for request validation.
-
-
-- 如何在 View 中使用 Form
-  - 如何定義 Form Fieldset NS(group)
-  - 如何註冊 Fields
-  - 如何注入自訂內容用來調整 Fields
-  - 如何 fill data 讓 Fields 預先填入內容
-- 如何在 Controller 中也建立 Form 來做 Validation & Filter & prepareStore
-- 如何客制化 fields layout
-- 更詳細的說明可以連回 components 介紹
-- 任何你覺得值得追加的項目

@@ -28,10 +28,10 @@ it takes precedence over the option.
 
 ```bash
 # Run the migration without a backup
-php bin/windwalker.php migrate:go --no-backup
+php windwalker mig:go --no-backup
 
 # Disable automatic backups for every command
-DB_BACKUP_DISABLED=1 php bin/windwalker.php migrate:go
+DB_BACKUP_DISABLED=1 php windwalker mig:go
 ```
 
 See [Migrations](/documentation/framework/services/database/migrations)
@@ -115,6 +115,23 @@ tools in order.
   read-only. If the SQL dump fails, `sqlite3 .backup` writes a binary
   `.sqlite` copy. In-memory databases skip the CLI tools.
 
+- **SQL Server**: `mssql-scripter` writes `.sql`. The exporter sets
+  the password through `MSSQL_SCRIPTER_PASSWORD`. If `sqlpackage` is
+  installed, it can also write a `.bacpac` file, which restores with
+  `sqlpackage` or SSMS.
+- **Oracle**: `expdp` (Data Pump) writes a `.dmp` file, and `exp` is used
+  when Data Pump is not available. `sql` (SQLcl) writes `.sql`. Plain
+  SQL export needs native tools when the schema has identity columns,
+  because the PHP path rejects `GENERATED ALWAYS` identity columns.
+
+```dotenv
+MSSQL_SCRIPTER_BINARY=/usr/local/bin/mssql-scripter
+SQLPACKAGE_BINARY=/opt/sqlpackage/sqlpackage
+ORACLE_EXPDP_BINARY=/u01/app/oracle/bin/expdp
+ORACLE_EXP_BINARY=/u01/app/oracle/bin/exp
+SQLCL_BINARY=/opt/sqlcl/bin/sql
+```
+
 The output format and what it contains depend on the tool:
 
 - A `.sql` dump restores with the database client, such as `mysql` or `psql`.
@@ -161,6 +178,13 @@ a complete backup.
 
 The CLI tool writes to a temporary file first. A failed or empty output
 is discarded, so partial output never ends up in the backup.
+
+::: warning
+The PHP fallback does not fully support generated columns or views.
+Generated column values are left out of the exported rows, and views are
+not exported. Do not rely on the PHP fallback for a project. Install the
+native tools for your database.
+:::
 
 ## Compression
 
@@ -237,4 +261,11 @@ Store backup files outside the web root and restrict their file
 permissions. The MySQL defaults file holds the password in plain text
 until shutdown, and a killed process can leave it behind. Check `@temp`
 after a failed run, and encrypt copies that leave the server.
+:::
+
+::: warning
+The automatic backup before migrations and seeders is temporary protection
+against mistakes in those commands. It does not replace a regular backup
+schedule. For projects with sensitive or very large data, set
+`DB_BACKUP_DISABLED=1` in `.env.base` to turn it off permanently.
 :::

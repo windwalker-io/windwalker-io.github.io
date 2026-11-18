@@ -19,6 +19,9 @@ yourself.
 
 Inside `buildBody()`, the callback receives a `MailBuilder` instance:
 
+> !review
+> 確認一下，是否要用 createMessage() 來建立 MailMessage，才有能力產生 MailBuilder
+
 ```php
 use Windwalker\Core\Mailer\MailBuilder;
 use Windwalker\Core\Mailer\MailMessage;
@@ -110,6 +113,9 @@ $mail->text('- First item' . "\n" . '- Second item');
 
 Markdown needs the `league/commonmark` package. Install it in the host
 application if it is not already present.
+
+> !review
+> 這裡講清楚一點是因為 HTML 會被重複跳脫，Markdown 會被轉成 HTML，然後再被跳脫一次，導致 HTML 樣式失效。
 
 ::: info
 Markdown is parsed by CommonMark with `html_input` set to escape and

@@ -312,6 +312,79 @@ Keep the pool size below the database server's connection limit, and
 account for every worker process when choosing `maxSize`.
 :::
 
+## Creating a Pool Manually
+
+Use a manual pool when you run your own Swoole server outside the
+application. Create the pool in the `workerStart` event, not in the master
+process. Connections and coroutine channels cannot cross a `fork()`.
+
+```php
+use Swoole\Http\Server;
+use Windwalker\Database\DatabaseFactory;
+use Windwalker\Pool\ConnectionPool;
+use Windwalker\Pool\Enum\Heartbeat;
+use Windwalker\Pool\PoolOptions;
+use Windwalker\Pool\Stack\SwooleStack;
+
+$server = new Server('0.0.0.0', 8080);
+$db = null;
+
+$server->on('workerStart', function () use (&$db) {
+    // Each worker creates its own pool after the fork.
+    $pool = new ConnectionPool(
+        new PoolOptions(
+            maxSize: 10,
+            minSize: 2,
+            waitTimeout: 3,
+            idleTimeout: 60,
+            maxLifetime: 1800,
+            maxUses: 10000,
+            leakTimeout: 30,
+            heartbeat: Heartbeat::LAZY,
+            timerInterval: 10,
+        ),
+        new SwooleStack(10),
+    );
+
+    $db = (new DatabaseFactory())->create(
+        'pdo_mysql',
+        [
+            'host' => '127.0.0.1',
+            'dbname' => 'app',
+            'user' => 'app',
+            'password' => getenv('DB_PASSWORD'),
+            'charset' => 'utf8mb4',
+        ],
+        $pool,
+    );
+});
+
+$server->on('request', function ($request, $response) use (&$db) {
+    // Each request runs in its own coroutine and borrows a connection.
+    $posts = $db->prepare('SELECT id, title FROM posts WHERE state = ?')
+        ->execute([1])
+        ->all();
+
+    $response->end(json_encode($posts));
+});
+
+$server->start();
+```
+
+`DatabaseFactory::create()` accepts the pool as its third argument. The
+driver then borrows and returns connections automatically on each query.
+Use `'pdo_mysql'` for PDO with MySQL. The same `$pool` argument works for
+the other drivers the factory creates, such as `'mysqli'` and `'pgsql'`.
+
+::: warning
+Do not create the pool in the master process before `start()`. Connections
+opened before `fork()` are shared by every worker and fail in hard-to-notice
+ways.
+:::
+
+Keep the stack capacity equal to `maxSize`. The stack stores up to that
+many idle connections.
+
 ## Related Pages
 
 - [Queries](/documentation/components/database/queries): running statements

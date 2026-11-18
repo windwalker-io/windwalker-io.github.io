@@ -6,15 +6,22 @@ title: Language
 # Language
 
 Internationalization (i18n) lets one application serve users in several
-languages. Without it, every label, message, and email is hard-coded in one
-language. With it, the code asks for a key such as `user.welcome`, and the
-framework returns the text that matches the current locale, such as
-`Welcome` for `en-US` or `歡迎` for `zh-TW`.
+languages. The code asks for a key such as `user.welcome`, and the framework
+returns the text for the current locale, such as `Welcome` for `en-US` or
+`歡迎` for `zh-TW`. Translations live in files, one directory per locale, so
+translators can change text without touching code.
+
+The language system has two layers:
+
+- `Windwalker\Language\Language`: the standalone translator. It has no
+  framework dependency.
+- `Windwalker\Core\Language\LangService`: the Core service. It implements
+  `LanguageInterface` and wraps a `Language` object.
 
 ## Enabling the Language Service
 
-The Core `LangService` is registered as a shared service. Inside a Windwalker
-application, obtain it from the container or inject it into a class:
+`LanguagePackage` registers `LangService` as a shared service. Obtain it
+from the container, or inject it into a constructor:
 
 ```php
 use Windwalker\Core\Language\LangService;
@@ -22,7 +29,7 @@ use Windwalker\Core\Language\LangService;
 // Resolve from the container
 $lang = $container->get(LangService::class);
 
-// Or inject it in a constructor
+// Or inject it into a constructor
 class ReportService
 {
     public function __construct(
@@ -32,59 +39,36 @@ class ReportService
 }
 ```
 
-Classes that use the `TranslatorTrait` receive the service through
-`#[Inject] LangService $lang`, so they can call `$this->trans()` directly.
-
-For standalone use, the underlying `Windwalker\Language\Language` class
-can be created without the framework. Use it when you have no container.
-
 ## Setup
 
 ### Configuration
 
-The language configuration lives in `etc/packages/language.config.php`.
-Core provides these defaults:
-
-```php
-// Core defaults, roughly
-return [
-    'locale' => env('APP_LOCALE') ?: 'en-US',
-    'fallback' => 'en-US',
-    'paths' => ['@languages'],
-    'debug' => env('LANG_DEBUG'),
-];
-```
-
-Override the values in your project config. The host application sets
-`locale` to `zh-TW`:
+The project config is `etc/packages/language.config.php`. The host
+application uses these keys:
 
 ```php
 // etc/packages/language.config.php
 return [
+    'debug' => (bool) (env('LANG_DEBUG') ?? false),
     'locale' => 'zh-TW',
     'fallback' => 'en-US',
+    'paths' => [
+        '@languages',
+    ],
 ];
 ```
 
-- `locale`: the default locale used when the application starts.
+- `debug`: marks untranslated strings and stores them as orphans. Debug
+  output needs both `app.debug` and `language.debug` enabled.
+- `locale`: the locale used when the application starts.
 - `fallback`: the locale used when a key is missing in the current locale.
-- `paths`: directories scanned for translation files, resolved by path alias.
-- `debug`: wraps translated strings and missing keys to make them visible.
-  Debug output needs both `app.debug` and `language.debug` enabled.
+- `paths`: directories scanned for translation files. `@languages` resolves
+  to `resources/languages`.
 
-### File Formats
+### Translation Files
 
-Translation files are loaded through the `FormatRegistry`. The supported
-formats are:
-
-- `ini`
-- `json`
-- `php`
-- `yaml` (also accepted as `yml`)
-
-Place each locale in its own directory under `resources/languages`, using
-the locale code as the directory name. Use the same file name in each
-locale:
+Place each locale in its own directory, and use the same file name in
+every locale:
 
 ```text
 resources/languages/
@@ -94,221 +78,415 @@ resources/languages/
     └── main.ini
 ```
 
-A sample `main.ini` file:
-
 ```ini
 ; resources/languages/en-US/main.ini
 user.welcome = "Welcome, :name"
 user.logout = "Log out"
 ```
 
-The same keys in the other supported formats:
+Placeholders use the `:name` form. `Language::replace()` replaces each
+`:key` with the matching value from the arguments.
 
-```json
+The file extension must always be written explicitly, for example
+`main.ini` or `main.php`. This is a requirement left over from legacy
+behavior, so do not rely on the format argument alone to find the file.
+
+## Complete Example
+
+The example below loads the translation files in a middleware, translates
+inside a service, and returns the text in the current locale:
+
+```php
+<?php
+
+// app/Module/Front/FrontMiddleware.php
+namespace App\Module\Front;
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Windwalker\Core\Language\TranslatorTrait;
+use Windwalker\Core\Middleware\AbstractLifecycleMiddleware;
+
+class FrontMiddleware extends AbstractLifecycleMiddleware
 {
-    "user": {
-        "welcome": "Welcome, :name",
-        "logout": "Log out"
+    use TranslatorTrait;
+
+    protected function preprocess(ServerRequestInterface $request): void
+    {
+        // Load every ini file for the current locale
+        $this->lang->loadAll('ini');
+    }
+
+    protected function postProcess(ResponseInterface $response): void
+    {
+    }
+}
+```
+
+> !review
+> 翻譯插入參數時，優先用 `name: $name` 形式，blade 也一樣
+> 但可示範陣列方式是可選選項
+
+```php
+<?php
+
+// app/Service/WelcomeService.php
+namespace App\Service;
+
+use Windwalker\Core\Language\LangService;
+
+class WelcomeService
+{
+    public function __construct(
+        protected LangService $lang,
+    ) {
+    }
+
+    public function greeting(string $name): string
+    {
+        return $this->lang->trans('user.welcome', ['name' => $name]);
     }
 }
 ```
 
 ```php
-<?php
-// resources/languages/en-US/main.php
-return [
-    'user.welcome' => 'Welcome, :name',
-    'user.logout' => 'Log out',
-];
+echo $welcome->greeting('Alice');
+// ZH-TW: 歡迎, Alice
+// EN-US: Welcome, Alice
 ```
 
-```yaml
-# resources/languages/en-US/main.yaml
-user.welcome: "Welcome, :name"
-user.logout: "Log out"
-```
+## Loading Translation Files
 
-::: info
-The `Language::load()` method defaults to `ini`, while
-`LangService::loadFile()` defaults to `php`. Pass the format explicitly
-to avoid surprises.
-:::
+Each middleware loads the files its area needs. A front-end request should
+not load admin strings, and the reverse holds too.
 
-For basic usage with components, see
-[Language Component](/documentation/components/language/) and
-[Translation](/documentation/components/language/translation).
+### Loading in Middleware
 
-## Complete Example
-
-The following example reads a translation for the current locale.
-It loads the `main` file, sets the locale, and prints the result:
+Load files in `preprocess()` of the middleware for each area. The host
+application's `FrontMiddleware` loads its vendor packages first, then
+its own files:
 
 ```php
 <?php
 
-use Windwalker\Core\Language\LangService;
+namespace App\Module\Front;
 
-// Obtain the shared language service
-$lang = $container->get(LangService::class);
+use Lyrasoft\Luna\LunaPackage;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Unicorn\UnicornPackage;
+use Windwalker\Core\Language\TranslatorTrait;
+use Windwalker\Core\Middleware\AbstractLifecycleMiddleware;
 
-// Load the translation file for the current locale
-$lang->loadFile('main', 'ini');
+class FrontMiddleware extends AbstractLifecycleMiddleware
+{
+    use TranslatorTrait;
 
-// Translate a key with a placeholder
-echo $lang->trans('user.welcome', ['name' => 'Alice']);
-// Output with zh-TW: 歡迎, Alice (depends on your translation)
+    protected function preprocess(ServerRequestInterface $request): void
+    {
+        // Vendor files, loaded for the current locale
+        $this->lang->loadAllFromVendor(UnicornPackage::class, 'ini');
+        $this->lang->loadAllFromVendor(LunaPackage::class, 'ini');
 
-// Missing keys return the key itself
-echo $lang->trans('user.unknown');
-// Output: user.unknown
+        // Project files in resources/languages
+        $this->lang->loadAll('ini');
+        
+        // Or load one file for the current locale
+        $this->lang->loadFile('main.ini', 'ini');
+    }
+
+    protected function postProcess(ResponseInterface $response): void
+    {
+    }
+}
 ```
 
-::: info
-When a key is missing in every loaded file, `trans()` returns the key itself.
-This keeps pages readable during development, but it can hide missing
-translations in production.
-:::
-
-## Basic Features
-
-### Default Locale Setup
-
-The `LanguagePackage` registers `LangService` as a shared service during
-registration. The `LangService` constructor creates a `Language` object
-from `language.locale` and `language.fallback`, and registers the
-`language.paths` directories. Each request therefore starts with the
-configured default locale, without any extra code.
-
-### Switching the Locale
-
-The shared `LangService` forwards `setLocale()` and `getLocale()` to its
-inner `Language` object:
+The admin middleware follows the same pattern. It loads the same vendor
+packages and the project files that the admin area uses:
 
 ```php
-// Change the locale for the current request
-$lang->setLocale('en-US');
+<?php
 
-// Read the locale in use
-echo $lang->getLocale(); // en-US
+namespace App\Module\Admin;
+
+use Lyrasoft\Luna\LunaPackage;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Unicorn\UnicornPackage;
+use Windwalker\Core\Language\TranslatorTrait;
+use Windwalker\Core\Middleware\AbstractLifecycleMiddleware;
+
+class AdminMiddleware extends AbstractLifecycleMiddleware
+{
+    use TranslatorTrait;
+
+    protected function preprocess(ServerRequestInterface $request): void
+    {
+        $this->lang->loadAllFromVendor(UnicornPackage::class, 'ini');
+        $this->lang->loadAllFromVendor(LunaPackage::class, 'ini');
+        $this->lang->loadAll('ini');
+    }
+
+    protected function postProcess(ResponseInterface $response): void
+    {
+    }
+}
 ```
 
-::: warning
-`setLocale()` changes the shared service for the rest of the request.
-Use the clone method described below when the change should be temporary.
-:::
+### Loading One File
 
-### Loading Translation Files
-
-Translation files are loaded per locale. Use `loadFile()` for one file or
-`loadAll()` to load every file in the locale directory:
+`loadFile()` loads a single file for the current locale. The file name
+must include its extension, and the format argument must match it:
 
 ```php
 // Load one file for the current locale
-$lang->loadFile('main', 'ini');
+$lang->loadFile('main.ini', 'ini');
 
-// Load every ini file from the locale directory
-$lang->loadAll('ini');
-
-// Load the files shipped with a vendor package
-$lang->loadAllFromVendor(SomeVendorPackage::class, 'ini');
+// Load one file for another locale
+$lang->loadFile('main.ini', 'ini', 'en-US');
 ```
 
-`loadAllFromVendor()` takes the package class as its first argument. The
-host application uses it in its `FrontMiddleware` to load vendor files at
-request time.
+### Loading All Files
 
-## Dynamic Locale Switching
+`loadAll()` loads every file of the given format from the locale directories
+in `language.paths`. The `loadAllFromPath()` method does the same for one
+directory, and `loadAllFromVendor()` reads `resources/languages` inside a
+vendor package:
 
-The built-in language mechanism is static. It reads the locale from
-configuration when the application starts, and it does not detect the
-user's language, read the URL, or store a preference. These features depend
-on each project, so you implement them yourself, for example:
+```php
+// Every ini file in the configured paths
+$lang->loadAll('ini');
 
-- Switching locale by a URL segment or query parameter.
-- Choosing a locale by route.
-- Detecting the browser's `Accept-Language` header.
-- Remembering the user's choice in the session.
+// Every ini file in one directory
+$lang->loadAllFromPath('@languages', 'ini');
 
-The middleware below lets the user switch the locale with
-`?lang=en-US`. It validates the value, stores it in the session, and
-applies it to the language service:
+// Every ini file shipped with a package class
+$lang->loadAllFromVendor(UnicornPackage::class, 'ini');
+```
+
+`loadAllFromVendor()` accepts a package class or a vendor name.
+
+## Switching the Locale Dynamically
+
+The multi-language mechanism described above is static. The locale is
+read from the configuration, and the files are loaded for it. Windwalker
+does not decide the locale for each request by itself. Dynamic switching,
+routing by locale, automatic detection of the user's language, and
+remembering the choice in the session are features your project must
+implement. The rest of this section builds a small example that does
+these things with one middleware.
+
+The example works like this:
+
+- The URL carries the locale as a query parameter, such as `?locale=en-US`.
+- A `LocaleMiddleware` sets the locale on `LangService`.
+- The chosen locale is saved in the session, so later requests without
+  a `locale` parameter keep the same language.
+
+### A Minimal LocaleMiddleware
+
+The middleware reads `locale` from the query string. If it is missing or
+not supported, it uses the session value. It then saves the locale and
+sets it on `LangService`:
 
 ```php
 <?php
 
 namespace App\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Windwalker\Core\Language\LangService;
-use Windwalker\Core\Middleware\AbstractLifecycleMiddleware;
 use Windwalker\Session\Session;
 
-class LocaleMiddleware extends AbstractLifecycleMiddleware
+class LocaleMiddleware implements MiddlewareInterface
 {
+    public const SESSION_KEY = 'user.locale';
+
+    public const SUPPORTED = ['zh-TW', 'en-US'];
+
+    public const DEFAULT = 'zh-TW';
+
     public function __construct(
         protected LangService $lang,
         protected Session $session,
     ) {
     }
 
-    protected function preprocess(ServerRequestInterface $request)
-    {
-        $allowed = ['en-US', 'zh-TW'];
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler
+    ): ResponseInterface {
+        $locale = $request->getQueryParams()['locale'] ?? null;
 
-        // Read the locale from the query string
-        $locale = $request->getQueryParams()['lang'] ?? null;
-
-        if ($locale !== null && in_array($locale, $allowed, true)) {
-            $this->session->set('locale', $locale);
+        if (!in_array($locale, self::SUPPORTED, true)) {
+            $locale = $this->session->def(
+                self::SESSION_KEY,
+                self::DEFAULT
+            );
         }
 
-        // Fall back to the value stored in the session
-        $locale = $this->session->get('locale');
+        $this->session->set(self::SESSION_KEY, $locale);
+        $this->lang->setLocale($locale);
 
-        if ($locale !== null && in_array($locale, $allowed, true)) {
-            $this->lang->setLocale($locale);
-        }
+        return $handler->handle($request);
     }
 }
 ```
 
-Register the middleware in the route that needs it, as described in
-[Middleware](/documentation/framework/core-concepts/http-routing/middleware).
+::: warning
+Always check the query value against a whitelist before you store it.
+Without the check, any value in the URL is saved to the session and
+passed to the language loader.
+:::
+
+Register the middleware before the middleware that loads the language
+files, so the files are loaded for the new locale.
+
+### Linking to Another Locale
+
+Switch links only need the `locale` parameter:
+
+```html
+<a href="?locale=en-US">English</a>
+<a href="?locale=zh-TW">繁體中文</a>
+```
+
+## Translating in Your Own Service
+
+Inject `LangService` into any service class, and translate inside its
+methods. The service does not need to know which locale is active; the
+shared service already holds it:
+
+```php
+use Windwalker\Core\Language\LangService;
+
+class InvoiceService
+{
+    public function __construct(
+        protected LangService $lang,
+    ) {
+    }
+
+    public function statusLabel(string $status): string
+    {
+        return $this->lang->trans("invoice.status.$status");
+    }
+
+    public function itemCount(int $count): string
+    {
+        // Pick the plural form for the count
+        return $this->lang->choice('invoice.items', $count);
+    }
+}
+```
+
+`LangService` also implements `Windwalker\Utilities\Contract\LanguageInterface`.
+Type-hint that interface when the code only needs translation, and does not
+need the Core features.
+
+## Translating in Blade Templates
+
+Blade views receive `$lang` as a global variable. The `@lang` and
+`@translate` directives both output `$lang(...)`, and `@choice` outputs
+`$lang->choice(...)`:
+
+```blade
+<h1>@lang('user.welcome', ['name' => $user->name])</h1>
+<a href="/logout">@translate('user.logout')</a>
+
+<span>@choice('cart.items', $count)</span>
+```
 
 ::: warning
-Never trust a locale value from the URL without checking it against a list
-of allowed locales. An unchecked value can load files from unexpected
-paths or store arbitrary data in the session. The example above validates
-the value before it is used.
+The directives echo the translated text without escaping. Do not pass
+user-provided text as the key or as an argument unless you escape it.
 :::
 
-::: tip
-Keep the list of allowed locales in one place, such as the project config,
-so the middleware and the language configuration do not drift apart.
-:::
+## Using the TranslatorTrait
+
+`TranslatorTrait` injects `LangService` into the `$lang` property with
+`#[Inject]`. The class must be created by the container, such as a view,
+a middleware, or a service registered in DI. The trait adds these methods:
+
+```php
+use Windwalker\Core\Language\TranslatorTrait;
+
+class DashboardView
+{
+    use TranslatorTrait;
+
+    public function prepareMetadata(): void
+    {
+        // Translate a key
+        $title = $this->trans('unicorn.title.dashboard');
+
+        // Translate with a plural form
+        $items = $this->choice('cart.items', 3);
+
+        // Check whether a key exists in the current locale
+        $exists = $this->hasLang('user.welcome');
+
+        // Access the underlying LangService object
+        $lang = $this->getLang();
+    }
+}
+```
+
+`useLangNamespace()` replaces `$this->lang` with a namespaced copy created by
+`LangService::extract()`. The copy returns the same translations, and it
+keeps a link to the parent service:
+
+```php
+// Translate with a namespace, then restore the default
+$this->useLangNamespace('invoice');
+echo $this->trans('status.paid');
+```
+
+## LangService and LanguageInterface
+
+`LangService` implements `LanguageInterface`. The interface defines
+`get()`, `trans()`, `choice()`, `replace()`, and `has()`. Code that depends
+only on the interface works with either implementation.
+
+`LangService` adds these capabilities, compared with the standalone
+`Language` object:
+
+- It is built from the container config, and reads `language.locale`,
+  `language.fallback`, and `language.paths`.
+- It resolves path aliases such as `@languages` and `@vendor/...`.
+- `loadFile()`, `loadFileFromPath()`, and `loadFileFromVendor()` load one
+  file from a path, a vendor package, or the locale directory.
+- `loadAll()`, `loadAllFromPath()`, and `loadAllFromVendor()` load every
+  file of one format.
+- `cloneForLocale()` returns a copy with another locale.
+- `extract()` returns a namespaced copy with a parent link.
+- `__invoke()` allows the service to be called like a function.
+- Unknown methods, such as `setLocale()` and `getLocale()`, are forwarded
+  to the inner `Language` object.
 
 ## Other Locales
 
 ### Cloning for Another Locale
 
-`LangService::cloneForLocale()` returns a copy of the service with another
-locale. The original service keeps its locale, so you can translate other
-languages without changing the rest of the request:
+`cloneForLocale()` returns a copy with another locale. The original keeps its
+locale, so you can translate other languages without changing the request:
 
 ```php
 // The original stays in its current locale
 $zh = $lang->cloneForLocale('zh-TW');
-$zh->loadFile('main', 'ini');
+$zh->loadFile('main.ini', 'ini');
 
-echo $zh->trans('user.logout'); // Output: 登出
-echo $lang->trans('user.logout'); // Output: Log out
+echo $zh->trans('user.logout'); // 登出
+echo $lang->trans('user.logout'); // Log out
 ```
 
 ### Background Email in the User's Locale
 
 A background job often runs outside the request that created it. It should
-use the locale stored with the user, not the locale of the worker process.
-The example below sends a notification in the user's preferred locale:
+use the locale stored with the user, not the locale of the worker process:
 
 ```php
 <?php
@@ -326,7 +504,7 @@ class SendWelcomeMail
     {
         // Use the user's preferred locale, stored in your user table
         $userLang = $this->lang->cloneForLocale($user->locale);
-        $userLang->loadFile('main', 'ini');
+        $userLang->loadFile('main.ini', 'ini');
 
         $subject = $userLang->trans(
             'user.welcome',
@@ -348,5 +526,7 @@ Do not rely on the locale of the request that queued the job.
 ## Related Documentation
 
 - [Language Component](/documentation/components/language/)
+- [Loading Files](/documentation/components/language/loading)
 - [Translation](/documentation/components/language/translation)
+- [Plurals](/documentation/components/language/plurals)
 - [Middleware](/documentation/framework/core-concepts/http-routing/middleware)

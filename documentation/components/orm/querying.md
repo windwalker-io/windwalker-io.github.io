@@ -404,6 +404,57 @@ links go to the description in this page or in the Query component.
 | [iterateWhile](#iterating-large-results) | repeat a query until no rows match |
 | [iterateBatchWhile](#iterating-large-results) | repeat a batch query until no rows match |
 
+### Default Table Aliases
+
+Writing `from()` and `join()` with an entity class is shorter when you do
+not repeat the alias. If the class is passed without an alias, the ORM uses
+the alias defined in its `#[Table]` attribute. Without an explicit alias
+there, the ORM uses the singular form of the table name:
+
+```php
+#[Table('categories')]
+class Category
+{
+    // ...
+}
+
+// Alias is "category", from the singular of "categories"
+$orm->from(Article::class)
+    ->leftJoin(Category::class)
+    ->all(Article::class);
+```
+
+To use another alias for the whole entity, set the second argument of
+`#[Table]`. The ORM then uses that value in `from()` and `join()`:
+
+```php
+#[Table('categories', 'cat')]
+class Category
+{
+    // ...
+}
+
+// Alias is "cat"
+$orm->from(Article::class)
+    ->leftJoin(Category::class)
+    ->all(Article::class);
+```
+
+An alias that you pass to `from()` or `join()` takes precedence over the
+attribute. The ORM uses the attribute only when no alias is given:
+
+```php
+// Alias is "c", not "category"
+$orm->from(Article::class)
+    ->leftJoin(Category::class, 'c', 'c.id', 'article.category_id');
+```
+
+::: info
+The alias of the `#[Table]` attribute also changes the column names that
+the automatic `ON` conditions look for. See
+[Automatic ON Conditions](#automatic-on-conditions).
+:::
+
 ### Starting a SELECT
 
 `select()` and `selectRaw()` start a query of the SELECT type. Unlike the

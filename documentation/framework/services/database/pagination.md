@@ -114,24 +114,21 @@ function listArticles(
     PaginationFactory $paginationFactory,
     int $page,
 ): array {
-    $pagination = $paginationFactory->create($page, 20);
-
-    $total = $pagination->total(
-        fn () => (int) $db->createQuery()
-            ->select('COUNT(*)')
-            ->from('articles')
-            ->where('state', 1)
-            ->result(),
-    )->getTotal();
-
-    $items = $db->createQuery()
+    $query = $db->createQuery()
         ->select('*')
         ->from('articles')
         ->where('state', 1)
         ->order('id', 'DESC')
         ->limit($pagination->getLimit())
-        ->offset($pagination->getOffset())
-        ->all();
+        ->offset($pagination->getOffset());
+        
+    $items = $query->all();
+
+    $pagination = $paginationFactory->create($page, 20);
+
+    $total = $pagination->total(
+        fn () => (int) $db->countWith($query),
+    )->getTotal();
 
     return [
         'items' => $items,

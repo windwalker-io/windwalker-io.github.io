@@ -129,8 +129,7 @@ from outside the code, such as a database column or a request.
 :::
 
 ::: tip
-Avoid `$value ?: self::DEFAULT` for this. It also treats `0` and `'0'`
-as empty. Check for `null` and `''` explicitly.
+If you use `$value ?: self::DEFAULT` for this, be careful it also treats `0` and `'0'` as empty.
 :::
 
 This is useful when an enum is bound to an entity. Leftover empty
