@@ -180,54 +180,10 @@ applies to it.
 
 ## JobController
 
-This section covers the `JobController` object, the job's handle on its own
-run. It records the outcome and tells the worker what to do next.
-
-The worker injects it into any `#[JobEntry]`, `#[JobMiddleware]`, or
-`#[JobFailed]` method when you type-hint it:
-
-```php
-use Windwalker\Queue\Attributes\JobEntry;
-use Windwalker\Queue\Job\JobController;
-
-class ImportRowsJob
-{
-    public function __construct(public string $file)
-    {
-    }
-
-    #[JobEntry]
-    public function import(JobController $controller): void
-    {
-        // Write a line to the job log.
-        $controller->log('Importing ' . $this->file);
-
-        // Methods available on $controller:
-        //   defer(60, 'reason')  Run again later, not a failure.
-        //   retryAfter(30)       Run again, counts as an attempt.
-        //   failed('reason')     Mark the job as failed.
-        //   abandoned('reason')  Give up on the job.
-        //   keep()               Keep the job in the queue.
-        //   success()            Mark the job as successful.
-
-        // Read the run state: $controller->attempts, $controller->failed,
-        // $controller->defer, $controller->abandoned,
-        // $controller->willRetry.
-    }
-}
-```
-
-`defer()`, `retryAfter()`, `failed()`, and `abandoned()` return an
-exception object. Throw it to stop the job at that point, as shown in
-[Deferring a Job](/documentation/framework/services/queue/retry-and-failed-jobs#deferring-a-job).
-
-In middleware, the same controller is passed in. Call `next()` to continue,
-as shown in [Middleware](#middleware).
-
-::: info
-The retry and failed-job behavior that follows depends on these calls.
-See [Retry and Failed Jobs](/documentation/framework/services/queue/retry-and-failed-jobs).
-:::
+The `JobController` is the job's handle on its own run. A job type-hints it
+to log messages, read its attempt count, and decide whether to defer, retry,
+fail, or abandon the job. See [JobController](/documentation/framework/services/queue/flow-control#jobcontroller)
+in [Flow Control](/documentation/framework/services/queue/flow-control).
 
 ## Running the Worker
 
@@ -395,123 +351,17 @@ does not stop a worker in the middle of a job. After each deployment, run
 
 ## Middleware
 
-This section covers `#[JobMiddleware]` methods, which run before a job method
-and decide whether the job continues.
-
-Middleware runs before the job method. Use it for checks shared by many
-jobs, such as logging, locks, or rate limits. Mark a method with
-`#[JobMiddleware]`. It must return the `JobController` after calling
-`next()`, or return a `DeferredException` to stop:
-
-```php
-use Windwalker\Queue\Attributes\JobEntry;
-use Windwalker\Queue\Attributes\JobMiddleware;
-use Windwalker\Queue\Job\JobController;
-
-class SendMailJob
-{
-    public function __construct(
-        public string $to,
-        public string $subject,
-    ) {
-    }
-
-    #[JobMiddleware]
-    public function logStart(JobController $controller): JobController
-    {
-        $controller->log(
-            'Mail job started, attempt ' . $controller->attempts,
-        );
-
-        return $controller->next();
-    }
-
-    #[JobEntry]
-    public function send(MailService $mailService): void
-    {
-        $mailService->send($this->to, $this->subject);
-    }
-}
-```
-
-Set `order` to control the sequence when a job has several middleware:
-
-```php
-#[JobMiddleware(order: 1)]
-public function first(JobController $controller): JobController
-{
-    return $controller->next();
-}
-```
-
-::: warning
-If middleware returns `null`, the worker throws
-`UnexpectedValueException`. Always return the controller or an exception.
-:::
+Middleware runs before a job method and decides whether the job continues.
+Use it for checks shared by many jobs, such as logging, locks, or rate
+limits. See [Middleware](/documentation/framework/services/queue/flow-control#middleware)
+in [Flow Control](/documentation/framework/services/queue/flow-control).
 
 ## Locks and Rate Limits
 
-This section covers how to stop jobs from running at the same time or too
-often, using Symfony's lock and rate limiter components in a middleware.
-
-Some jobs must not run at the same time, for example two jobs that update
-the same order. Other jobs must not run too often, for example a job that
-calls a rate-limited API. Protect these in the queue, not only in the
-caller. Jobs run in several workers, so a check made when the job is
-enqueued cannot see what other workers are doing at run time. A middleware
-checks the rule just before the job runs.
-
-Use the Symfony components for this. They are general-purpose and do not
-depend on Windwalker. See the [Symfony Lock](https://symfony.com/doc/current/components/lock.html)
-and [Symfony Rate Limiter](https://symfony.com/doc/current/rate_limiter.html)
-documentation for the full API:
-
-```bash
-composer require symfony/lock symfony/rate-limiter
-```
-
-The middleware below takes a lock on the order, and defers the job when the
-lock is busy. It also applies a rate limit to the job:
-
-```php
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\Store\FlockStore;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
-
-$lockFactory = new LockFactory(new FlockStore());
-
-$limiter = new RateLimiterFactory(
-    [
-        'id' => 'order-sync',
-        'policy' => 'fixed_window',
-        'limit' => 10,
-        'interval' => '1 minute',
-    ],
-    new InMemoryStorage(),
-);
-
-// Inside a queue middleware's handle method:
-$lock = $lockFactory->createLock('order.' . $orderId);
-
-if (!$lock->acquire()) {
-    return $controller->defer(60);
-}
-
-try {
-    if (!$limiter->create('order-sync')->consume()->isAccepted()) {
-        return $controller->defer(60);
-    }
-
-    return $next();
-} finally {
-    $lock->release();
-}
-```
-
-Use a shared store such as [Redis](/documentation/components/queue/drivers#redis-driver) in production. `FlockStore` and
-`InMemoryStorage` only protect one machine, and in-memory rate limits reset
-for each process.
+Locks and rate limits stop jobs from running at the same time or too often.
+They are built as middleware with Symfony's lock and rate limiter
+components. See [Locks and Rate Limits](/documentation/framework/services/queue/flow-control#locks-and-rate-limits)
+in [Flow Control](/documentation/framework/services/queue/flow-control).
 
 ## Logging
 

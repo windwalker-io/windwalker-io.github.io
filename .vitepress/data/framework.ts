@@ -268,9 +268,9 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         { text: 'Console Basics', link: `/${frameworkRoutePrefix}/console/console-basics` },
         { text: 'Command Development', link: `/${frameworkRoutePrefix}/console/command-development` },
         {
-          text: 'Commands',
+          text: 'Built-in Commands',
           link: `/${frameworkRoutePrefix}/console/basic-commands`,
-          collapsible: true,
+          collapsed: true,
           items: [
             { text: 'Basic Commands', link: `/${frameworkRoutePrefix}/console/basic-commands` },
             { text: 'Server', link: `/${frameworkRoutePrefix}/console/commands/server` },
