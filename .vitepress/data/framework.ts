@@ -190,7 +190,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           collapsed: true,
           items: [
             { text: 'Queue Basics', link: `/${frameworkRoutePrefix}/services/queue` },
-            { text: 'Retry and Failed Jobs', link: `/${frameworkRoutePrefix}/services/queue/retry-and-failed-jobs` },
+            { text: 'Flow Control', link: `/${frameworkRoutePrefix}/services/queue/flow-control` },
             { text: 'Enqueuer', link: `/${frameworkRoutePrefix}/services/queue/enqueuer` },
             { text: 'Drivers', link: `/${frameworkRoutePrefix}/services/queue/drivers` },
           ]

@@ -17,9 +17,11 @@ The package provides:
 - A **worker** command (`queue:worker`) that reads and runs jobs.
 - An **enqueuer** command (`queue:enqueuer`) that creates jobs from a
   source you define.
-- **Retry**, **backoff**, **defer**, and **failed-job** handling.
+- **Retry**, **backoff**, **defer**, and **failed-job** handling. See
+  [Flow Control](/documentation/framework/services/queue/flow-control).
 - **Middleware** that runs before each job, for example for locks. See
-  [Middleware](#middleware) and [Locks and Rate Limits](#locks-and-rate-limits).
+  [Flow Control](/documentation/framework/services/queue/flow-control#middleware)
+  and [Locks and Rate Limits](/documentation/framework/services/queue/flow-control#locks-and-rate-limits).
 
 ## Installation
 
@@ -496,7 +498,7 @@ worker then stays quiet, and `-vv` shows the full trace when you need it.
   services in the method.
 - Run `queue:worker` under a process manager.
 - Use `queue:enqueuer` to create jobs from a source.
-- Control retries with [`JobController`](#jobcontroller), `#[JobFailed]`,
-  and `#[JobBackoff]`. See
-  [Retry and Failed Jobs](/documentation/framework/services/queue/retry-and-failed-jobs).
+- Control retries with [`JobController`](/documentation/framework/services/queue/flow-control#jobcontroller),
+  `#[JobFailed]`, and `#[JobBackoff]`. See
+  [Flow Control](/documentation/framework/services/queue/flow-control).
 - Replay failed jobs with `queue:retry`.

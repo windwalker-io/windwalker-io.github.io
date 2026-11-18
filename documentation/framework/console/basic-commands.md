@@ -79,7 +79,7 @@ php windwalker lang:merge
 - `db:export`: export the database. See [Backup and Export](/documentation/framework/services/database/backup-and-export).
 - `seed:*`: seeders. See [Seeders](/documentation/framework/services/database/seeders).
 - `schedule:*`: scheduled tasks. See [Scheduler](/documentation/framework/services/scheduler).
-- `queue:*`: queue workers and failed jobs. See [Queue Guide](/documentation/framework/services/queue), [Failed Jobs](/documentation/framework/services/queue/retry-and-failed-jobs#failed-jobs), and [Database Driver](/documentation/framework/services/queue/drivers#database-driver).
+- `queue:*`: queue workers and failed jobs. See [Queue Guide](/documentation/framework/services/queue), [Failed Jobs](/documentation/framework/services/queue/flow-control#failed-jobs), and [Database Driver](/documentation/framework/services/queue/drivers#database-driver).
 - `task:run`: run signed tasks. See [Concurrency](/documentation/framework/services/concurrency).
 - `mail:test`: send a test mail. See [Mailer](/documentation/framework/services/mailer).
 - `server:start`, `server:stop`: local development server. See [Server](./commands/server).
