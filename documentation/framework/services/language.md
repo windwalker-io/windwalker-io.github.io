@@ -123,9 +123,9 @@ class FrontMiddleware extends AbstractLifecycleMiddleware
 }
 ```
 
-> !review
-> 翻譯插入參數時，優先用 `name: $name` 形式，blade 也一樣
-> 但可示範陣列方式是可選選項
+Pass placeholder values as named arguments, such as `name: $name`. The
+same form works in a Blade template. An array form is also available as
+an optional alternative.
 
 ```php
 <?php
@@ -144,9 +144,23 @@ class WelcomeService
 
     public function greeting(string $name): string
     {
-        return $this->lang->trans('user.welcome', ['name' => $name]);
+        return $this->lang->trans(
+            'user.welcome',
+            name: $name,
+        );
     }
 }
+```
+
+The array form works the same way and is useful when the keys are
+built at runtime:
+
+```php
+$params = ['name' => $name];
+
+echo $this->lang->trans('user.welcome', ...$params);
+// OR
+echo $this->lang->trans('user.welcome', $params);
 ```
 
 ```php
@@ -394,10 +408,28 @@ Blade views receive `$lang` as a global variable. The `@lang` and
 `$lang->choice(...)`:
 
 ```blade
-<h1>@lang('user.welcome', ['name' => $user->name])</h1>
+<h1>@lang('user.welcome', name: $user->name)</h1>
 <a href="/logout">@translate('user.logout')</a>
 
 <span>@choice('cart.items', $count)</span>
+
+<span>@choice('cart.items', $count, extra: '...')</span>
+```
+
+In Windwalker layouts, it also has a `$lang` variable which is `LangService` object. You can use it to translate text in the layout:
+
+```blade
+<?php
+// Translate in PHP block
+echo $lang->trans('user.welcome', name: $user->name);
+?>
+
+<h1>{{ $lang->trans('user.welcome', name: $user->name) }}</h1>
+<a href="/logout">{{ $lang->trans('user.logout') }}</a>
+
+<span>{{ $lang->choice('cart.items', $count) }}</span>
+
+<span>{{ $lang->choice('cart.items', $count, extra: '...') }}</span>
 ```
 
 ::: warning
@@ -508,7 +540,7 @@ class SendWelcomeMail
 
         $subject = $userLang->trans(
             'user.welcome',
-            ['name' => $user->name],
+            name: $user->name,
         );
         $body = $userLang->trans('user.logout');
 

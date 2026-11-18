@@ -16,11 +16,7 @@ sync.
 ## Minimal Setup
 
 Create a definition class. Mark each method with `#[FormDefine]` and add
-the fields with `addField()`.
-
-> !review
-> 可以優先用 `add('name', FieldClass::class)` 的作法來介紹
-> add() 有提供 generics
+the fields with `add()`.
 
 ```php
 use Windwalker\Form\Attributes\FormDefine;
@@ -33,10 +29,10 @@ class UserForm
     #[FormDefine]
     public function define(Form $form): void
     {
-        $form->addField(new TextField('name', 'Name'))
+        $form->add('name', TextField::class)
             ->required(true);
 
-        $form->addField(new EmailField('email', 'Email'))
+        $form->add('email', EmailField::class)
             ->required(true);
     }
 }
@@ -116,17 +112,15 @@ Each field is a class in the `Windwalker\Form\Field` namespace. The
 constructor takes the field name and label. Options are set by chained
 calls, such as `required(true)` and `attr()`.
 
-> !review
-> 用 min() 示範，attr() 可以示範 attr('data-bs-toggle', 'tooltip') 之類的自訂屬性
-
 ```php
-use Windwalker\Form\Field\DateField;
+use Windwalker\Form\Field\NumberField;
 use Windwalker\Form\Field\TextareaField;
 
-$form->addField(new TextareaField('bio', 'Biography'));
+$form->add('bio', TextareaField::class);
 
-$form->addField(new DateField('starts_on', 'Start date'))
-    ->attr('min', '2026-01-01');
+$form->add('age', NumberField::class)
+    ->min(0)
+    ->attr('data-bs-toggle', 'tooltip');
 ```
 
 See the [Fields](/documentation/components/form/fields) reference for the full list of
@@ -142,20 +136,16 @@ $bio = $form->add('bio', TextareaField::class);
 
 ### Namespaces and Fieldsets
 
-> !review
-> 說明 ns() 產出的 name 會長怎麼樣
-> 詳細看一下 @documentation/components/form 內的文件
-> 依照文件內容增補本篇文件
-
 `ns()` prefixes field names with a namespace. A field named `email` inside
 `ns('user')` has the full name `user/email`. Use `getField()` with that
 full name.
 
 ```php
 $form->ns('user', function (Form $form) {
-    $form->addField(new TextField('email', 'Email'));
+    $form->add('email', TextField::class);
 });
 
+// Input name is user[email]; field key is user/email.
 echo $form->getField('user/email')->getInputName();
 ```
 
@@ -237,12 +227,43 @@ built-in renderer.
 
 See [Rendering](/documentation/components/form/rendering) for the rendering API.
 
-## Using Forms in a View
+## Using Form in a View
 
-> !review
-> 介紹 CustomForm class 內注入一些外部參數，例如從 input 送進來的內容
-> 然後據此改變 fields 內容
-> FormFactory create() 是支援注入的
+A definition class can also receive external values. Pass them after the
+class name to `create()`, and they go to the constructor of the definition.
+This lets the fields change with the request, for example a list of
+allowed roles from the current user:
+
+```php
+use Windwalker\Form\Attributes\FormDefine;
+use Windwalker\Form\Field\ListField;
+use Windwalker\Form\Form;
+
+class CustomForm
+{
+    public function __construct(
+        protected string $role,
+    ) {
+    }
+
+    #[FormDefine]
+    public function define(Form $form): void
+    {
+        if ($this->role === 'admin') {
+            $form->add('role', ListField::class)
+                ->setOptions([
+                    'user' => 'User',
+                    'admin' => 'Admin',
+                ]);
+        } else {
+            $form->add('role', ListField::class)
+                ->setOptions([
+                    'user' => 'User',
+                ]);
+        }
+    }
+}
+```
 
 Views receive the form from `FormFactory`, fill it with the record, and
 pass it to the template. For the full pattern, see
@@ -261,10 +282,15 @@ class UserEditView
     ) {
     }
 
-    public function prepare(array $item): array
+    public function prepare(#[Input, Filter('int')] int $id): array
     {
-        $form = $this->formFactory->create(UserForm::class);
-        $form->fill(['user' => $item]);
+        $user = $this->userRepository->findOne($id);
+    
+        $form = $this->formFactory->create(
+            UserForm::class, 
+            role: $user->role
+        );
+        $form->fill(['user' => $user]);
 
         return compact('form');
     }

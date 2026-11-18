@@ -279,32 +279,36 @@ the public web root, and do not store passwords or tokens in a file cache
 without a separate protection layer.
 :::
 
-> !review
-> 說明如果有必要將 cache path 設定在 public 目錄下時，可以啟用 FilesystemStorage 的 access denied 設定，見 vendor/windwalker/framework/packages/cache/src/Storage/FileStorage.php
+If the cache path must sit under the public directory, enable the
+`deny_access` option of `FileStorage`. It prepends the `deny_code` option to
+each stored value, which blocks direct web access to the cache file.
 
 ### Database Storage
-
-> !review
-> FQCN 都改成 use
 
 `CacheFactory::dbStorage()` keeps entries in a database table. Pass a
 connection name, or `null` for the default connection, and the table name:
 
 ```php
-'factories' => [
-    'instances' => [
-        'shared' => static fn () => CacheFactory::cachePoolFactory(
-            'db',
-            \Windwalker\Cache\Serializer\PhpSerializer::class,
-        ),
+<?php
+
+use Windwalker\Cache\Serializer\PhpSerializer;
+
+return [
+    'factories' => [
+        'instances' => [
+            'shared' => static fn () => CacheFactory::cachePoolFactory(
+                'db',
+                PhpSerializer::class,
+            ),
+        ],
+        'storages' => [
+            'db' => static fn () => CacheFactory::dbStorage(
+                null,
+                'cache_items',
+            ),
+        ],
     ],
-    'storages' => [
-        'db' => static fn () => CacheFactory::dbStorage(
-            null,
-            'cache_items',
-        ),
-    ],
-],
+];
 ```
 
 The table defaults to `cache_items`. It stores the key, group, payload, and

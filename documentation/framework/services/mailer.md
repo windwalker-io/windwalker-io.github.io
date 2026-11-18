@@ -57,12 +57,10 @@ or API credentials, so never commit it or print it to logs.
 `Mailer` is registered in the container and can be injected into a
 controller or a service constructor. Use `MailerInterface` as the type hint.
 
-> !review
-> php8.4 new 物件不用包 `()`
-> 另外建議大多改用 mailer->creageMessage() 寫法，這樣建立的 message 有能力直接 renderBody 與 ->send()
+Use `createMessage()` to build messages. A message created this way
+knows its mailer, so it can call `renderBody()` and `send()` directly.
 
 ```php
-use Windwalker\Core\Mailer\MailMessage;
 use Windwalker\Core\Mailer\MailerInterface;
 
 // Controller: inject the Mailer through the constructor.
@@ -75,7 +73,7 @@ class ContactController
 
     public function send(): void
     {
-        $message = (new MailMessage())
+        $message = $this->mailer->createMessage()
             ->to('admin@example.com')
             ->subject('New contact form submission')
             ->html('<p>A visitor sent a message.</p>');
@@ -93,21 +91,23 @@ The same injection works in a service class, for example a
 A typical flow renders an Edge template into the message body, then sends
 it. This example sends an order receipt.
 
-> !review
-> blade 部分不要用註解，獨立一個 code block 示範
-> 另外需要確認原始碼，直接 new 的 Message 物件可能沒有能力直接 renderBody
+The template lives in `views/mail/order-receipt.blade.php`:
+
+```blade
+@extends('mail.mail-layout')
+
+@section('content')
+    <h1>Thanks, {{ $name }}!</h1>
+    <p>Your order {{ $orderNo }} is confirmed.</p>
+@endsection
+```
+
+The controller renders it. The message must come from `createMessage()`,
+because `renderBody()` needs a mailer that implements
+`RenderableMailerInterface`. A message made with `new MailMessage()` has
+no mailer, so it cannot render.
 
 ```php
-// views/mail/order-receipt.blade.php
-// @extends('mail.mail-layout')
-// @section('content')
-//   <h1>Thanks, {{ $name }}!</h1>
-//   <p>Your order {{ $orderNo }} is confirmed.</p>
-// @endsection
-
-use Windwalker\Core\Mailer\MailMessage;
-use Windwalker\Core\Mailer\MailerInterface;
-
 class OrderService
 {
     public function __construct(
@@ -120,7 +120,7 @@ class OrderService
         string $name,
         string $orderNo
     ): void {
-        $message = (new MailMessage())
+        $this->mailer->createMessage()
             ->to($email)
             ->subject("Order {$orderNo} confirmed")
             ->renderBody(
@@ -129,15 +129,54 @@ class OrderService
                     'name' => $name,
                     'orderNo' => $orderNo,
                 ]
-            );
-
-        $this->mailer->send($message);
+            )
+            ->send();
     }
 }
 ```
 
 `renderBody()` renders the template into the HTML body. It also sets
 `asset` in the template data so the template can reference assets.
+
+## Chaining and Sending
+
+A message created by `createMessage()` already holds its mailer, so
+`send()` can be the last call in the chain. You do not need to store the
+message in a variable or call `$this->mailer->send()`:
+
+```php
+$this->mailer->createMessage()
+    ->to('user@example.com')
+    ->subject('Welcome')
+    ->renderBody('mail.welcome', ['name' => 'Jane'])
+    ->send();
+```
+
+`MailMessage` uses `ChainingTrait`, so the chain also accepts `tap()`,
+`tapIf()`, `pipe()`, and `pipeIf()`. Each callback receives the message
+as its first argument. `tap()` and `tapIf()` return the message, so the
+chain continues. `pipe()` and `pipeIf()` return whatever the callback
+returns, so the callback must return the message to keep chaining.
+
+Use `tapIf()` to add a value only when a condition holds:
+
+```php
+$this->mailer->createMessage()
+    ->to($user->email)
+    ->subject('Your order')
+    ->tapIf(
+        $order->isGift(),
+        fn (MailMessage $message) => $message->subject('A gift for you'),
+    )
+    ->tap(
+        fn (MailMessage $message) => $message->addCc($sender->email),
+    )
+    ->send();
+```
+
+`tapIf()` also takes a false callback as its third argument, so one
+chain can branch without breaking the flow. Keep the callbacks short.
+Anything longer belongs in a separate method.
 
 ## Basic Features
 
@@ -222,10 +261,18 @@ MAIL_DSN_DEFAULT="sendgrid+api://SG.YOUR_API_KEY@default"
 ```
 
 `Mailer` passes the DSN to Symfony's `Transport::fromDsn()`, which chooses
-the bridge from the scheme.
+the bridge from the scheme. Common transports and the package each one
+needs:
 
-> !review
-> 補上 Symfony Mailer 支援的各種 transport 連結，並且說明需要額外安裝的套件
+- `smtp://` or `smtps://`: built in, no extra package.
+- `sendmail://`: built in, uses the local `sendmail` binary.
+- `native://`: built in, uses PHP's `mail()` function.
+- `sendgrid+api://`: `composer require symfony/sendgrid-mailer`
+- `mailgun+api://`: `composer require symfony/mailgun-mailer`
+- `postmark+api://`: `composer require symfony/postmark-mailer`
+- `ses+api://`: `composer require symfony/amazon-mailer`
+
+Check the Symfony Mailer documentation for other bridges and their DSNs.
 
 ## Advanced Features
 
@@ -260,8 +307,9 @@ Install the inliner package to enable it:
 composer require tijsverkoyen/css-to-inline-styles
 ```
 
-> !review
-> 確認有沒有要額外掛 Subscriber 才能運作? 還是會自動生效?
+No extra subscriber setup is needed. `MailInlinerSubscriber` is registered
+through the `#[EventSubscriber]` attribute and runs automatically before
+each send.
 
 ::: info
 Without the package, the subscriber throws a `LogicException` when it runs.

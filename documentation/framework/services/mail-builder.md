@@ -19,14 +19,13 @@ yourself.
 
 Inside `buildBody()`, the callback receives a `MailBuilder` instance:
 
-> !review
-> 確認一下，是否要用 createMessage() 來建立 MailMessage，才有能力產生 MailBuilder
+Create the message with `$mailer->createMessage()`. A message made with
+`new MailMessage()` has no body builder, so `buildBody()` will not work.
 
 ```php
 use Windwalker\Core\Mailer\MailBuilder;
-use Windwalker\Core\Mailer\MailMessage;
 
-$message = (new MailMessage())
+$message = $this->mailer->createMessage()
     ->to('user@example.com')
     ->subject('Your account')
     ->buildBody(
@@ -96,6 +95,67 @@ $mail->raw('<hr>');
 $html = (string) $mail;
 ```
 
+## Nested Content with Closures
+
+`line()` and `table()` accept a closure. The closure receives a sub
+builder in inline mode, so text, buttons, and line breaks can be mixed
+inside one paragraph:
+
+```php
+use Windwalker\Core\Mailer\MailBuilder;
+
+$mail->line(
+    function (MailBuilder $sub) {
+        $sub->text('Your order ');
+        $sub->text('#1001');
+        $sub->text(' is ready. ');
+        $sub->linebreak();
+        $sub->button('Track', 'https://example.com/track/1001');
+    }
+);
+```
+
+Use `addLine()` when you need the `<p>` element itself, for example to
+add a class or an ID after it is created:
+
+```php
+$p = $mail->addLine('Order status', ['id' => 'status']);
+$p->addClass('lead');
+```
+
+`addButton()` works the same way and returns the `<a>` element.
+
+Build a table from a closure with the `Grid` object. Pass the table
+attributes as the second argument:
+
+```php
+use Windwalker\Html\Grid\Grid;
+
+$mail->table(
+    function (Grid $grid) {
+        $grid->setColumns(['Item', 'Qty']);
+        $grid->addRow();
+        $grid->setRowCell('Item', 'Book');
+        $grid->setRowCell('Qty', '2');
+    },
+    ['class' => 'table'],
+);
+```
+
+Pass an existing `Grid` instance to `table()` to reuse a table built
+elsewhere.
+
+`block()` converts Markdown to block-level HTML without wrapping it in a
+paragraph. Use it for headings or lists that should not sit inside `<p>`:
+
+```php
+$mail->block("## Next steps\n\n- Confirm your address\n- Set a password");
+```
+
+Every block is stored in the public `$blocks` array. `(string) $mail`
+joins them with a newline. Inspect `$mail->blocks` in tests if you need
+to check the structure without rendering the whole body.
+
 ## Markdown Mode
 
 Enable Markdown to write text with Markdown syntax:
@@ -114,8 +174,10 @@ $mail->text('- First item' . "\n" . '- Second item');
 Markdown needs the `league/commonmark` package. Install it in the host
 application if it is not already present.
 
-> !review
-> 這裡講清楚一點是因為 HTML 會被重複跳脫，Markdown 會被轉成 HTML，然後再被跳脫一次，導致 HTML 樣式失效。
+Markdown is converted to HTML first, and the result is escaped again if you
+place it in a plain text field. The escaped HTML then shows as raw tags and
+the styles are lost. Use `raw()` for HTML content, and keep Markdown for
+plain text paragraphs.
 
 ::: info
 Markdown is parsed by CommonMark with `html_input` set to escape and
@@ -193,5 +255,5 @@ HTML and script injection into the email.
 
 - Build links with `->full()` from `Navigator`. Relative URLs do not work
   in email clients.
-- `addLine()` and `table()` throw a `LogicException` when the builder is
-  in inline mode. Use `line()` in normal mode.
+- `addLine()`, `table()`, and `block()` throw a `LogicException` when the
+  builder is in inline mode. Use `line()` in normal mode.
