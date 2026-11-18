@@ -4,6 +4,8 @@ layout: doc
 
 # Queue Basics
 
+The standalone package has its own detailed guide: [Queue](../../components/queue/index.md). This page focuses on using it inside the Windwalker framework.
+
 Some work should not run inside an HTTP request. Sending an email,
 generating a report, or importing thousands of rows can take seconds or
 minutes. The Queue package stores that work as a message and lets a
@@ -136,7 +138,8 @@ class SendMailJob
 
 `JobController` is provided by the queue package. It lets the job log
 messages, defer, retry, or stop. You can type-hint it in any
-`#[JobEntry]`, `#[JobMiddleware]`, or `#[JobFailed]` method.
+`#[JobEntry]`, `#[JobMiddleware]`, or `#[JobFailed]` method. Its methods
+are documented in [Writing Jobs](/documentation/components/queue/writing-jobs#the-jobcontroller).
 
 ::: warning Do not store PDO or other non-serializable objects
 A PDO connection, a resource, or a closure that the serializer cannot
@@ -180,12 +183,24 @@ $queue->push(new SendMailJob('user@example.com', 'Welcome'));
 The `sync` driver simulates the CLI environment, so the same rule
 applies to it.
 
-## JobController
+### JobController and Flow Control
 
 The `JobController` is the job's handle on its own run. A job type-hints it
 to log messages, read its attempt count, and decide whether to defer, retry,
 fail, or abandon the job. See [JobController](/documentation/framework/services/queue/flow-control#jobcontroller)
 in [Flow Control](/documentation/framework/services/queue/flow-control).
+
+
+`Middleware` runs before a job method and decides whether the job continues.
+Use it for checks shared by many jobs, such as logging, locks, or rate
+limits. See [Middleware](/documentation/framework/services/queue/flow-control#middleware)
+in [Flow Control](/documentation/framework/services/queue/flow-control).
+
+Locks and rate limits stop jobs from running at the same time or too often.
+They are built as middleware with Symfony's lock and rate limiter
+components. See [Locks and Rate Limits](/documentation/framework/services/queue/flow-control#locks-and-rate-limits)
+in [Flow Control](/documentation/framework/services/queue/flow-control).
+
 
 ## Running the Worker
 
@@ -228,7 +243,8 @@ php windwalker queue:worker -a -S
 
 ### Worker Options
 
-The defaults come from `RunnerOptions`.
+The defaults come from `RunnerOptions`. For the worker's behavior behind
+each option, see [Workers](/documentation/components/queue/workers).
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -350,20 +366,6 @@ Set `stopwaitsecs` longer than your longest job, so the process manager
 does not stop a worker in the middle of a job. After each deployment, run
 `php windwalker queue:restart`.
 :::
-
-## Middleware
-
-Middleware runs before a job method and decides whether the job continues.
-Use it for checks shared by many jobs, such as logging, locks, or rate
-limits. See [Middleware](/documentation/framework/services/queue/flow-control#middleware)
-in [Flow Control](/documentation/framework/services/queue/flow-control).
-
-## Locks and Rate Limits
-
-Locks and rate limits stop jobs from running at the same time or too often.
-They are built as middleware with Symfony's lock and rate limiter
-components. See [Locks and Rate Limits](/documentation/framework/services/queue/flow-control#locks-and-rate-limits)
-in [Flow Control](/documentation/framework/services/queue/flow-control).
 
 ## Logging
 

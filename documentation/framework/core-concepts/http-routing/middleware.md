@@ -5,6 +5,8 @@ title: Middleware
 
 # Middleware
 
+The standalone package has its own detailed guide: [Middleware](../../../components/http/middleware.md). This page focuses on using it inside the Windwalker framework.
+
 ## Overview
 
 A middleware wraps the request handling. It receives the request, can

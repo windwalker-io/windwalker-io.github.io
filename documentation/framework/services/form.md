@@ -6,6 +6,8 @@ description: Define, fill, validate and render forms with the Windwalker form se
 
 # Form Service
 
+The standalone package has its own detailed guide: [Windwalker Form](../../components/form/index.md). This page focuses on using it inside the Windwalker framework.
+
 The form service builds forms from plain PHP objects. A form is defined
 once, then reused to fill values, filter and validate input, and render HTML.
 

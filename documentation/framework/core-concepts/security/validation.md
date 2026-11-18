@@ -5,6 +5,8 @@ title: Validation & Filter
 
 # Validation & Filter
 
+The standalone package has its own detailed guide: [Filter](../../../components/filter/index.md). This page focuses on using it inside the Windwalker framework.
+
 Input from forms, query strings, and APIs is untrusted. Windwalker splits
 the work into two steps:
 

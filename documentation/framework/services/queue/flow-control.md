@@ -50,6 +50,14 @@ class ImportRowsJob
 exception object. Throw it to stop the job at that point, as shown in
 [Deferring a Job](#deferring-a-job).
 
+Method details and examples are in the component docs:
+[defer()](/documentation/components/queue/writing-jobs#defer),
+[retryAfter()](/documentation/components/queue/writing-jobs#retryafter),
+[failed()](/documentation/components/queue/writing-jobs#failed),
+[abandoned()](/documentation/components/queue/writing-jobs#abandoned), and
+[the full JobController reference](/documentation/components/queue/writing-jobs#the-jobcontroller)
+for `keep()`, `success()`, the state properties, and `log()`.
+
 In middleware, the same controller is passed in. Call `next()` to continue,
 as shown in [Middleware](#middleware).
 
@@ -65,7 +73,9 @@ and decide whether the job continues.
 Middleware runs before the job method. Use it for checks shared by many
 jobs, such as logging, locks, or rate limits. Mark a method with
 `#[JobMiddleware]`. It must return the `JobController` after calling
-`next()`, or return a `DeferredException` to stop:
+`next()`, or return a `DeferredException` to stop. The chain rules and
+`#[JobMiddlewaresProvider]` are in
+[Writing Jobs: Middleware](/documentation/components/queue/writing-jobs#middleware):
 
 ```php
 use Windwalker\Queue\Attributes\JobEntry;
@@ -98,7 +108,8 @@ class SendMailJob
 }
 ```
 
-Set `order` to control the sequence when a job has several middleware:
+Set `order` to control the sequence when a job has several middleware
+([details](/documentation/components/queue/writing-jobs#middleware)):
 
 ```php
 #[JobMiddleware(order: 1)]
@@ -194,10 +205,14 @@ A job that throws is retried until it reaches `--tries` attempts (default
 php windwalker queue:worker --tries=3
 ```
 
+The option is also described in
+[Workers: Retries and Backoff](/documentation/components/queue/workers#retries-and-backoff).
+
 ### Deferring a Job
 
 A job can ask to run later with `JobController`. See
-[JobController](#jobcontroller) for all of its methods. Use `defer()` when
+[JobController](#jobcontroller) and [defer()](/documentation/components/queue/writing-jobs#defer)
+for details. Use `defer()` when
 the job cannot run now, for example when an external API is busy:
 
 ```php
@@ -233,15 +248,16 @@ continues unless you throw the returned exception. Write
 `throw $controller->defer(...)`, not `return`, so the job stops here.
 :::
 
-Use `abandoned()` for a job that can never succeed. Its argument is a
-reason, not a number of seconds:
+Use [abandoned()](/documentation/components/queue/writing-jobs#abandoned)
+for a job that can never succeed. Its argument is a reason, not a number
+of seconds:
 
 ```php
 throw $controller->abandoned('Order no longer exists');
 ```
 
-Use `retryAfter()` when the job should wait, and the attempt should
-count:
+Use [retryAfter()](/documentation/components/queue/writing-jobs#retryafter)
+when the job should wait, and the attempt should count:
 
 ```php
 throw $controller->retryAfter(30);
@@ -250,7 +266,11 @@ throw $controller->retryAfter(30);
 ### Backoff
 
 By default, a failed job waits the number of seconds set by `--backoff`.
-Use `#[JobBackoff]` to change that for one job.
+Use `#[JobBackoff]` to change that for one job. The attribute's arguments
+are in
+[Writing Jobs: Entry Methods and Attributes](/documentation/components/queue/writing-jobs#entry-methods-and-attributes),
+and the worker-side settings are in
+[Workers: Retries and Backoff](/documentation/components/queue/workers#retries-and-backoff).
 
 #### A Fixed Delay
 
@@ -324,7 +344,9 @@ Failed jobs are kept in the `queue_failed` table. Each row stores the
 connection, channel, job body, and exception. Read the table from your
 database or from an admin page.
 
-Retry jobs by ID, and optionally delay them with `-d` (seconds):
+Retry jobs by ID, and optionally delay them with `-d` (seconds). The
+command and the failer classes are in
+[Failed Jobs](/documentation/components/queue/failed-jobs):
 
 ```bash
 php windwalker queue:retry 12 13 -d 60
@@ -336,7 +358,8 @@ Retry every failed job:
 php windwalker queue:retry --all
 ```
 
-Choose the connection that owns the failed table with `--failer`:
+Choose the connection that owns the failed table with `--failer`
+([Failer Configuration](/documentation/components/queue/failed-jobs#failer-configuration)):
 
 ```bash
 php windwalker queue:retry --all --failer=database
@@ -356,7 +379,9 @@ php windwalker queue:retry
 
 Mark a method with `#[JobFailed]` to run code when an attempt fails. The
 method runs on every failed attempt, so check `shouldDelete` to see
-whether the job will be retried:
+whether the job will be retried. See
+[Writing Jobs: Entry Methods and Attributes](/documentation/components/queue/writing-jobs#entry-methods-and-attributes)
+for the full rules:
 
 ```php
 use Windwalker\Queue\Attributes\JobEntry;

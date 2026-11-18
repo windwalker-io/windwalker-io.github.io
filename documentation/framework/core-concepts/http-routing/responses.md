@@ -5,6 +5,8 @@ title: Responses
 
 # Responses
 
+The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
+
 ## Overview
 
 A controller returns a value, and the framework turns it into the HTTP

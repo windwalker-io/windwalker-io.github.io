@@ -4,6 +4,8 @@ layout: doc
 
 # Enqueuer
 
+The standalone package has its own detailed guide: [Enqueuer](../../../components/queue/enqueuer.md). This page focuses on using it inside the Windwalker framework.
+
 The worker runs jobs already in the queue. The enqueuer creates jobs. Use
 it when work comes from a source, such as expired subscriptions found by
 a query, or rows fetched from an external API.
@@ -12,7 +14,9 @@ a query, or rows fetched from an external API.
 
 Register handlers on the `Enqueuer`, for example in a bootstrap file. The
 handler receives an `EnqueuerController` as its first argument. Call
-`$controller->enqueue()` to push a job:
+`$controller->enqueue()` to push a job. See
+[Enqueuer](/documentation/components/queue/enqueuer) for the component
+API:
 
 ```php
 use Windwalker\Queue\Enqueuer;
@@ -161,7 +165,9 @@ php windwalker queue:enqueuer mail mail-low --all-channels
 ```
 
 The command takes channel names as arguments. Without arguments it runs
-the handlers you registered. It accepts these options:
+the handlers you registered. It accepts these options (see
+[Workers](/documentation/components/queue/workers) for the shared runner
+behavior):
 
 - `-a`, `--all-channels`: Run every channel. The driver must support
   listing channels.

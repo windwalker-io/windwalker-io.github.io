@@ -5,6 +5,8 @@ title: Service Variants
 
 # Service Variants
 
+The standalone package has its own detailed guide: [Tagged Services](../../../components/di/tagged-services.md). This page focuses on using it inside the Windwalker framework.
+
 ## Introduction
 
 Often one interface has several implementations, such as an AI model chosen

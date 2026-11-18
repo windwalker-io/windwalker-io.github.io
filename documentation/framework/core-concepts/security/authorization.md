@@ -5,6 +5,8 @@ title: Authorization
 
 # Authorization
 
+The standalone package has its own detailed guide: [Authorization](../../../components/authorization/index.md). This page focuses on using it inside the Windwalker framework.
+
 Authorization decides whether an authenticated user may perform an
 action. It answers a different question than
 [Authentication](./authentication), which only confirms who the user is.

@@ -5,6 +5,8 @@ title: Request & Input
 
 # Request & Input
 
+The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
+
 ## Overview
 
 Every request arrives as a PSR-7 `ServerRequestInterface`. Windwalker

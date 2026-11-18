@@ -4,6 +4,8 @@ layout: doc
 
 # Drivers
 
+The standalone package has its own detailed guide: [Drivers](../../../components/queue/drivers.md). This page focuses on using it inside the Windwalker framework.
+
 The queue stores and delivers jobs through a driver. This page covers the
 built-in `database` driver first, then how to write a custom driver.
 

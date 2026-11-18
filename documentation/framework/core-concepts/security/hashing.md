@@ -5,6 +5,8 @@ title: Hashing
 
 # Hashing
 
+The standalone package has its own detailed guide: [Crypt](../../../components/crypt/index.md). This page focuses on using it inside the Windwalker framework.
+
 Hashing turns input into a fixed-length digest. The digest cannot be turned
 back into the input. Windwalker provides two classes for two jobs:
 

@@ -5,6 +5,8 @@ title: Cache
 
 # Cache
 
+The standalone package has its own detailed guide: [Windwalker Cache](../../components/cache/index.md). This page focuses on using it inside the Windwalker framework.
+
 Caching keeps the result of expensive work so later requests can reuse it.
 A product page that runs several database joins and a remote price lookup
 can compute its summary once and serve it from the cache for the next few
