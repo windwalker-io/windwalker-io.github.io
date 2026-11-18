@@ -149,7 +149,6 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           items: [
             { text: 'Getting Started', link: `/${frameworkRoutePrefix}/services/database/getting-started` },
             { text: 'Entities', link: `/${frameworkRoutePrefix}/services/database/entities` },
-            { text: 'Query Builder', link: `/${frameworkRoutePrefix}/services/database/query-builder` },
             { text: 'ORM', link: `/${frameworkRoutePrefix}/services/database/orm` },
             { text: 'Pagination', link: `/${frameworkRoutePrefix}/services/database/pagination` },
             { text: 'Migrations', link: `/${frameworkRoutePrefix}/services/database/migrations` },

@@ -180,25 +180,102 @@ echo $diff->days; // 5
 ## Helper Functions
 
 Windwalker ships global helpers in the `Windwalker` namespace. Import
-them with `use function`. Each one returns the typed object you ask for
-and throws when the input is invalid.
+them with `use function`. Most types have three forms, named by prefix.
+
+- `must_`: strict. Invalid input throws.
+- `to_`: `null` and `''` return `null`. Invalid input throws.
+- `try_`: invalid input returns `null` instead of throwing.
 
 ```php
-use function Windwalker\chronos;
-use function Windwalker\to_instant;
-use function Windwalker\to_plain_date;
-use function Windwalker\to_plain_datetime;
-use function Windwalker\to_plain_time;
+use function Windwalker\must_chronos;
+use function Windwalker\to_chronos;
 
-$chronos = chronos('2024-03-15 09:00:00');
+// must_: strict, throws on invalid input
+$date = must_chronos('2024-03-15 09:00:00', 'Asia/Tokyo');
+
+// to_: null and empty string return NULL
+$date = to_chronos(null); // NULL
+$date = to_chronos('');   // NULL
+
+$date = to_chronos('2024-03-15 09:00:00');
+
+// ERROR: DateMalformedStringException:
+//   Failed to parse time string (not a date) at position 0 (n):
+//   The timezone could not be found in the database
+
+$date = try_chronos('not a date'); // NULL
+```
+
+`Instant` has no `must_` form. `to_instant()` and `try_instant()` both
+return `NULL` for `null` or an empty string.
+
+```php
+use function Windwalker\to_instant;
+use function Windwalker\try_instant;
 
 $instant = to_instant('2024-03-15T09:00:00+08:00');
 echo $instant->toIso(); // 2024-03-15T01:00:00Z
 
-$date = to_plain_date('2024-03-15');
-$time = to_plain_time('09:00:00');
-$dateTime = to_plain_datetime('2024-03-15 09:00:00');
+$instant = to_instant(''); // NULL
+
+// ERROR: DateMalformedStringException:
+//   Invalid instant "nope", expect ISO 8601 with time zone.
+$instant = to_instant('nope');
+
+$instant = try_instant('nope'); // NULL
 ```
+
+Plain date and time types use the same three forms. They use the
+wall-clock value without time zone conversion.
+
+```php
+use function Windwalker\must_plain_date;
+use function Windwalker\to_plain_date;
+use function Windwalker\try_plain_date;
+
+$date = must_plain_date('2024-03-15'); // PlainDate
+
+// ERROR: TypeError: Cannot convert null to PlainDate.
+$date = must_plain_date(null);
+
+$date = to_plain_date(''); // NULL
+
+// ERROR: DateMalformedStringException:
+//   Invalid date "2024-13-45", expect Y-m-d.
+$date = to_plain_date('2024-13-45');
+
+$date = try_plain_date('2024-13-45'); // NULL
+```
+
+```php
+use function Windwalker\must_plain_time;
+use function Windwalker\to_plain_time;
+use function Windwalker\try_plain_time;
+
+$time = must_plain_time('09:00:00'); // PlainTime
+
+$time = to_plain_time(''); // NULL
+
+$time = try_plain_time('25:00:00'); // NULL
+```
+
+```php
+use function Windwalker\must_plain_datetime;
+use function Windwalker\to_plain_datetime;
+use function Windwalker\try_plain_datetime;
+
+$dateTime = must_plain_datetime('2024-03-15 09:00:00');
+
+// ERROR: DateMalformedStringException:
+//   Invalid date time "nope", expect Y-m-d\TH:i[:s[.f]].
+$dateTime = to_plain_datetime('nope');
+
+$dateTime = try_plain_datetime('nope'); // NULL
+```
+
+::: info
+`chronos()` is deprecated. Use `must_chronos()` in new code.
+:::
 
 ## Using Chronos in Entities
 

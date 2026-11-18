@@ -21,6 +21,7 @@ layout: doc
   - 如何注入 DatabaseAdapter / ORM
   - 兩者差異在哪裡
   - 非常基本的 select / insert / update / delete 使用方式
+  - Query 已經經有一個完整的使用方式，可以連結到 Components 的 Query 與 ORM -> Query Builder 文件
   - transaction 使用方式
   - 其他一些非常基本的用法介紹
 - 任何你覺得值得追加的項目
