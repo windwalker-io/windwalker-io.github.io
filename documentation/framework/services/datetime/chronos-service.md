@@ -5,15 +5,17 @@ title: ChronosService
 
 # ChronosService
 
-`ChronosService` converts date-times between the application time zone
-and the server time zone. Most applications store dates in the server
-time zone, usually UTC, and show them in the user's local zone.
-`ChronosService` does both conversions in one place.
-
-It reads two settings from the configuration.
+`ChronosService` is the service-aware counterpart of `Chronos`. Unlike
+`Chronos`, it must be injected before use, because it reads global
+state from the application:
 
 - `app.timezone`: the local time zone shown to users.
 - `app.server_timezone`: the time zone used for storage.
+- The database date format and null date, from the database adapter.
+- The active language, used to translate `relative()` strings.
+
+Because of this, it fits automatic time zone conversion and translated
+strings. Use `Chronos` when the zone is known in the code itself.
 
 ## Injecting the Service
 
@@ -208,16 +210,6 @@ ChronosService::toFormat(
 ChronosService::now('Y', 'UTC'); // 2024
 ```
 
-`localNow()` is deprecated. Use `createLocal()` and format the result.
-
-```php
-// Deprecated
-$this->chronos->localNow('Y-m-d H:i:s');
-
-// Preferred
-$this->chronos->createLocal()->format('Y-m-d H:i:s');
-```
-
 ## Relative Time
 
 `relative()` returns a human-readable string such as `3 hours ago`.
@@ -309,8 +301,6 @@ ChronosService::now('Y-m-d H:i:s', 'UTC');
 // 2024-03-15 10:00:00
 ```
 
-## Null Dates
-
 ## Time Zone Settings
 
 Read the configured zones directly.
@@ -322,15 +312,53 @@ $this->chronos->getServerTimezone(); // UTC
 
 ## Null Dates
 
-Databases often store an empty date as a sentinel value. Use
-`isNullDate()` to check for it, and `getNullDate()` to get the value
-for your database adapter. Both need `windwalker/database` installed.
+Some databases use a sentinel value instead of `NULL` for an empty
+date. `ChronosService` reads that value from the active database
+adapter, so your code does not hard-code it. Both methods need
+`windwalker/database` installed. They throw `DomainException` otherwise.
+
+- `getNullDate()`: the sentinel value for the adapter.
+- `getSqlFormat()`: the date format the adapter uses for SQL.
+- `isNullDate()`: `true` when a value equals the sentinel.
 
 ```php
+$this->chronos->getNullDate();    // 0000-00-00 00:00:00
+
 if ($this->chronos->isNullDate($row->deleted_at)) {
     // Not deleted
 }
+
+// Pass another adapter to check its sentinel
+$this->chronos->isNullDate($value, $otherDb);
 ```
+
+`isNullDate()` also treats `null`, `''`, and the zero date as empty.
+It accepts a timestamp, a string, or a `DateTimeInterface`.
+
+```php
+$this->chronos->isNullDate(null);                 // true
+$this->chronos->isNullDate('');                   // true
+$this->chronos->isNullDate('0000-00-00 00:00:00'); // true
+$this->chronos->isNullDate('2024-03-15 09:00:00'); // false
+```
+
+The sentinel depends on the database. These values come from the
+query grammar of each platform:
+
+- MySQL: `1000-01-01 00:00:00`
+- PostgreSQL: `1970-01-01 00:00:00`
+- SQL Server: `1900-01-01 00:00:00`
+- SQLite, Cubrid, and the default: `0000-00-00 00:00:00`
+- Oracle: `RRRR-MM-DD HH24:MI:SS`, a format mask, not a date value
+
+::: warning
+The Oracle value is a format mask in the source. Do not rely on
+`isNullDate()` to match an Oracle sentinel until you have checked the
+value your schema actually stores.
+:::
+
+Do not compare against the sentinel string directly. Use `isNullDate()`
+so the check follows the active database.
 
 ## Storing Dates in Entities
 
@@ -340,9 +368,16 @@ not need to call `toServer()` in each service.
 ```php
 use Windwalker\Core\DateTime\ServerTimeCast;
 use Windwalker\ORM\Attributes\CastNullable;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\Table;
 
+#[Table('orders')]
 class Order
 {
+    #[Column('id')]
+    public ?int $id = null;
+
+    #[Column('created_at')]
     #[CastNullable(ServerTimeCast::class)]
     public ?\Windwalker\Core\DateTime\Chronos $createdAt = null;
 }

@@ -13,6 +13,10 @@ Calling `new \DateTime()` or `time()` directly makes tests depend on
 the real time. Reading time through `Clock` lets a test set a known
 moment and assert the result.
 
+`Clock` plays the role of `Temporal.Now` in the JavaScript Temporal
+API. Its static factories return the current time in each type, such
+as `Instant`, `Chronos`, and the `Plain*` types.
+
 ## Reading the Current Time
 
 `Clock` provides static methods for each value type.

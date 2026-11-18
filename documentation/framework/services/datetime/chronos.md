@@ -8,9 +8,12 @@ title: Chronos
 `Chronos` is the time-zone-aware date-time class of Windwalker. It extends PHP's `DateTimeImmutable`, so every
 modifier returns a new object and the original value never changes.
 
+`Chronos` is the Windwalker counterpart of the `ZonedDateTime` type in
+the JavaScript Temporal API. Each value holds one instant, one time
+zone, and the wall-clock reading in that zone.
+
 Use it when you need a full date and time that carries its own time
-zone. Each `Chronos` value represents one instant and one wall-clock
-reading in a specific zone.
+zone.
 
 ## Creating a Chronos
 
@@ -273,10 +276,6 @@ $dateTime = to_plain_datetime('nope');
 $dateTime = try_plain_datetime('nope'); // NULL
 ```
 
-::: info
-`chronos()` is deprecated. Use `must_chronos()` in new code.
-:::
-
 ## Using Chronos in Entities
 
 Store a Chronos in an entity with `ServerTimeCast`, which converts
@@ -287,9 +286,16 @@ between the server time zone and the database value. See
 use Windwalker\Core\DateTime\Chronos;
 use Windwalker\Core\DateTime\ServerTimeCast;
 use Windwalker\ORM\Attributes\CastNullable;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\Table;
 
+#[Table('posts')]
 class Post
 {
+    #[Column('id')]
+    public ?int $id = null;
+
+    #[Column('published_at')]
     #[CastNullable(ServerTimeCast::class)]
     public ?Chronos $publishedAt = null;
 }

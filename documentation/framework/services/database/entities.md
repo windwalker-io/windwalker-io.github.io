@@ -1,41 +1,429 @@
 ---
 layout: doc
+title: Entities
 ---
 
 # Entities
 
-## User Outline
+An entity is a PHP class that maps one table to one object, and each
+property maps to one column. Entities give your code typed properties,
+automatic conversion between PHP and database values, and a single place
+that records the primary key and column names of a table.
 
-- 介紹建立 entity 的指令
-  - 說明一開始是空的 entity，Windwalker 的邏輯是以 migrations 最終結果作為 truth，所以 必須搭配 migrations 建立完 tables 後，再回頭 sync columns 到 entity，才會有欄位
-  - 這裡提供一個基本範例讓使用者可以操作
-  - 完成 migrations 後，執行 `build:entity` 建立 properties，可以趁這時候手動改 casting & types，之後 `build:entity -k` 建立 hook getter / setter
-  - 多個 primary keys 時，如何用 `#[PK]` 標註這些 keys
-- entity 的基本概念，如何使用 entity 來操作資料庫
-  - 詳細的讀寫資料庫方式，都可以連結到 database & ORM 的 component 文件
-- 如何善用 entity 的 hook，來做一些自動化的欄位處理
-  - 例如 created / modified / created_by / modified_by 等欄位的自動處理
-  - computed property 的使用方式，如何在 entity 內部做一些自動化的欄位計算
-  - 介紹一些 app 層內才能用的 attributes
-- 各類常用欄位類型
-  - Enum 欄位
-    - 如何搭配 Enum 來使用，並且在 entity 層面做一些自動化的轉換
-    - 介紹 Windwalker 的 Enum 類別，如何建立自己的 Enum 類別
-  - JSON 欄位與結構化 Record 欄位
-    - 會自動產生 #[JsonObject] ，但 Record type 要自己掛上去
-    - 如果需要 $[JsonArry]，也可以自己改
-    - 如何將 json wrap 進 RecordInterface 為基礎的自訂物件中
-  - DateTime 處理
-    - 會自動產生 Chronos 欄位
-    - 建議欄位 nullable 不要用 null-date
-    - serialize 後的格式
-    - 可以直接吃 zoned 的字串回來，用 ServerTimeCast 自動轉回 UTC
-  - Date
-    - 可以用 Temporal like 的 PlainDate 存放 (支援自動產生)
-  - Time
-    - 可以用 Temporal like 的 PlainTime 存放 (支援自動產生)
-  - String MonthDay
-    - 單純用 string 來存月日等格式，也可以用 Temporal like 的 PlainMonthDay 存放，只是要手動編寫
-- Entity 的 serialization
-  - 參考 core-concepts/api-systems/object-serialization.md 
-- 任何你覺得值得追加的項目
+Windwalker can generate most of an entity from the database, so you do
+not have to write every property by hand. The generated code is kept
+in sync with the table, and you can still edit it afterwards.
+
+## Generating Entities
+
+Generate an entity from a table that already exists. The `g entity`
+command creates an empty class, and `build:entity` fills it in from the
+database.
+
+```bash
+php windwalker g entity Sakura
+```
+
+```php
+namespace App\Entity;
+
+use Windwalker\ORM\Attributes\Table;
+use Windwalker\ORM\EntityInterface;
+use Windwalker\ORM\EntityTrait;
+
+#[Table('sakuras')]
+class Sakura implements EntityInterface
+{
+    use EntityTrait;
+}
+```
+
+The new class has no properties yet. Windwalker treats the final result
+of your migrations as the source of truth for the schema. Create the
+table with a migration first (see [Migrations](/documentation/framework/services/database/migrations)),
+then sync its columns to the entity.
+
+```bash
+php windwalker build:entity Sakura
+```
+
+`build:entity` reads the table and adds a property for each column to
+the entity file. It keeps the existing code, and it adds only the
+columns that are missing. Run it again after a migration adds a column.
+
+```php
+namespace App\Entity;
+
+use Windwalker\Core\DateTime\Chronos;
+use Windwalker\ORM\Attributes\AutoIncrement;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\PK;
+use Windwalker\ORM\Attributes\Table;
+use Windwalker\ORM\EntityInterface;
+use Windwalker\ORM\EntityTrait;
+
+#[Table('sakuras')]
+class Sakura implements EntityInterface
+{
+    use EntityTrait;
+
+    #[Column('id'), PK, AutoIncrement]
+    public ?int $id = null;
+
+    #[Column('title')]
+    public string $title = '';
+
+    #[Column('state')]
+    public int $state = 0;
+
+    #[Column('created')]
+    public ?Chronos $created = null;
+}
+```
+
+After the properties exist, you can adjust them by hand. Change a type,
+add a `#[Cast]`, or swap a plain `int` for a richer class. Running
+`build:entity` again does not overwrite these changes. Then run
+`build:entity -k` to generate the hook methods. The hooks are the
+getter and setter pairs that convert values; see [Hooks](#hooks) below.
+
+```bash
+php windwalker build:entity Sakura -k
+```
+
+::: tip
+Use `-d` (`--dry-run`) to preview the changes before a file is written.
+Use `-p` (`--props`) to generate properties only.
+:::
+
+### Composite Primary Keys
+
+When a table has more than one primary key column, mark each of them
+with `#[PK]`. The ORM uses all of them to identify a row.
+
+```php
+#[Table('sakura_tags')]
+class SakuraTag implements EntityInterface
+{
+    use EntityTrait;
+
+    #[Column('sakura_id'), PK]
+    public int $sakuraId = 0;
+
+    #[Column('tag_id'), PK]
+    public int $tagId = 0;
+
+    #[Column('position')]
+    public int $position = 0;
+}
+```
+
+::: info
+A composite key is not auto-increment. Do not add `#[AutoIncrement]` to
+any of its columns.
+:::
+
+## Using Entities
+
+An entity is a plain object that holds one row. The ORM reads and writes
+it through `EntityMapper`, which you can get from the ORM service or
+from an `ORM` instance. The basics are covered in
+[Entities](/documentation/components/orm/entities), and the database
+access methods are described in
+[ORM](/documentation/framework/services/database/orm).
+
+```php
+use App\Entity\Sakura;
+
+// Create a new row
+$sakura = new Sakura();
+$sakura->title = 'Yoshino';
+$sakura->state = 1;
+
+$sakura = $orm->createOne(Sakura::class, $sakura);
+
+// Load by primary key
+$sakura = $orm->findOne(Sakura::class, 1);
+
+// Update, then save again
+$sakura->title = 'Somei Yoshino';
+$orm->updateOne(Sakura::class, $sakura);
+
+// Delete
+$orm->deleteOne(Sakura::class, 1);
+```
+
+## Hooks
+
+`build:entity -k` generates a getter and setter pair for each property.
+The setter converts the incoming value to the type declared on the
+property, and the getter returns the converted value. The hook code is
+plain PHP, so you can read and change it.
+
+```php
+#[Column('id'), PK, AutoIncrement]
+public ?int $id = null;
+
+// Generated hooks
+protected function getId(?int $value): ?int
+{
+    return $value;
+}
+```
+
+Hooks run for every property access. Keep them simple, and avoid
+database calls inside them.
+
+### Automatic Timestamps
+
+Use `#[CurrentTime]` to write the current time on every update, and
+`#[CreatedTime]` to write it when a new row is inserted.
+
+```php
+use Windwalker\ORM\Attributes\CreatedTime;
+use Windwalker\ORM\Attributes\CurrentTime;
+
+#[Column('created')]
+#[CreatedTime]
+public ?Chronos $created = null;
+
+#[Column('modified')]
+#[CurrentTime]
+public ?Chronos $modified = null;
+
+// Keep the value on insert, update it on save
+#[Column('published')]
+#[CurrentTime('now', onlyUpdate: false)]
+public ?Chronos $published = null;
+```
+
+These attributes run only when the entity is saved through the ORM. The
+user columns such as `created_by` and `modified_by` are not filled in
+automatically, because the framework does not know the current user.
+Set them in your application code before saving.
+
+::: info
+`#[CurrentTime]` writes on update only by default. On insert it keeps a
+value that you already set, so set `onlyUpdate: false` if you want the
+column to always receive the current time when a row is saved.
+:::
+
+### Computed Properties
+
+Use a PHP 8.4 property hook on a virtual property to calculate a value
+from other columns. Virtual properties are not stored, and they are
+excluded from serialization unless you add `#[Expose]`.
+
+```php
+use Windwalker\Utilities\Attributes\Expose;
+
+#[Expose]
+public string $label {
+    get => sprintf('%s (%s)', $this->title, $this->state);
+}
+```
+
+### Automatic String Truncation
+
+Use `#[AutoTruncate]` on a string property to shorten its value to the
+length of its column before saving. It runs silently, so a long value
+will lose its tail without an error.
+
+```php
+use Windwalker\ORM\Attributes\AutoTruncate;
+
+#[Column('title')]
+#[AutoTruncate]
+public string $title = '';
+
+// Or set a limit that is shorter than the column
+#[Column('summary')]
+#[AutoTruncate(maxLength: 120)]
+public string $summary = '';
+```
+
+::: warning
+`#[AutoTruncate]` discards data without an error. Use it only where a
+short value is acceptable.
+:::
+
+## Column Types
+
+### Enum Columns
+
+Store an enum in a `tinyint` or `varchar` column, and map it to a PHP
+enum with a column comment. Generate the enum with the `g enum` command.
+
+```bash
+php windwalker g enum ItemState --case enabled --case disabled
+```
+
+```php
+namespace App\Enum;
+
+enum ItemState: int
+{
+    case DISABLED = 0;
+    case ENABLED = 1;
+}
+```
+
+The entity then uses the enum as the property type. The ORM converts the
+stored value to the enum case when it loads a row, and back to the
+backed value when it saves.
+
+```php
+#[Column('state')]
+public ItemState $state = ItemState::DISABLED;
+
+// Load and compare
+if ($sakura->state === ItemState::ENABLED) {
+    // ...
+}
+```
+
+To add labels, colors, or other display data to an enum, implement
+`EnumRichInterface`, which combines the extended and translatable
+interfaces, and `EnumMetaInterface`. See
+[Enum](/documentation/framework/core-concepts/enum) for the details.
+
+::: tip
+Use a backed enum for stored values. The stored value is a stable
+integer or string, and the case name can change without a migration.
+:::
+
+### JSON and Record Columns
+
+Columns of type `json` become `array` properties with `#[JsonObject]`.
+Windwalker generates this attribute automatically, and you can change it
+to `#[JsonArray]` if the value is a list.
+
+```php
+use Windwalker\ORM\Attributes\JsonArray;
+use Windwalker\ORM\Attributes\JsonObject;
+
+#[Column('options')]
+#[JsonObject]
+public array $options = [];
+
+#[Column('tags')]
+#[JsonArray]
+public array $tags = [];
+```
+
+To work with a structured value, attach a `Record` type yourself and wrap
+the decoded array. `build:entity` does not add a `Record` type, so you
+must add it by hand.
+
+```php
+use Windwalker\Data\Record;
+
+#[Column('options')]
+#[JsonObject]
+public ?Record $options = null;
+
+// Wrap an array into a Record
+$record = Record::wrap($sakura->options);
+echo $record->theme;
+```
+
+### DateTime Columns
+
+`datetime` columns become `?Chronos` properties with
+`#[CastNullable(ServerTimeCast::class)]`. The cast reads and writes the
+value in the server time zone and stores it as UTC.
+
+```php
+use Windwalker\Core\DateTime\Chronos;
+use Windwalker\Core\DateTime\ServerTimeCast;
+use Windwalker\ORM\Attributes\CastNullable;
+
+#[Column('publish_at')]
+#[CastNullable(ServerTimeCast::class)]
+public ?Chronos $publishAt = null;
+
+// Stored as "2025-01-01 00:00:00" in UTC
+$sakura->publishAt = Chronos::wrap('2025-01-01 09:00:00', 'Asia/Tokyo');
+```
+
+Use a real `NULL` for an empty date. Avoid zero dates such as
+`0000-00-00 00:00:00`, because they are not valid values for `Chronos`.
+
+::: info
+When a serialized date is passed back in with its time zone, such as
+`2025-01-01T09:00:00+09:00`, `ServerTimeCast` converts it to the server
+time zone before saving.
+:::
+
+### Date Columns
+
+`date` columns can use `PlainDate`, a date without time. Windwalker
+generates it automatically with `#[CastNullable(PlainDateCast::class)]`.
+
+```php
+use Windwalker\Core\DateTime\PlainDate;
+use Windwalker\Core\DateTime\PlainDateCast;
+
+#[Column('birthday')]
+#[CastNullable(PlainDateCast::class)]
+public ?PlainDate $birthday = null;
+
+$sakura->birthday = PlainDate::parse('2024-03-25');
+```
+
+### Time Columns
+
+`time` columns can use `PlainTime`, a time of day without a date. It is
+generated with `#[CastNullable(PlainTimeCast::class)]`.
+
+```php
+use Windwalker\Core\DateTime\PlainTime;
+use Windwalker\Core\DateTime\PlainTimeCast;
+
+#[Column('opens_at')]
+#[CastNullable(PlainTimeCast::class)]
+public ?PlainTime $opensAt = null;
+
+$sakura->opensAt = PlainTime::parse('09:30:00');
+```
+
+::: info
+`PlainTimeCast` accepts only values from `00:00:00` to `23:59:59`.
+:::
+
+### Month and Day Values
+
+A value that stores only a month and day, such as a yearly anniversary,
+can be a `string` in `MM-DD` format. This type is not generated, so you
+write it by hand.
+
+```php
+#[Column('anniversary')]
+public ?string $anniversary = null;
+```
+
+To work with it as an object, use `PlainMonthDay` and add the cast
+yourself. Its `toIso()` method returns the `MM-DD` string.
+
+```php
+use Windwalker\Core\DateTime\PlainMonthDay;
+
+$sakura->anniversary = PlainMonthDay::parse('03-25');
+echo $sakura->anniversary->toIso(); // 03-25
+```
+
+## Serialization
+
+Entities can be converted to arrays and JSON. `dump()` returns the public
+properties, and `json_encode()` uses the same data. Protected and virtual
+properties are excluded unless you mark them with `#[Expose]`.
+
+See [Object Serialization](/documentation/framework/core-concepts/api-systems/object-serialization)
+for the full rules.
+
+## Extra Features
+
+- `build:entity -e` generates enums for columns that declare an enum
+  comment, when the enum class does not exist yet.
+- `build:entity -d` previews the result without changing your file.
+- `#[JsonNoSerialize]` hides a property from JSON output only.

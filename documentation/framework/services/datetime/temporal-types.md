@@ -12,9 +12,19 @@ concept and nothing else.
 - `PlainDate`: a calendar date, such as a birthday.
 - `PlainTime`: a wall-clock time, such as opening hours.
 - `PlainDateTime`: a date and a time, without a zone.
+- `ZonedDateTime` (`Chronos`): a date and time with a zone, such as a meeting time.
 - `PlainYearMonth`: a year and month, such as a billing period.
 - `PlainMonthDay`: a month and day, such as an annual holiday.
 - `Instant`: a fixed point on the timeline, stored in UTC.
+
+Windwalker implements these types as an approximation of the JavaScript
+Temporal API. PHP's `DateTime` covers many cases in one class, which
+makes it hard to work with one time unit at a time. These types split
+dates and times into finer parts and expose the unit you need.
+
+The API is not a strict port of the JavaScript API. It follows PHP
+naming and behavior where they differ. Its validation is much stricter
+than `DateTime`.
 
 Use these types when a value should not shift when the time zone
 changes. Use [Chronos](./chronos.md) when the value needs a zone.
@@ -329,11 +339,16 @@ echo $start->until($end, 'month')->format('%m months %d days');
 
 ## Rounding
 
-`PlainTime`, `PlainDateTime`, and `Instant` provide `round()`. The
-smallest unit and the increment control the result. `PlainDate` has no
-`round()`, because it has no unit smaller than a day.
+`PlainTime`, `PlainDateTime`, and `Instant` provide `round()`. It takes
+three arguments: the smallest unit, the increment, and the rounding
+mode. `PlainDate` has no `round()`, because it has no unit smaller than
+a day.
 
 ```php
+// round(DateTimeUnit|string $smallestUnit,
+//       int $roundingIncrement = 1,
+//       RoundingMode $roundingMode = RoundingMode::HalfAwayFromZero)
+
 echo PlainTime::parse('23:59:59.6')->round('second')->toIso();
 // 00:00:00
 
@@ -343,6 +358,54 @@ echo PlainTime::parse('10:07:30')->round('minute', 15)->toIso();
 echo PlainDateTime::parse('2026-01-31T13:00')->round('day')->toIso();
 // 2026-02-01T00:00:00
 ```
+
+`RoundingMode` is PHP's built-in enum (PHP 8.4+). It decides which
+neighbor to pick when the value falls between two multiples. The
+default, `HalfAwayFromZero`, rounds a tie upward.
+
+```php
+use RoundingMode;
+
+$time = PlainTime::parse('10:07:30');
+
+$time->round('minute', 15)->toIso();
+// 10:15:00  (default HalfAwayFromZero, 7.5 min is a tie)
+
+$time->round('minute', 15, RoundingMode::HalfTowardsZero)->toIso();
+// 10:00:00
+
+$time->round('minute', 15, RoundingMode::HalfEven)->toIso();
+// 10:00:00  (10:00 is the even multiple)
+
+$time->round('minute', 15, RoundingMode::TowardsZero)->toIso();
+// 10:00:00
+
+$time->round('minute', 15, RoundingMode::AwayFromZero)->toIso();
+// 10:15:00
+```
+
+The modes that work on a tie are:
+
+- `HalfAwayFromZero`: ties go to the larger magnitude. This is the default.
+- `HalfTowardsZero`: ties go to the smaller magnitude.
+- `HalfEven`: ties go to the even multiple, as in banker's rounding.
+- `HalfOdd`: ties go to the odd multiple.
+
+The modes that ignore ties are:
+
+- `TowardsZero`: always truncate toward zero.
+- `AwayFromZero`: always move away from zero.
+- `NegativeInfinity`: always round down.
+- `PositiveInfinity`: always round up.
+
+`HalfEven` gives the least bias when you round many values, such as
+totals. Use `NegativeInfinity` or `PositiveInfinity` when a slot must
+never end past its boundary, such as a booking that must not overrun.
+
+::: info
+`Instant` rounds relative to the Unix epoch. `PlainTime` wraps around
+midnight, so `23:59:59.6` rounds to `00:00:00`.
+:::
 
 The increment must divide the next larger unit evenly, such as 15 for
 minutes. `round('day')` accepts only an increment of 1.
@@ -396,9 +459,16 @@ Use `PlainDateCast` for a `date` column that should hold a
 use Windwalker\Core\DateTime\PlainDate;
 use Windwalker\Core\DateTime\PlainDateCast;
 use Windwalker\ORM\Attributes\CastNullable;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\Table;
 
+#[Table('members')]
 class Member
 {
+    #[Column('id')]
+    public ?int $id = null;
+
+    #[Column('birthday')]
     #[CastNullable(PlainDateCast::class)]
     public ?PlainDate $birthday = null;
 }
@@ -416,9 +486,16 @@ Use `PlainTimeCast` for a `time` column that should hold a
 use Windwalker\Core\DateTime\PlainTime;
 use Windwalker\Core\DateTime\PlainTimeCast;
 use Windwalker\ORM\Attributes\CastNullable;
+use Windwalker\ORM\Attributes\Column;
+use Windwalker\ORM\Attributes\Table;
 
+#[Table('shifts')]
 class Shift
 {
+    #[Column('id')]
+    public ?int $id = null;
+
+    #[Column('starts_at')]
     #[CastNullable(PlainTimeCast::class)]
     public ?PlainTime $startsAt = null;
 }
