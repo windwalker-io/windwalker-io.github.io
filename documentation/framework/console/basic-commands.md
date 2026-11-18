@@ -11,11 +11,9 @@ options.
 ## Common Commands
 
 - `php windwalker list`: show all commands.
-- `php windwalker run`: run named scripts, see [Script Runner](./script-runner).
-- `php windwalker exec`: run PHP code, see [REPL and Code Sandbox](./repl-and-code-sandbox).
-- `php windwalker cache:clear`, `cache:purge`: see [Cache](./cache).
-- `php windwalker g` (`generate:make`), `generate:revise`: see [Code Generator](./code-generator).
-- `php windwalker site:down`, `site:up`: see [Maintenance](./maintenance).
+- `php windwalker run`, `exec`: run scripts and PHP code, see [Running Code](./commands/running-code).
+- `php windwalker g` (`generate:make`), `generate:revise`: see [Code Generator](./commands/code-generator).
+- `php windwalker site:down`, `site:up`, `cache:clear`, `cache:purge`: see [Maintenance](./commands/maintenance).
 
 ## Server Dumper
 
@@ -73,13 +71,21 @@ php windwalker lang:merge
 
 ## Other Commands
 
-- `crypt:secret`: generate a crypt secret.
-- `asset:sync`, `asset:version`: sync assets and manage asset versions.
-- `build:entity`, `build:enum`: build entity and enum classes.
-- `pkg:*`: manage packages.
-- `mig:*`, `db:*`, `seed:*`: database migrations, tools, and seeders.
-- `schedule:*`, `queue:*`, `task:run`: scheduled tasks, queued jobs, and signed tasks.
-- `server:start`, `server:stop`: local development server. See [Server](./server).
+- `crypt:secret`: generate the app secret. See [App Secret](/documentation/framework/core-concepts/security/app-secret).
+- `asset:version`: create the asset version file. See [Asset Management](/documentation/framework/core-concepts/views/asset-management).
+- `build:entity`: build entity classes. See [Entities](/documentation/framework/services/database/entities).
+- `build:enum`: build enum classes. See [Code Generator](./commands/code-generator).
+- `mig:*`: migrations. See [Migrations](/documentation/framework/services/database/migrations).
+- `db:export`: export the database. See [Backup and Export](/documentation/framework/services/database/backup-and-export).
+- `seed:*`: seeders. See [Seeders](/documentation/framework/services/database/seeders).
+- `schedule:*`: scheduled tasks. See [Scheduler](/documentation/framework/services/scheduler).
+- `queue:*`: queue workers and failed jobs. See [Queue Guide](/documentation/framework/services/queue), [Failed Jobs](/documentation/framework/services/queue/retry-and-failed-jobs#failed-jobs), and [Database Driver](/documentation/framework/services/queue/drivers#database-driver).
+- `task:run`: run signed tasks. See [Concurrency](/documentation/framework/services/concurrency).
+- `mail:test`: send a test mail. See [Mailer](/documentation/framework/services/mailer).
+- `server:start`, `server:stop`: local development server. See [Server](./commands/server).
+
+`pkg:*` (package installation) and `lang:merge` have no full page yet.
+Run `php windwalker <command> --help` for their options.
 
 Run `php windwalker <command> --help` for the arguments of any command.
 

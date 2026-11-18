@@ -366,4 +366,4 @@ complete component documentation, see:
   serializers and how to combine them.
 
 To clear cache folders from the command line, see
-[Cache Command](/documentation/framework/console/cache).
+[Cache Command](/documentation/framework/console/commands/maintenance#purging-cache-pools).

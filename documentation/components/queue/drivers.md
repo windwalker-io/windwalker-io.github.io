@@ -17,6 +17,8 @@ Choose a driver by what you need from the infrastructure:
   service and works well for most applications.
 - SQS and RabbitMQ are managed or dedicated message brokers. They suit
   high volume or workers on several machines.
+- Redis keeps jobs in Redis lists and sorted sets. It is fast and needs
+  only a Redis server.
 - The sync driver runs jobs inside `push()`. It is for development and
   tests.
 
@@ -132,6 +134,52 @@ connection you passed in. Do not keep using a shared connection after the
 driver is gone.
 :::
 
+## Redis Driver
+
+`RedisQueueDriver` stores jobs in Redis. It needs the `redis` PHP
+extension (`ext-redis`) and a running Redis server:
+
+```php
+use Windwalker\Queue\Driver\RedisQueueDriver;
+use Windwalker\Queue\Queue;
+
+$queue = new Queue(
+    new RedisQueueDriver(
+        defaultChannel: 'default',
+        options: [
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'timeout' => 2.0,
+            'database' => 0,
+            'prefix' => 'queues:',
+            'retry_after' => 60,
+        ],
+    )
+);
+```
+
+The driver connects on first use. To share an existing connection, pass
+it as `'redis' => $redis`, where `$redis` is a `Redis` instance. Set
+`password` when the server requires authentication.
+
+Each channel uses three Redis keys: a list of ready jobs, a sorted set of
+delayed jobs, and a sorted set of reserved jobs. `size()` counts all
+three. Delayed jobs stay hidden until their delay ends.
+
+The `retry_after` value is the number of seconds a reserved job stays
+hidden from other workers. If a worker dies while running a job, the job
+becomes ready again after this period, and its attempt count is kept.
+
+::: warning
+A job that runs longer than `retry_after` is released while the first
+worker still runs it, so a second worker can run it too. Keep
+`retry_after` longer than your slowest job.
+:::
+
+::: info
+`close()` closes the connection. The next call reconnects automatically.
+:::
+
 ## Sync Driver
 
 `SyncQueueDriver` does not store anything. `push()` runs the job at once
@@ -226,7 +274,7 @@ use Windwalker\Queue\Driver\ChannelAwareDriverInterface;
 use Windwalker\Queue\Driver\QueueDriverInterface;
 use Windwalker\Queue\QueueMessage;
 
-class RedisQueueDriver implements
+class MyQueueDriver implements
     QueueDriverInterface,
     ChannelAwareDriverInterface
 {

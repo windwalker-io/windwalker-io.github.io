@@ -52,7 +52,7 @@ to `php:main`, so `--engine` has no effect unless you pass a bare name.
 - `php`: runs `php -S` with the document root or a main file. Use it for
   standard web requests.
 - `swoole`: starts a Swoole server with a state file, workers, and an
-  optional file watcher. See the [Swoole](../cli-servers/swoole) page.
+  optional file watcher. See the [Swoole](../../cli-servers/swoole) page.
 
 ```bash
 php windwalker server:start swoole:main

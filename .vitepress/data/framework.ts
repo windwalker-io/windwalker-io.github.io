@@ -173,19 +173,29 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           ]
         },
         { text: 'Form', link: `/${frameworkRoutePrefix}/services/form` },
-        { text: 'Mailer', link: `/${frameworkRoutePrefix}/services/mailer` },
-        { text: 'MailBuilder', link: `/${frameworkRoutePrefix}/services/mail-builder` },
         {
-          text: 'Background Tasks',
-          link: `/${frameworkRoutePrefix}/services/background-tasks/sub-process`,
+          text: 'Mailer',
+          link: `/${frameworkRoutePrefix}/services/mailer`,
           collapsed: true,
           items: [
-            { text: 'Sub-Process', link: `/${frameworkRoutePrefix}/services/background-tasks/sub-process` },
-            { text: 'Concurrency', link: `/${frameworkRoutePrefix}/services/background-tasks/concurrency` },
-            { text: 'Queue', link: `/${frameworkRoutePrefix}/services/background-tasks/queue` },
-            { text: 'Scheduler', link: `/${frameworkRoutePrefix}/services/background-tasks/scheduler` },
+            { text: 'Mailer', link: `/${frameworkRoutePrefix}/services/mailer` },
+            { text: 'MailBuilder', link: `/${frameworkRoutePrefix}/services/mail-builder` },
           ]
         },
+        { text: 'Sub-Process', link: `/${frameworkRoutePrefix}/services/sub-process` },
+        { text: 'Concurrency', link: `/${frameworkRoutePrefix}/services/concurrency` },
+        {
+          text: 'Queue',
+          link: `/${frameworkRoutePrefix}/services/queue`,
+          collapsed: true,
+          items: [
+            { text: 'Queue Basics', link: `/${frameworkRoutePrefix}/services/queue` },
+            { text: 'Retry and Failed Jobs', link: `/${frameworkRoutePrefix}/services/queue/retry-and-failed-jobs` },
+            { text: 'Enqueuer', link: `/${frameworkRoutePrefix}/services/queue/enqueuer` },
+            { text: 'Drivers', link: `/${frameworkRoutePrefix}/services/queue/drivers` },
+          ]
+        },
+        { text: 'Scheduler', link: `/${frameworkRoutePrefix}/services/scheduler` },
         { text: 'Testing', link: `/${frameworkRoutePrefix}/services/testing` },
       ]
     },
@@ -240,7 +250,16 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
       text: 'Packages',
       items: [
         { text: 'Package Installation', link: `/${frameworkRoutePrefix}/packages/package-installation` },
-        { text: 'Package Development', link: `/${frameworkRoutePrefix}/packages/package-development` },
+        { text: 'Package Override', link: `/${frameworkRoutePrefix}/packages/package-override` },
+        {
+          text: 'Package Development',
+          link: `/${frameworkRoutePrefix}/packages/package-development`,
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: `/${frameworkRoutePrefix}/packages/package-development` },
+            { text: 'Package Migrations', link: `/${frameworkRoutePrefix}/packages/package-migration` },
+          ],
+        },
       ]
     },
     {
@@ -248,13 +267,18 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
       items: [
         { text: 'Console Basics', link: `/${frameworkRoutePrefix}/console/console-basics` },
         { text: 'Command Development', link: `/${frameworkRoutePrefix}/console/command-development` },
-        { text: 'Basic Commands', link: `/${frameworkRoutePrefix}/console/basic-commands` },
-        { text: 'Server Running', link: `/${frameworkRoutePrefix}/console/server` },
-        { text: 'REPL & Code Sandbox', link: `/${frameworkRoutePrefix}/console/repl-and-code-sandbox` },
-        { text: 'Script Runner', link: `/${frameworkRoutePrefix}/console/script-runner` },
-        { text: 'Cache', link: `/${frameworkRoutePrefix}/console/cache` },
-        { text: 'Code Generator', link: `/${frameworkRoutePrefix}/console/code-generator` },
-        { text: 'Maintenance', link: `/${frameworkRoutePrefix}/console/maintenance` },
+        {
+          text: 'Commands',
+          link: `/${frameworkRoutePrefix}/console/basic-commands`,
+          collapsible: true,
+          items: [
+            { text: 'Basic Commands', link: `/${frameworkRoutePrefix}/console/basic-commands` },
+            { text: 'Server', link: `/${frameworkRoutePrefix}/console/commands/server` },
+            { text: 'Running Code', link: `/${frameworkRoutePrefix}/console/commands/running-code` },
+            { text: 'Code Generator', link: `/${frameworkRoutePrefix}/console/commands/code-generator` },
+            { text: 'Maintenance', link: `/${frameworkRoutePrefix}/console/commands/maintenance` },
+          ],
+        },
       ]
     },
     {

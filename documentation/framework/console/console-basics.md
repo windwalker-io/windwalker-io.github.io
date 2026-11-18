@@ -96,7 +96,7 @@ See [Basic Commands](./basic-commands#shell-completion) for the setup.
 
 - [Basic Commands](./basic-commands): built-in commands at a glance.
 - [Command Development](./command-development): write your own commands.
-- [Script Runner](./script-runner): batch several commands with one name.
-- [REPL and Code Sandbox](./repl-and-code-sandbox): run PHP interactively.
-- [Cache](./cache) and [Maintenance](./maintenance): operational commands.
-- [Code Generator](./code-generator): scaffold classes and CRUD files.
+- [Server](./commands/server): run the local development server.
+- [Running Code](./commands/running-code): run PHP interactively and batch commands with scripts.
+- [Maintenance](./commands/maintenance): maintenance mode and cache commands.
+- [Code Generator](./commands/code-generator): scaffold classes and CRUD files.

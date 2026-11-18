@@ -13,7 +13,7 @@ one API.
 
 Use a command when a task must run from the terminal, such as an
 import, a nightly cleanup, or a data repair. For a sequence of existing
-commands, use a [script](./script-runner) instead.
+commands, use a [script](./commands/running-code#scripts) instead.
 
 ## Minimal Command
 

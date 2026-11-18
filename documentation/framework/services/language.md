@@ -499,6 +499,95 @@ only on the interface works with either implementation.
 - Unknown methods, such as `setLocale()` and `getLocale()`, are forwarded
   to the inner `Language` object.
 
+## Maintaining Translation Files
+
+Translation files drift apart over time. New keys are added in one locale
+and missing in another. Two tools help you keep them in sync: the
+`lang:merge` command fills in missing keys, and debug mode records keys
+that have no translation.
+
+### Merging Language Files
+
+`lang:merge` copies missing keys from one locale into another. Values that
+already exist in the target locale are kept. Run it from the host app root:
+
+```bash
+# Fill zh-TW with missing keys from en-US
+php windwalker lang:merge main.ini zh-TW en-US
+```
+
+The locale arguments accept three forms. All three mean the same thing:
+
+```bash
+# {to} {from}
+php windwalker lang:merge main.ini zh-TW en-US
+
+# {from} '>' {to}
+php windwalker lang:merge main.ini en-US '>' zh-TW
+
+# {to} '<' {from}
+php windwalker lang:merge main.ini zh-TW '<' en-US
+```
+
+Without `-r`, the command writes the result to a temporary directory and
+prints its path, so you can review it first. Add `-r` to replace the
+translation file in place:
+
+```bash
+php windwalker lang:merge main.ini zh-TW en-US -r
+```
+
+Common options:
+
+- `-r`, `--replace`: Overwrite the target file instead of writing to a temp file.
+- `-s`, `--sort`: Sort the keys alphabetically.
+- `-c`, `--clear`: Remove target keys that do not exist in the source locale.
+- `-d`, `--dir=DIR`: Set the base language directory.
+- `-p`, `--pkg=PKG`: Set the package name.
+
+A common workflow is to merge, sort, and replace in one run:
+
+```bash
+php windwalker lang:merge main.ini zh-TW en-US -rs
+```
+
+::: tip
+Run `lang:merge` after adding keys to your source locale. Then translate
+the new keys in the target file, instead of searching for them by hand.
+:::
+
+### Logging Untranslated Keys
+
+When debug output is enabled, the `Language` object records each key it
+cannot find. Debug output needs both `app.debug` and `language.debug`.
+Set `LANG_DEBUG=true` in your `.env` file to enable `language.debug`.
+
+In debug mode, the translated text is wrapped in marks. `**text**` means
+the string was found. `??text??` means it was not found in any locale, so
+the key is shown instead:
+
+```php
+echo $lang->trans('app.user.welcome');
+// ??app.user.welcome??
+```
+
+The key is recorded in `@logs/language-orphans.ini` at the end of each
+request. The file accumulates keys across requests. Each key becomes a
+readable default value, so you can copy the entries into your translation
+file:
+
+```ini
+; @logs/language-orphans.ini
+[user]
+welcome = "User Welcome"
+logout = "User Logout"
+```
+
+::: info
+Orphan logging only runs in debug mode. Turn it off in production, where
+the log file is not needed and should not grow.
+:::
+
 ## Other Locales
 
 ### Cloning for Another Locale
