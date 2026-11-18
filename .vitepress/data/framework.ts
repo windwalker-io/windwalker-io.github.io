@@ -172,8 +172,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
           ]
         },
         { text: 'Form', link: `/${frameworkRoutePrefix}/services/form` },
-        { text: 'Http Client', link: `/${frameworkRoutePrefix}/services/http-client` },
         { text: 'Mailer', link: `/${frameworkRoutePrefix}/services/mailer` },
+        { text: 'MailBuilder', link: `/${frameworkRoutePrefix}/services/mail-builder` },
         {
           text: 'Background Tasks',
           link: `/${frameworkRoutePrefix}/services/background-tasks/sub-process`,

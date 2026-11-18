@@ -248,3 +248,31 @@ return $nav->redirect('/post/42');
 
 The [Navigation](/documentation/framework/core-concepts/http-routing/navigation) page
 explains the redirect rules, including which URLs `redirect()` accepts.
+
+## HTTP Client
+
+The inbound side of the HTTP layer receives requests. Your app also calls
+other services, such as a payment gateway or an internal API. `HttpClient`
+sends those outbound requests and returns response objects. A client keeps
+the settings shared by its calls, such as the base URI, default headers,
+and timeout:
+
+```php
+<?php
+
+use Windwalker\Http\HttpClient;
+use Windwalker\Http\HttpClientOptions;
+
+$client = HttpClient::create(
+    new HttpClientOptions(
+        baseUri: 'https://api.example.com/v1/',
+        timeout: 10,
+    ),
+);
+
+$user = $client->get('users/42')->toArray();
+```
+
+The [HTTP Client](/documentation/components/http/client) page covers
+request methods, uploads, downloads, asynchronous requests, events, and
+response helpers.

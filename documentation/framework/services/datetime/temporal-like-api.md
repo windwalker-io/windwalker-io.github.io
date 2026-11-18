@@ -29,7 +29,7 @@ than `DateTime`.
 Use these types when a value should not shift when the time zone
 changes. Use [Chronos](./chronos.md) when the value needs a zone.
 
-## Calendar Dates
+## PlainDate
 
 `PlainDate::of()` builds a date from its parts. An invalid date throws
 by default. Pass `DateOverflow::Constrain` to clamp instead.
@@ -79,7 +79,7 @@ echo $jan31->plus('P1M', DateOverflow::Constrain)->toIso();
 // 2026-02-28
 ```
 
-## Wall-Clock Times
+## PlainTime
 
 `PlainTime::of()` takes an hour, minute, second, and microsecond. All
 parts are optional and default to zero.
@@ -107,7 +107,7 @@ echo PlainTime::of(23, 30)->plus('PT1H')->toIso();
 short form `10:30`.
 :::
 
-## Date and Time Together
+## PlainDateTime
 
 `PlainDateTime` joins a date and a time without a zone.
 
@@ -140,13 +140,12 @@ wall-clock value such as `2024-03-15T09:30:00`. Use `Instant` for values
 that carry a zone.
 :::
 
-## Year-Month and Month-Day
+## PlainYearMonth
 
-Use `PlainYearMonth` for periods that have no day, and `PlainMonthDay`
-for values that repeat each year.
+`PlainYearMonth` holds a year and month, with no day. Use it for periods
+such as a billing cycle.
 
 ```php
-use Windwalker\Core\DateTime\PlainMonthDay;
 use Windwalker\Core\DateTime\PlainYearMonth;
 
 $billing = PlainYearMonth::of(2024, 3);
@@ -154,6 +153,15 @@ $billing = PlainYearMonth::of(2024, 3);
 // The first day of the period
 $start = $billing->toPlainDate();
 echo $start->toIso(); // 2024-03-01
+```
+
+## PlainMonthDay
+
+`PlainMonthDay` holds a month and day that repeat each year, such as a
+public holiday.
+
+```php
+use Windwalker\Core\DateTime\PlainMonthDay;
 
 $holiday = PlainMonthDay::of(12, 25);
 
@@ -171,7 +179,7 @@ echo PlainMonthDay::of(2, 29)->toPlainDate(2026)->toIso();
 or moved with `plus()`. Use `equals()` to test whether two values match.
 :::
 
-## Instants
+## Instant
 
 `Instant` is a point on the timeline. Use it for event timestamps and
 ordering, because it does not depend on a time zone.
@@ -195,7 +203,12 @@ $chronos = $instant->toChronos('Asia/Tokyo');
 
 `Instant::now()` returns the current instant.
 
-## Converting Values
+## Shared Operations
+
+The operations below work across the Plain types and `Instant`. Each
+subsection names the class it applies to.
+
+### Converting Values
 
 `from()` reads the wall-clock fields of a `Chronos`, without changing
 the time zone. `Instant::from()` keeps the point in time instead.
@@ -236,10 +249,71 @@ use function Windwalker\to_plain_date;
 echo to_plain_date('2026-03-05')->toIso(); // 2026-03-05
 ```
 
-A conversion that would lose information throws. For example,
-`to_plain_datetime()` rejects a `PlainDate`, because it has no time.
+#### Strict, Nullable, and Try Conversions
 
-## Current Time
+Each helper comes in three forms. `must_*` is strict, `to_*` returns
+`null` for `null` or an empty string, and `try_*` returns `null` for
+an invalid value instead of throwing.
+
+```php
+use function Windwalker\must_plain_date;
+use function Windwalker\to_plain_date;
+use function Windwalker\try_plain_date;
+
+echo must_plain_date('2026-03-05')->toIso(); // 2026-03-05
+
+var_dump(to_plain_date(null)); // NULL
+
+echo try_plain_date('2026-03-05 10:00:00')->toIso();
+// 2026-03-05
+
+var_dump(try_plain_date('2026-13-45')); // NULL
+
+// ERROR: DateMalformedStringException:
+//   Invalid date "2026-13-45", expect Y-m-d.
+must_plain_date('2026-13-45');
+
+// ERROR: TypeError: Cannot convert null to PlainDate.
+must_plain_date(null);
+```
+
+`to_instant()` and `try_instant()` need a time zone designator.
+A `PlainDate` is rejected because it has no zone.
+
+```php
+use function Windwalker\to_instant;
+
+echo to_instant('2026-03-05T10:00:00+08:00')->toIso();
+// 2026-03-05T02:00:00Z
+
+// ERROR: DateMalformedStringException:
+//   Invalid instant "2026-03-05 10:00:00", expect ISO 8601 with time zone.
+to_instant('2026-03-05 10:00:00');
+
+// ERROR: TypeError: Cannot convert PlainDate to Instant.
+to_instant(PlainDate::of(2026, 3, 5));
+```
+
+#### Parsing Strings
+
+Plain types parse strings strictly. `PlainDateTime` rejects a `Z`
+suffix, and `PlainDate` ignores any time part.
+
+```php
+use Windwalker\Core\DateTime\PlainDate;
+use Windwalker\Core\DateTime\PlainDateTime;
+
+echo PlainDate::parse('2026-03-05 10:00')->toIso();
+// 2026-03-05
+
+// ERROR: DateMalformedStringException:
+//   Invalid date time "2026-03-05T10:00:00Z", expect Y-m-d\TH:i[:s[.f]].
+PlainDateTime::parse('2026-03-05T10:00:00Z');
+```
+
+`Instant::parse()` requires a designator, such as `Z` or an offset.
+
+### Current Time
 
 `Clock` returns the current value. It follows the clock set with
 `Clock::set()`, so tests can replace it with a `MockClock`.
@@ -256,7 +330,7 @@ echo Clock::plainDateTime('Asia/Taipei')->toIso();
 Each type also has its own `now()` or `today()` method, such as
 `PlainDate::today()` and `Instant::now()`.
 
-## Reading Fields
+### Reading Fields
 
 Fields are available as properties and as getter methods.
 
@@ -277,7 +351,7 @@ echo $dateTime->getDaysInMonth(); // 31
 starts at 1, and `weekOfYear`. `dayOfYear` starts at 0, to match
 `Chronos`. Prefer `dayOfTheYear` in new code.
 
-## Changing Dates and Times
+### Changing Dates and Times
 
 `plus()` and `minus()` accept an ISO 8601 duration string, a `Duration`,
 or a `DateInterval`. `with()` replaces named fields. Each call returns a
@@ -291,11 +365,28 @@ echo $date->minus('P1D')->toIso();         // 2026-01-30
 echo $date->with(month: 2)->toIso();       // 2026-02-28
 ```
 
-Pass `DateOverflow::Native` to keep PHP's rollover behavior.
+`plus()`, `minus()`, and `with()` take a `DateOverflow` value that
+decides what happens when a day does not exist in the target month.
+
+- `DateOverflow::Constrain`: clamps to the last valid day. This is the
+  default for `plus()`, `minus()`, and `with()`.
+- `DateOverflow::Reject`: throws. This is the default for `of()`.
+- `DateOverflow::Native`: lets PHP roll over into the next month.
 
 ```php
+$date = PlainDate::of(2026, 1, 31);
+
+echo $date->plus('P1M')->toIso();
+// 2026-02-28
+
 echo $date->plus('P1M', DateOverflow::Native)->toIso();
 // 2026-03-03
+
+// ERROR: RangeException: Day 31 does not exist in 2026-02.
+$date->plus('P1M', DateOverflow::Reject);
+
+// ERROR: RangeException: Day 30 is out of range 1-28.
+PlainDate::of(2026, 2, 30);
 ```
 
 `PlainTime` arithmetic wraps around midnight. `PlainYearMonth` accepts
@@ -310,7 +401,7 @@ echo PlainTime::of(23, 30)->plus('PT1H')->toIso();
 PlainYearMonth::of(2024, 2)->plus('P1D');
 ```
 
-## Comparing and Measuring Differences
+### Comparing and Measuring Differences
 
 `compareTo()`, `equals()`, `isBefore()`, and `isAfter()` compare values of
 the same type. Use `PlainDate::compare()` as a sort callback.
@@ -328,6 +419,16 @@ usort($dates, PlainDate::compare(...));
 backwards from the other value. Pass a unit name as the second argument
 to choose the largest unit.
 
+Each type has its own default largest and smallest units:
+
+- `PlainDate`: largest `Year`, smallest `Day`.
+- `PlainYearMonth`: largest `Year`, smallest `Month`.
+- `PlainDateTime`: largest `Year`, smallest `Microsecond`.
+- `PlainTime`: largest `Hour`, smallest `Microsecond`.
+- `Instant`: largest `Hour`, smallest `Microsecond`.
+
+Weeks are not a supported unit.
+
 ```php
 $start = PlainDate::of(2026, 1, 31);
 $end = PlainDate::of(2026, 3, 1);
@@ -337,7 +438,7 @@ echo $start->until($end, 'month')->format('%m months %d days');
 // 1 months 1 days
 ```
 
-## Rounding
+### Rounding
 
 `PlainTime`, `PlainDateTime`, and `Instant` provide `round()`. It takes
 three arguments: the smallest unit, the increment, and the rounding
@@ -415,7 +516,7 @@ minutes. `round('day')` accepts only an increment of 1.
 PlainDateTime::parse('2026-01-31T13:00')->round('day', 2);
 ```
 
-## Changing Time Zones
+### Changing Time Zones
 
 Use `withTimezone()` to show the same instant in another zone. Use
 `withTimezoneKeepingLocal()` to keep the wall-clock time and change the
@@ -431,10 +532,28 @@ echo $taipei->withTimezoneKeepingLocal('UTC')->format('c');
 // 2026-03-05T10:00:00+00:00
 ```
 
-## JSON and Strings
+::: info
+A wall-clock time that does not exist in the target zone, such as a DST
+gap, is moved forward by PHP's rules.
+:::
+
+```php
+$ny = Chronos::create('2026-03-08 02:30:00', 'America/New_York');
+
+echo $ny->format('c');
+// 2026-03-08T03:30:00-04:00
+```
+
+### JSON and Strings
 
 Every temporal type implements `JsonSerializable` and `Stringable`.
-Both output the `toIso()` format.
+Both output the `toIso()` format. `Chronos` is the exception: its JSON
+output is the PHP `format()` string with milliseconds and an offset.
+
+```php
+echo json_encode(Chronos::create('2026-03-05 10:00:00', 'Asia/Taipei'));
+// "2026-03-05T10:00:00.000+08:00"
+```
 
 ```php
 echo json_encode(PlainDate::of(2026, 3, 5));
@@ -509,3 +628,20 @@ range before you hydrate.
 
 For values that need a time zone, use `ServerTimeCast`, described in
 [ChronosService](./chronos-service.md).
+
+### Generated Entities
+
+The entity generator maps date and time columns to these types, always
+nullable, with a default of `null`:
+
+- `datetime` → `?Chronos` with `#[CastNullable(ServerTimeCast::class)]`
+- `date` → `?PlainDate` with `#[CastNullable(PlainDateCast::class)]`
+- `time` → `?PlainTime` with `#[CastNullable(PlainTimeCast::class)]`
+
+```php
+#[Column('birthday')]
+#[CastNullable(PlainDateCast::class)]
+public ?PlainDate $birthday = null;
+```
+
+Edit the generated type if a column must hold a non-null value.

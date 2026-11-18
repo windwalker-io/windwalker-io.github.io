@@ -197,6 +197,93 @@ $paths = $renderer->dumpPaths('admin');
 Namespace methods take the namespace as an argument, so `getPaths()`
 and `dumpPaths()` return the main namespace unless you pass a name.
 
+### Switching a Set of Layouts
+
+A namespace lets a whole group of layouts change folders together.
+Keep one folder per CSS framework, and give each folder the same layout
+names:
+
+```text
+app/Views/themes/
+  bootstrap/
+    post/list.blade.php
+    form/label.blade.php
+  tailwind/
+    post/list.blade.php
+    form/label.blade.php
+```
+
+Name the layouts with the namespace prefix in code. The code does not
+change when the folder changes:
+
+```php
+$html = $renderer->render(
+    'theme::post.list',
+    ['posts' => $posts],
+);
+```
+
+Map the `theme` namespace to a folder in the renderer config. The
+config is `etc/packages/renderer.config.php`, and each key in the
+returned array sets a renderer parameter. The `namespaces` key maps a
+namespace name to its paths:
+
+```php
+// etc/packages/renderer.config.php
+
+namespace App\Config;
+
+use Windwalker\Core\Attributes\ConfigModule;
+use Windwalker\Renderer\RendererPackage;
+
+// ...
+
+static fn() => [
+    'namespaces' => [
+        'theme' => [
+            WINDWALKER_ROOT . '/views/themes/' . env('APP_THEME', 'bootstrap'),
+        ],
+    ],
+];
+```
+
+With `APP_THEME=tailwind`, `theme::post.list` resolves to
+`themes/tailwind/post/list.blade.php`. Change the value in `.env` to
+switch the whole site.
+
+::: info
+The namespace name must match the prefix exactly. `theme` in the config
+pairs with `theme::` in the layout name.
+:::
+
+To add your own folder with layouts that override the active theme,
+list it under the `paths` key. It joins the `main` namespace, so a
+layout name without a prefix finds it:
+
+```php
+// etc/packages/renderer.config.php
+static fn() => [
+    'paths' => [
+        // Override global layouts
+        WINDWALKER_ROOT . '/views/overrides',
+    ],
+    'namespaces' => [
+        'theme' => [
+            // ...
+                
+            // Override namespace layouts
+            WINDWALKER_ROOT . '/views/overrides',
+        ],
+    ],
+];
+```
+
+::: warning
+The renderer reads these keys when the service boots. Changing the
+config at runtime does not switch a theme that already rendered. Set
+`APP_THEME` before the first render.
+:::
+
 ## Global Variables
 
 Every layout receives the global variables. Windwalker adds these

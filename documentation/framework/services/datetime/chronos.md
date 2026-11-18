@@ -150,15 +150,13 @@ Calendar fields are available as methods.
 $date = Chronos::wrap('2024-03-15 09:30:00', 'UTC');
 
 $date->getDayOfTheYear(); // 75, 1-based
-$date->getDayOfYear();    // 74, 0-based
 $date->getWeekOfYear();   // 11
 $date->isInLeapYear();    // true
 ```
 
-::: tip
-Use `getDayOfTheYear()` when you need the human-facing day number.
-`getDayOfYear()` follows PHP's `z` format and starts at 0.
-:::
+`getDayOfTheYear()` is 1-based, matching the Temporal API. PHP's native
+`z` format is 0-based, so the older `getDayOfYear()` returned 74 for the
+same date. That method is deprecated, so use `getDayOfTheYear()` instead.
 
 ## Chronos and DateTime
 
