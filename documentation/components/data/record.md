@@ -227,6 +227,34 @@ class FlowerEntity
 }
 ```
 
+## Hiding Properties
+
+Use `#[Invisible]` on a property that must not be dumped or encoded, such
+as a cached value or a secret. Hidden properties are skipped by `dump()`
+and `json_encode()`:
+
+```php
+use Windwalker\Utilities\Attributes\Invisible;
+
+class Session extends Record
+{
+    public string $user = '';
+
+    #[Invisible]
+    public string $token = '';
+}
+
+$session = Session::wrap(['user' => 'Rose', 'token' => 'abc']);
+
+echo json_encode($session);
+// {"user":"Rose"}
+```
+
+::: info
+`#[Invisible]` wins over `#[Expose]`. An invisible property stays hidden
+even when you add `#[Expose]` to it.
+:::
+
 ## Undeclared Keys
 
 A key that has no matching property is a dynamic property. PHP 8.2 and
@@ -236,6 +264,28 @@ instead of relying on undeclared keys:
 ```php
 #[\AllowDynamicProperties]
 class LooseCustomer extends Record {}
+```
+
+Use `#[DropsUndeclaredProperties]` to skip undeclared keys silently
+instead. Merging or wrapping then ignores them, and no property is
+created:
+
+```php
+use Windwalker\Data\Attributes\DropsUndeclaredProperties;
+
+#[DropsUndeclaredProperties]
+class StrictCustomer extends Record
+{
+    public string $name = '';
+}
+
+$customer = StrictCustomer::wrap([
+    'name' => 'Rose',
+    'unknown' => 'foo',
+]);
+
+echo $customer->name;              // Rose
+var_dump(isset($customer->unknown)); // bool(false)
 ```
 
 ## ValueObject
