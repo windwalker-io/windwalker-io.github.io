@@ -3,7 +3,7 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import { join } from 'node:path';
 import { flatComponents, getComponentsSidebar } from './data/components';
 import { guidesSidebar } from './data/guides';
-import { frameworkSidebar } from './data/framework';
+import { findFrameworkParentText, frameworkSidebar } from './data/framework';
 import { componentRoutePrefix, frameworkRoutePrefix, guideRoutePrefix } from './store/routing-store';
 import { buildSkillsPackage } from './data/skills-package';
 import {
@@ -148,6 +148,12 @@ export default withMermaid(defineConfig({
         .find((com) => com.alias === pageData.frontmatter?.component);
 
       pageData.titleTemplate = `:title | ${component?.title} Component | ${siteConfig.site.title}`;
+    } else if (pageData.relativePath.startsWith(`${frameworkRoutePrefix}/`)) {
+      const parent = findFrameworkParentText(pageData.relativePath);
+
+      if (parent) {
+        pageData.titleTemplate = `:title | ${parent} | ${siteConfig.site.title}`;
+      }
     }
   }
 }))
