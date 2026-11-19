@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Joins
+description: Read related rows in one statement with joins, and avoid the column name collisions and misplaced conditions that change results.
 component: query
 ---
 

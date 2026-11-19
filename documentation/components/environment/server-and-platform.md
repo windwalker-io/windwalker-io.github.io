@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Server and Platform
+description: Check the operating system, entry script, and current host with Environment, which can run against fake server data in tests.
 component: environment
 ---
 

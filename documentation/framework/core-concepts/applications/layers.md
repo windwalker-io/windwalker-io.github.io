@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Application Layers
+description: Why Windwalker splits the container into runtime, application, and request layers so long-running servers do not leak state between requests.
 ---
 
 # Application Layers

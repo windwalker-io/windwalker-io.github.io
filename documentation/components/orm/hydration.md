@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Hydration
+description: Convert database rows into entities and entities back into database values through the entity hydrator, applying casts on every read and write.
 component: orm
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Events
+description: Hook into ORM write events to fill timestamps, check rules, delete child rows and send notifications, keeping logic with the entity.
 component: orm
 ---
 

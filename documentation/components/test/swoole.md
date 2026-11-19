@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Swoole Tests
+description: Helpers for PHPUnit tests that run asynchronous Swoole code, including waiting for the event loop and skipping when unavailable.
 part: Components
 component: test
 ---

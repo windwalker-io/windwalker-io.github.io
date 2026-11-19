@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Databases and Schemas
+description: Create, check and drop databases with DatabaseManager, and list and inspect the tables of a schema with SchemaManager.
 component: database
 ---
 

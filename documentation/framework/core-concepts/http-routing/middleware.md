@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Middleware
+description: How PSR-15 middlewares wrap request handling, and how groups and the app apply shared checks such as login or CSRF to many routes.
 ---
 
 # Middleware

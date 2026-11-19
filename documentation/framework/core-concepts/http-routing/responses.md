@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Responses
+description: How controller return values become PSR-7 responses through anyToResponse and the response builder helper.
 ---
 
 # Responses

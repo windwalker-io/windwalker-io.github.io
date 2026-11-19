@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Add a Product entity and migration, then register sample products for local development.
 ---
 
 # Entities, Migrations and Seeders

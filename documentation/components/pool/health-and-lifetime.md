@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Health and Lifetime
+description: Retire connections by age and usage, and check their health with heartbeat, idle, lifetime, and leak timeout options.
 component: pool
 ---
 

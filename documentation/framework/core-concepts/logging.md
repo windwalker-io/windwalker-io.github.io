@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to write logs through the PSR-3 LoggerInterface backed by Monolog, with each entry sent to a named channel and its own output.
 ---
 
 # Logging

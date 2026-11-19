@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Session, an object-oriented wrapper over PHP sessions, with installation, configuration, and core concepts.
 component: session
 ---
 

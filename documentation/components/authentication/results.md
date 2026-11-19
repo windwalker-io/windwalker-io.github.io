@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Results
+description: Read AuthResult statuses and the ResultSet collected from authentication methods to see whether a login worked and why.
 part: Components
 chapter: Authentication
 menu: components/authentication

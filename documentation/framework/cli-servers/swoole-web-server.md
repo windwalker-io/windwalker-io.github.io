@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Swoole Web Server
+description: Run a Windwalker application on a long-lived Swoole HTTP server, covering setup, worker options, static files, processes, timers, shared state and coroutines.
 ---
 
 # Swoole Web Server

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Swoole Stack
+description: Use SwooleStack in a coroutine server to wait for connections, run timers, and borrow connections safely per coroutine.
 component: pool
 ---
 

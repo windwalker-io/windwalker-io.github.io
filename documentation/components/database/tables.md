@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Tables
+description: Create, change, inspect and drop tables with TableManager and the Schema builder, using one API across major database platforms.
 component: database
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Queries
+description: Run and prepare SQL statements with the adapter, bind parameters, and fetch results in the shape you need.
 component: database
 ---
 

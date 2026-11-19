@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Storages
+description: Choose where cache entries are kept, and use the optional storage interfaces for grouping, pruning, and touching expiration.
 component: cache
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Temporary Files
+description: Create temporary files and folders with Filesystem::createTemp() that are removed automatically, and control when cleanup happens.
 component: filesystem
 ---
 

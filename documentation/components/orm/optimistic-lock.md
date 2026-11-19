@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Optimistic Locking
+description: Prevent silent overwrites when two requests change the same row, using a version column that is checked on every update.
 component: orm
 ---
 

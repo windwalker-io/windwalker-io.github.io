@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Engine Renderers
+description: Use engine adapters such as PlatesRenderer and TwigRenderer to render templates through the same render and make methods.
 component: renderer
 ---
 

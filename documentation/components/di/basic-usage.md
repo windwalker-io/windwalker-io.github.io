@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Basic Usage
+description: Create a DI container, share and alias services, create and bind objects, and call functions with dependency resolution.
 component: di
 ---
 

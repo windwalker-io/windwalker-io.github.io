@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Formats
+description: Load and dump structured data in formats such as INI, JSON, and YAML through the FormatRegistry used by Collection.
 part: Components
 chapter: Data
 menu: components/data

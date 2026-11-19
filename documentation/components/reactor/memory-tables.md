@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Memory Tables
+description: Share fixed-schema state between Swoole worker processes with memory tables from MemoryTableFactory, and choose a suitable structure.
 component: reactor
 ---
 

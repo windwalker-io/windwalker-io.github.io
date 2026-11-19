@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Selecting Data
+description: Select columns, join tables and sort rows with the query builder so the database does the filtering instead of PHP.
 component: query
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Cursor Pagination
+description: Page through large result sets with keyset cursor pagination, keeping each page's cost constant and stable when rows are inserted.
 component: query
 ---
 

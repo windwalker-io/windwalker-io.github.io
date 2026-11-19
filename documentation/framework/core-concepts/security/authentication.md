@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Authentication
+description: How to verify user credentials with multiple authentication methods through AuthService, separate from deciding what a user may do.
 ---
 
 # Authentication

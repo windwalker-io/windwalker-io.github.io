@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Authorization
+description: How to register named authorization policies and check whether an authenticated user may perform an action in controllers, services, and templates.
 ---
 
 # Authorization

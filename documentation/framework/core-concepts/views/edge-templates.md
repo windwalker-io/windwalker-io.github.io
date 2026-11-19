@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How Edge templates are written in Windwalker, covering template locations, layout inheritance, partials, escaped output, and directives.
 ---
 
 # Edge Templates

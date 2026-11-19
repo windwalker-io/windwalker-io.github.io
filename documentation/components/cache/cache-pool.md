@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: CachePool
+description: Create and use CachePool with PSR-6 and PSR-16 methods, covering its constructor arguments and default TTL.
 component: cache
 ---
 

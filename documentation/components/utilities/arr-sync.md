@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Array Sync
+description: Compare a submitted list with stored rows and get the new, removed and remaining items in one call with Arr::sync().
 component: utilities
 ---
 

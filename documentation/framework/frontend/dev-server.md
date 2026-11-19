@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Run the Fusion Next dev server with live reload, configure full reloads for Blade views, use watch mode without a server, and build for production.
 ---
 
 # Dev Server and Live Reload

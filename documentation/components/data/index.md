@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Data, containers for nested arrays and objects with deep path access and copies that leave the original unchanged.
 part: Components
 chapter: Data
 menu: components/data

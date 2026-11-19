@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Choice Fields
+description: Build select, checkbox group, and radio fields with options, option groups, and enum-backed choices.
 part: Components
 chapter: Form
 menu: components/form

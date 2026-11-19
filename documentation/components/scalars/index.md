@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Scalars, which wraps arrays and strings in chainable ArrayObject and StringObject classes.
 part: Components
 chapter: Scalars
 menu: components/scalars

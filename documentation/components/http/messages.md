@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Messages
+description: Create and inspect PSR-7 request and response messages with HttpFactory, independent of the transport or server in use.
 component: http
 ---
 

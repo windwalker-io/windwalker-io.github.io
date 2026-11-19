@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Custom Mappers
+description: Put table-wide logic and custom queries in mapper classes instead of entities, for operations that apply to a whole table.
 component: orm
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Elements
+description: Build HTML element trees in which text and attribute values are escaped automatically when the tree is rendered.
 part: Components
 chapter: DOM
 menu: components/dom

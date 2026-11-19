@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: UUID
+description: Generate UUID identifiers in the application so each row gets its ID before it reaches the database.
 component: orm
 ---
 

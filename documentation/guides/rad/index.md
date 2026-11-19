@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Build a product-management feature with Unicorn admin grids, forms, and CRUD on the Windwalker Starter.
 ---
 
 # Rapid Application Development with Unicorn

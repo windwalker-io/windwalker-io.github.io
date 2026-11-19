@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Helpers
+description: Encode and normalize URL parts with the static UriHelper and UriNormalizer classes, applying the right rule for each part.
 part: Components
 chapter: Uri
 menu: components/uri

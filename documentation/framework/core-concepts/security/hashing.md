@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Hashing
+description: When to use PasswordHasher for passwords and Hasher for general digests, and why passwords must never be stored with a fast digest.
 ---
 
 # Hashing

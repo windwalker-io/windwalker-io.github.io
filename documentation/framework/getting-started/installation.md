@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Check Windwalker requirements, install the starter project with Composer, run the built-in development server, and understand the project layout.
 ---
 
 # Requirements and Installation

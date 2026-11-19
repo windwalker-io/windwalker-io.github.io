@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Gz Stream
+description: Read and write gzip-compressed files through the stream interface without decompressing them to a temporary file.
 component: stream
 ---
 

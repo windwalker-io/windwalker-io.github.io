@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Edge, a Blade-like template engine that compiles templates to cached PHP and provides components and extension points.
 part: Components
 component: edge
 ---

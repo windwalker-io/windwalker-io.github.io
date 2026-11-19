@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How HtmlFrame holds page-level head data for a view, such as the title, description, Open Graph tags, and body classes.
 ---
 
 # HTML Frame

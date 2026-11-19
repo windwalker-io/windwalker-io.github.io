@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Explains how the CLI server layer links server commands, engines and runtime through a state file, covering boot, output, errors and garbage collection.
 ---
 
 # Server Basics

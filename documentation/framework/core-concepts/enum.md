@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to build backed enums with EnumRichInterface and EnumRichTrait, adding lookup, display titles, and translation for forms and views.
 ---
 
 # Enum

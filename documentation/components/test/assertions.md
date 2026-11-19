@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Assertions
+description: Assertion traits that normalize strings, arrays, SQL, and HTML before comparing them in PHPUnit tests.
 part: Components
 component: test
 ---

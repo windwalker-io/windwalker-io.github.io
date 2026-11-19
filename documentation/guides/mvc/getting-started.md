@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Start the basic Windwalker MVC tutorial and see the chapters that follow, without Unicorn or Luna.
 ---
 
 # Getting Started

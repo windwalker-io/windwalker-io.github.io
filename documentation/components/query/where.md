@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Conditions
+description: Build WHERE conditions with operators and bound values so search filters can be added at runtime without concatenating strings.
 component: query
 ---
 

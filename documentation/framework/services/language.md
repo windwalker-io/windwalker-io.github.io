@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Language
+description: Use translation keys and per-locale files so the framework returns the right text for the current locale without code changes.
 ---
 
 # Language

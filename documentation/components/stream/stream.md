@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Stream
+description: Use the Stream class to read and write files and PHP resources, with mode constants, copying, and closing.
 component: stream
 ---
 

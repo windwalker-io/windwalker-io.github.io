@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Uploaded Files
+description: How uploaded files are read with file() and the File attribute, and how UploadedFile moves and describes each file.
 ---
 
 # Uploaded Files

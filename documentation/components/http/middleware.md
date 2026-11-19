@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Middleware
+description: Add PSR-15 middleware to a server to check requests, serve files, or change responses before listeners run.
 component: http
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Exceptions
+description: Build exception classes with multiple messages, short user-facing text, and detailed log text using the package traits and interface.
 component: utilities
 ---
 

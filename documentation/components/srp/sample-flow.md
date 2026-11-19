@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Sample Flow
+description: A complete SRP round trip in one PHP script covering registration, login hello, authentication, and the optional client check.
 part: Components
 chapter: SRP
 menu: components/srp

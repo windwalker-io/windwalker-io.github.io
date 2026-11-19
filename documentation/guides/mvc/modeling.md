@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Build a simple blog's database structure with an entity, migrations, and seeders that provide test data.
 ---
 
 # Entity, Migrations and Seeders

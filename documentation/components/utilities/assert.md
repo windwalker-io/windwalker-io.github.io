@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Assert
+description: Validate arguments and invariants in one call with the Assert classes, using messages that name the method and the received value.
 component: utilities
 ---
 

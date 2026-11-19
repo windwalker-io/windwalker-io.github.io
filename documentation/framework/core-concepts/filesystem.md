@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to use the filesystem package for file objects, path helpers, and temporary files, with safe path checks for user-supplied names.
 ---
 
 # Filesystem

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Controllers
+description: How plain PHP controllers marked with the Controller attribute are created and dispatched to their handler methods by the framework.
 ---
 
 # Controllers

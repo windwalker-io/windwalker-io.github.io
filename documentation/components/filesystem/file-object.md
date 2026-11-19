@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: File Object
+description: Read, write, copy, move, and delete files and folders through the FileObject API, with streams, data URIs, and overwrite rules.
 component: filesystem
 ---
 

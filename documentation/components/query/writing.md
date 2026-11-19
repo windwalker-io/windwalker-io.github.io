@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Writing Data
+description: Create, update and delete rows with the query builder for set-based writes that run the same way on every supported database.
 component: query
 ---
 

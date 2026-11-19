@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Encryption, password hashing, and secret generation with the Windwalker Crypt component.
 part: Components
 chapter: Crypt
 menu: components/crypt

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Routing
+description: How to define routes in plain PHP with RouteCreator, and how the Router matches each request to a route handler.
 ---
 
 # Routing

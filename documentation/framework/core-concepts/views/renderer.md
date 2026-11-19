@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How RendererService turns layout names into HTML from code, covering where layouts are found and which variables they receive.
 ---
 
 # Layout Rendering

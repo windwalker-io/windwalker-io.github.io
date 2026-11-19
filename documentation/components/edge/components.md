@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Components
+description: Build reusable Edge UI components as anonymous views, PHP class components, or dynamic components called by HTML-like tags.
 part: Components
 component: edge
 ---

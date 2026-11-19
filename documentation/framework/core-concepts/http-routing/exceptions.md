@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Exceptions
+description: How exceptions stop a method and become responses, depending on the exception code, request type, debug mode, and verbosity setting.
 ---
 
 # Exceptions

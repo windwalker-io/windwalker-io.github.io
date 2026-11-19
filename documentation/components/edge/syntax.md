@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Template Syntax
+description: The Edge template syntax for escaped output, directives, and control logic, which follows Laravel Blade closely.
 part: Components
 component: edge
 ---

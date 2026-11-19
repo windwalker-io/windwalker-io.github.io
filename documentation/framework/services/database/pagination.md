@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Pagination
+description: Calculate the offset and limit for a page of database rows from the page number, rows per page, and total row count.
 ---
 
 # Pagination

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Content Security Policy
+description: How Windwalker sends a Content Security Policy header with per-request nonces so that only your own inline scripts and styles run.
 ---
 
 # Content Security Policy

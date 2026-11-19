@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Run PHP code with the exec command in a shell, file, or inline mode, and bundle several commands into named scripts with the run command.
 ---
 
 # Running Code

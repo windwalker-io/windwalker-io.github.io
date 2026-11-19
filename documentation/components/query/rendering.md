@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Rendering and Debugging
+description: Render a query builder into SQL text and bound values for PDO, bug reports and tests, and inspect the output while debugging.
 component: query
 ---
 

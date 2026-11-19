@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Defining Forms
+description: Define form fields imperatively or in definition classes, with fieldsets, namespaces, and ordering.
 part: Components
 chapter: Form
 menu: components/form

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Grid
+description: Build HTML tables row by row with Grid, declaring columns once and setting cell values by column name.
 part: Components
 chapter: HTML
 menu: components/html

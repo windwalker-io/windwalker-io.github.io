@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Casting
+description: Convert values between database scalars and typed PHP values with the Cast and CastForSave attributes.
 component: orm
 ---
 

@@ -240,6 +240,7 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
             { text: 'Flow Control', link: `/${frameworkRoutePrefix}/services/queue/flow-control` },
             { text: 'Enqueuer', link: `/${frameworkRoutePrefix}/services/queue/enqueuer` },
             { text: 'Drivers', link: `/${frameworkRoutePrefix}/services/queue/drivers` },
+            { text: 'Scheduling', link: `/${frameworkRoutePrefix}/services/queue/scheduling` },
           ]
         },
         { text: 'Scheduler', link: `/${frameworkRoutePrefix}/services/scheduler` },

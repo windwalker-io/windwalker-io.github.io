@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Schema Diff
+description: Describe a table once as a Schema and apply only the changes needed to bring the real table in step with it.
 component: database
 ---
 

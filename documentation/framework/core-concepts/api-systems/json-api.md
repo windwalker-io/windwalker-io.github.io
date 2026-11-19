@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to return a consistent JSON response envelope from controller methods by enabling the JsonApi attribute on an endpoint.
 ---
 
 # JSON API Response

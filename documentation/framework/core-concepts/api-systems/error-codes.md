@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How exceptions thrown in API methods become consistent JSON error responses with HTTP status and machine-readable error codes.
 ---
 
 # Error Handling and Error Codes

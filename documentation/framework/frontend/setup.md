@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Configure Fusion Next in Vite with useFusion and a fusionfile, set output paths and aliases, and run the dev, build and production scripts.
 ---
 
 # Setup and Build

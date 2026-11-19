@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Attributes
+description: Read PHP attributes from classes, properties, methods and constants, including parent classes, in one call with AttributesAccessor.
 component: utilities
 ---
 

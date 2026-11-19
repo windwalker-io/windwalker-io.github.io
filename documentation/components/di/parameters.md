@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Parameters
+description: Create and resolve parameter structures in the DI container, including factories, arrays of objects, child views, and merging.
 component: di
 ---
 

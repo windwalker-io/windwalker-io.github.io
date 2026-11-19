@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Translating Strings
+description: Translate strings by key with the Language object, filling named placeholders with the text for the current locale.
 component: language
 ---
 

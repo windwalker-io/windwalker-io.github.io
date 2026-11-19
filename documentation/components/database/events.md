@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Events
+description: Listen to adapter events during query execution and row fetching to log, time, profile, or change query results.
 component: database
 ---
 

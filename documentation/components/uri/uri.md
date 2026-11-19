@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Uri
+description: Parse, read, change, and render URLs with the Uri value object, where each change returns a new instance.
 part: Components
 chapter: Uri
 menu: components/uri

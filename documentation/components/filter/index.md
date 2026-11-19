@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: "Cleans and validates raw input with a short filter syntax such as int|range(1,10)."
 part: Components
 chapter: Filter
 menu: components/filter

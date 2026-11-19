@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: DOM
+description: Introduction to Windwalker DOM, which builds, parses, and renders HTML as a tree of element objects with escaped text and attributes.
 part: Components
 chapter: DOM
 menu: components/dom

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Configuration
+description: Explains how Windwalker combines environment variables with etc configuration files, merges package settings, and applies ConfigModule rules.
 ---
 
 # Configuration

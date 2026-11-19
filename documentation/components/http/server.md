@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Server
+description: Accept HTTP requests with PhpServer or ReactServer and respond to them through shared request events.
 component: http
 ---
 

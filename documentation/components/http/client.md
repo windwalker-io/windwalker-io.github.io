@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: HTTP Client
+description: Send requests to remote services with HttpClient, sharing a base URI, default headers, and timeout across calls through HttpClientOptions.
 component: http
 ---
 

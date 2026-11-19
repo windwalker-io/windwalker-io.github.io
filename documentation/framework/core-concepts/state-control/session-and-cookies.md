@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How Windwalker manages sessions without native session_start, and how to configure sessions and cookies through the Session and cookie services.
 ---
 
 # Session & Cookies

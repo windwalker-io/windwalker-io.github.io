@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Listeners and Subscribers
+description: Register listeners and subscribers, set priorities, use one-time listeners, and remove or configure them.
 component: event
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Type Cast
+description: Convert mixed input values with three levels of strictness, and convert collections between arrays, objects, and iterables with TypeCast.
 component: utilities
 ---
 

@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Overview of the built-in Windwalker console commands, including the server dumper, shell completion, mail testing, language merging, and links to each area.
 ---
 
 # Basic Commands

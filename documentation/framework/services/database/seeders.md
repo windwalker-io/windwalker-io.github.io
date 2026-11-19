@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Seeders
+description: Write seeder files that fill a database with test or demo data through the ORM, then run them with seed:import and reverse them with seed:clear.
 ---
 
 # Seeders

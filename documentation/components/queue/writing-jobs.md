@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Writing Jobs
+description: Write small queue job classes with attributes, middleware, and closure jobs, and use the JobController to defer, retry, or fail a job.
 component: queue
 ---
 

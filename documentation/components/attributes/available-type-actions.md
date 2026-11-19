@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Available Types & Actions
+description: Register attribute classes for resolver targets such as classes, methods, properties, and parameters, and see what each target does.
 component: attributes
 ---
 

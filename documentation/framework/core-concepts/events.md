@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How Windwalker's event dispatcher lets components emit events that listeners handle without knowing each other, registered by EventProvider.
 ---
 
 # Events

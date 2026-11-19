@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: CSRF and CORS Protection
+description: How CSRF tokens protect state-changing requests, which HTTP methods are checked by default, and how to apply the Csrf attribute to a method.
 ---
 
 # CSRF and CORS Protection

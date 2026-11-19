@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Upsert
+description: Insert a row or update the existing one when a unique key matches, in a single statement, for counters, caches and latest-value records.
 component: query
 ---
 

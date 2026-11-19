@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Stream, PSR-7 stream classes for files, strings, gzip archives, and caching sources.
 part: Components
 chapter: Stream
 menu: components/stream

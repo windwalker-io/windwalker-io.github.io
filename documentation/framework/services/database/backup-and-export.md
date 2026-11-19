@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Backup & Export
+description: Export a database to a SQL file with the native dump tool, falling back to a PHP-based SQL export when the tool is missing or fails.
 ---
 
 # Backup & Export

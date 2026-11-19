@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Security
+description: Secure sessions against fixation and misuse through session IDs, logout, expiry, cookie flags, storage location, and robots.
 component: session
 ---
 

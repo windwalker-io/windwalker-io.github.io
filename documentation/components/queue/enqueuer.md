@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Enqueuer
+description: Use an Enqueuer loop to create queue jobs from a polled source such as a feed, directory, or API, and attach it to a worker.
 component: queue
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: JavaScript
+description: Use the TypeScript SRP package in the browser, with configuration, custom hashers, and a complete sample flow.
 part: Components
 chapter: SRP
 menu: components/srp

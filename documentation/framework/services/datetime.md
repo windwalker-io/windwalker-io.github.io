@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Overview of the DateTime package, which keeps time zones explicit and covers the current time, zone conversion, and date storage.
 ---
 
 # DateTime

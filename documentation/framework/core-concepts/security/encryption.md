@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Encryption
+description: How to encrypt data you must read back later with SodiumCipher, using Key and HiddenString from the Crypt package.
 ---
 
 # Encryption

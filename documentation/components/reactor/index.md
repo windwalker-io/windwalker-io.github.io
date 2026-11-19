@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Reactor, which connects Windwalker to Swoole long-running workers, events, and the shared state rules they require.
 component: reactor
 ---
 

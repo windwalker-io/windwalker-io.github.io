@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How ErrorService turns PHP errors and uncaught exceptions into ErrorException objects handled by logging and error pages.
 ---
 
 # Error Handling

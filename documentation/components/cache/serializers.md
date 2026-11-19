@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Serializers
+description: Convert cache values with serializers, and wrap them so steps such as compression and encryption run in the right order.
 component: cache
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Dependency Injection
+description: Introduces dependency injection in Windwalker, where a class declares its dependencies in the constructor and code outside supplies them.
 ---
 
 # Dependency Injection

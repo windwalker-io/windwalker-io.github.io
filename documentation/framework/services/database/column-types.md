@@ -1,5 +1,6 @@
 ---
 title: Column Types
+description: How database column types map to PHP property types in entities, including bigint, decimal, enum, json, and date and time types.
 ---
 
 # Column Types

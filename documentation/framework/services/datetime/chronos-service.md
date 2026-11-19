@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: ChronosService
+description: Use ChronosService, the service-aware counterpart of Chronos that reads the application time zone and must be injected before use.
 ---
 
 # ChronosService

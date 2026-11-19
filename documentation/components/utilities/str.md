@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Str
+description: Use the static Str helper for character-aware, UTF-8 safe string operations that share one consistent argument order.
 component: utilities
 ---
 

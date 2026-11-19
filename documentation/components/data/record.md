@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Record
+description: Define typed Record classes with default values, fill them from arrays or objects, create changed copies, and control JSON output.
 part: Components
 chapter: Data
 menu: components/data

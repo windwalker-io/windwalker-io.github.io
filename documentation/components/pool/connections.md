@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Connections
+description: Write a connection class that extends AbstractConnection, covering its states, returning, reconnecting, and leak detection.
 component: pool
 ---
 

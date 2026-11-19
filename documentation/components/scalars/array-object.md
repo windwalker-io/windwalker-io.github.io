@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Array Object
+description: Filter, map, sort, group, and summarize array values with a chainable ArrayObject before they reach a template or API.
 component: scalars
 ---
 

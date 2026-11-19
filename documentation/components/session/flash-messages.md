@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Flash Messages
+description: Store short messages that survive one redirect and display once, such as Post/Redirect/Get notices, using the session flash API.
 component: session
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Renderer, one interface for rendering templates from Plates, Twig, Mustache, Edge, and Blade engines.
 part: Components
 component: renderer
 ---

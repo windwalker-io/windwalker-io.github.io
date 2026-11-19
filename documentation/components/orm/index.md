@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker ORM, a DataMapper-based layer that maps database tables to plain PHP entity objects.
 component: orm
 ---
 

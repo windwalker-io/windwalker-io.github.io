@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Environment, which answers questions about the operating system, PHP SAPI, entry script, and server parameters.
 part: Components
 component: environment
 ---

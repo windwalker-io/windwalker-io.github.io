@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Database, a DBAL that wraps PDO, MySQLi, PostgreSQL, SQL Server and SQLite behind one API.
 part: Components
 chapter: Database
 menu: components/database

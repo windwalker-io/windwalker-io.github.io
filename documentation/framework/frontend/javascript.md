@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Organize frontend TypeScript modules for Fusion Next, covering the stage entry, view modules, chunks, tree shaking, and how modules run in the browser.
 ---
 
 # JavaScript Development

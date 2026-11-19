@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Entities
+description: Map one database table to one PHP entity class, with each mapped property corresponding to one column.
 component: orm
 ---
 

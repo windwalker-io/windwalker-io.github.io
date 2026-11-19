@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Put the site into maintenance mode during deployments, clear cache files, and purge cache pools, groups, and tags from the console.
 ---
 
 # Maintenance

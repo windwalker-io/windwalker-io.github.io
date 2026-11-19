@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Validation & Filter
+description: How to filter, assert, and require request values with attributes or named input rules, and how validation failures are thrown.
 ---
 
 # Validation & Filter

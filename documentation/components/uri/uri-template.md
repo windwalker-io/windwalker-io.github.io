@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: URI Template
+description: Build and expand RFC 6570 URI templates with named placeholders, and extract their values back from matching URLs.
 part: Components
 chapter: Uri
 menu: components/uri

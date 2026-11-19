@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Create views that print the blog data stored in the database, starting with a list view.
 ---
 
 # Create Views

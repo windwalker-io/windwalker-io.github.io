@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Method Index
+description: Index of the public methods of the Query class, grouped by topic, with links to the pages that explain each method.
 component: query
 ---
 

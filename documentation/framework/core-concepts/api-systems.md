@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Overview of Windwalker's API system, covering JSON responses and input, error responses, CORS and JSON middlewares, and object serialization.
 ---
 
 # API Systems

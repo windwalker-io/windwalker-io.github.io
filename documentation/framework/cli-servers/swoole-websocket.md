@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Swoole WebSocket
+description: Build a Swoole WebSocket server with Windwalker routes, rooms, user mappings, message parsers, middleware, Redis publishing and connection authentication.
 ---
 
 # Swoole WebSocket

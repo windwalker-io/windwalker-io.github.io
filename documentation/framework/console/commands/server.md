@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Start and stop the local development server from the console, choose the PHP or Swoole engine, and set the host, port, document root and Swoole options.
 ---
 
 # Server

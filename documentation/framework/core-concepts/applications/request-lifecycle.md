@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Request Lifecycle
+description: The ordered steps Windwalker runs for each request, from runtime boot and routing to controller dispatch and response, across server types.
 ---
 
 # Request Lifecycle

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Queue, which moves slow or unreliable work out of the request cycle, with its main parts and setup.
 part: Components
 chapter: Queue
 component: queue

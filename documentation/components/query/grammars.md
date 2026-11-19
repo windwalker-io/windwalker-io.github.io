@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Grammars and Escaper
+description: Use grammars and the escaper to supply database-specific identifier quoting, paging, upsert and JSON syntax when a query is rendered.
 component: query
 ---
 

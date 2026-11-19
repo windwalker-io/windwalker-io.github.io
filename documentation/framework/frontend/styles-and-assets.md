@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Compile SCSS with Fusion Next, register styles and scripts from PHP, reference images with the tilde prefix, and add custom aliases.
 ---
 
 # Styles and Assets

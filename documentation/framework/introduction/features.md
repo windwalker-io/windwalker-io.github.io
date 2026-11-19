@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Placeholder page that will introduce the main Windwalker features and compare them with Symfony and Laravel.
 ---
 
 # Features

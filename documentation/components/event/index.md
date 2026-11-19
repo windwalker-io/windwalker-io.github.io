@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Event, a PSR-14 event system with typed event objects, emitters, providers, and subscribers.
 component: event
 ---
 

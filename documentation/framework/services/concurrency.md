@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Run PHP tasks in parallel child processes with TaskRunner, so several computations finish without blocking the current request.
 ---
 
 # Concurrency

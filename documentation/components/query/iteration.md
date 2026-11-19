@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Iteration
+description: Process very large query results one row or one small group at a time with the builder's iteration methods, without loading everything.
 component: query
 ---
 

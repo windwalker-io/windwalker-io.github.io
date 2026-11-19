@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Accessing Members
+description: Read, write, and call private or protected members in PHPUnit tests through reflection, and when to avoid it.
 part: Components
 component: test
 ---

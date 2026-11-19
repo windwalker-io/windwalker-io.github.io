@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to pass data between components with AppState, keeping values for one request or persisting them in a session, cookie, or database.
 ---
 
 # Shared State

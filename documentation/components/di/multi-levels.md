@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Multi Levels
+description: Create child containers from a parent container, for long-running daemons that fork a child per loop or task, with scoped parameters.
 component: di
 ---
 

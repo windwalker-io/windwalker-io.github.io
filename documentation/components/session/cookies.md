@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Cookies
+description: Configure and read the session cookie that carries the session ID, including cookie options and how to replace the cookie component.
 component: session
 ---
 

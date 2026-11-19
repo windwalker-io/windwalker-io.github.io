@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Connection Pool
+description: Create and use a ConnectionPool to borrow, return, size, and close reusable connections.
 component: pool
 ---
 

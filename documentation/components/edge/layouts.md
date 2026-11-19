@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Layouts, Sections, and Stacks
+description: Share page frames through layout inheritance with sections, and collect scripts or styles from child templates with stacks.
 part: Components
 component: edge
 ---

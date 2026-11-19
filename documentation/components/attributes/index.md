@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Attributes
+description: Introduction to Windwalker Attributes, a resolver that applies PHP attribute handlers when objects are created or callables run.
 component: attributes
 ---
 

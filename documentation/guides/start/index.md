@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Check the PHP, Node, Yarn, Composer, and web server requirements needed to install Windwalker.
 ---
 
 # Installation

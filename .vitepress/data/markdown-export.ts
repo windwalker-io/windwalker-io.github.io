@@ -22,6 +22,8 @@ export type MarkdownExportOptions = {
   excludes: MarkdownExclude[];
   // Sidebar trees used to link chapter siblings in the Sitemap block
   sidebar: SidebarNode[];
+  // Framework sidebar; its nesting becomes the Framework section of llms.txt
+  frameworkSidebar: SidebarNode[];
 };
 
 const globToRegExp = (glob: string) => new RegExp(
@@ -76,7 +78,7 @@ const humanize = (name: string) =>
 
 type MdInfo = { file: string; title: string; description: string };
 
-// Read title and description from frontmatter, falling back to the first heading and paragraph
+// Title from frontmatter or the first heading; description from frontmatter only
 function readMdInfo(file: string): MdInfo {
   const text = readFileSync(join(srcDir, file), 'utf8');
   const fm: Record<string, string> = {};
@@ -92,14 +94,9 @@ function readMdInfo(file: string): MdInfo {
   }
 
   const heading = body.match(/^#\s+(.+)$/m)?.[1].trim();
-  // First line that is plain prose; skips headings, markup, code fences, lists, and imports
-  const paragraph = body
-    .split('\n')
-    .map((line) => line.trim())
-    .find((line) => line && !/^(#|<|```|-|\*|\||>|!|\{|import |export )/.test(line)) ?? '';
 
   // Strip link syntax and emphasis markers so the description reads as plain text
-  const description = (fm.description || paragraph)
+  const description = (fm.description ?? '')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/[*`]/g, '')
     .slice(0, 200);
@@ -132,8 +129,36 @@ export function llmsMarkdownFiles(options: MarkdownExportOptions): string[] {
 export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = siteUrl): string {
   const files = llmsMarkdownFiles(options);
   const infos = new Map(files.map(readMdInfo).map((i) => [i.file, i]));
-  const item = (info: MdInfo, indent = '') =>
-    `${indent}- [${info.title}](${toUrl(info.file, baseUrl)})${info.description ? `: ${info.description}` : ''}`;
+  const item = (info: MdInfo, indent = '', label = info.title) =>
+    `${indent}- [${label}](${toUrl(info.file, baseUrl)})${info.description ? `: ${info.description}` : ''}`;
+
+  // Sidebar tree as nested bullets: group headings are kept as plain labels, item nesting follows.
+  // A child that points at its parent's page is replaced by its own children.
+  const sidebarBullets = (nodes: SidebarNode[], indent: string, listed: Set<string>): string[] =>
+    nodes.flatMap((node) => {
+      if (!node.link) {
+        const children = sidebarBullets(node.items ?? [], indent + '  ', listed);
+
+        return node.text ? [`${indent}- ${node.text}`, ...children] : children;
+      }
+
+      const file = linkToFile(node.link);
+      const info = infos.get(file);
+      const children = (node.items ?? []).flatMap((child) =>
+        child.link && linkToFile(child.link) === file ? (child.items ?? []) : [child],
+      );
+
+      if (!info) {
+        return sidebarBullets(children, indent, listed);
+      }
+
+      listed.add(file);
+
+      // A menu item with children is labeled by its menu text, not by the first child's page title
+      const label = children.length ? node.text ?? info.title : info.title;
+
+      return [item(info, indent, label), ...sidebarBullets(children, indent + '  ', listed)];
+    });
 
   const lines = [
     '# Windwalker PHP Framework',
@@ -161,6 +186,22 @@ export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = s
     }
 
     const prefix = sectionNames.find(([, n]) => n === name)?.[0] ?? '';
+
+    if (name === 'Framework') {
+      const listed = new Set<string>();
+
+      lines.push(`## ${name}`, '');
+      lines.push(...sidebarBullets(options.frameworkSidebar, '', listed));
+
+      // Framework pages missing from the sidebar are appended as a flat list
+      for (const file of sectionFiles.filter((f) => !listed.has(f)).sort()) {
+        lines.push(item(infos.get(file)!));
+      }
+
+      lines.push('');
+      continue;
+    }
+
     const direct: string[] = [];
     const groups = new Map<string, string[]>();
 
@@ -198,6 +239,7 @@ export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = s
 
   return lines.join('\n');
 }
+
 
 // ---------------------------------------------------------------------------
 // Raw markdown output

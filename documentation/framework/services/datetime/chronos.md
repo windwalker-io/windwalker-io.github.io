@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Chronos
+description: Use Chronos, the time-zone-aware date-time class that extends DateTimeImmutable, so every modifier returns a new object.
 ---
 
 # Chronos

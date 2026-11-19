@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Language, an i18n library that maps stable keys to locale-specific text with plural selection and string file formats.
 component: language
 ---
 

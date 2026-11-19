@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Coroutine Server
+description: Run a single-process Swoole coroutine HTTP server with SwooleCoroutineServer for small services, tools, and development.
 component: reactor
 ---
 

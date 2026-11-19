@@ -11,7 +11,7 @@ The site publishes LLM-friendly plain text next to the HTML pages. All of it is 
 - `.vitepress/data/markdown-export.ts`: the main logic.
   - `publicMarkdownFiles()` collects `.md` files under the repo. It skips `node_modules`, `.vitepress`, `.git`, `.yarn`, `tmp`, and `dist`. `publicExcludePrefixes` also excludes `tmp/`.
   - `llmsMarkdownFiles()` selects the pages for `llms.txt` and the skills package. It drops root-level files (no `/` in the path) and anything under `.github/` (`llmsExcludePrefixes`).
-  - `buildLlmsTxt()` writes `llms.txt`. Pages are grouped by `sectionNames` (`documentation/guides`, `documentation/components`, `documentation/framework`); anything else goes under `Other`. Subdirectories become nested lists. Each entry uses the frontmatter `description`, or the first paragraph when there is none.
+  - `buildLlmsTxt()` writes `llms.txt`. Pages are grouped by `sectionNames` (`documentation/guides`, `documentation/components`, `documentation/framework`); anything else goes under `Other`. Subdirectories become nested lists. The Framework section follows `frameworkSidebar` instead: sidebar group headings are skipped, item nesting is kept, and pages missing from the sidebar are appended flat. Each entry uses only the frontmatter `description`.
   - `withMarkdownFooter()` appends the `llms.txt` and HTML links to every raw Markdown file.
   - `exportMarkdownAndLlmsTxt()` writes the `.md` copies and `llms.txt` into the build output. It is called from `buildEnd` in `.vitepress/config.mts`.
   - `markdownExportPlugin()` is a dev middleware. It serves `/llms.txt` and raw `.md` files during `yarn dev`. Requests that look like Vite module loads (`?` in the URL, or a non-document `sec-fetch-dest`) are passed through, so pages still render.
@@ -22,7 +22,7 @@ The site publishes LLM-friendly plain text next to the HTML pages. All of it is 
 
 - **Add a new top-level docs area to `llms.txt`**: add a `[prefix, name]` pair to `sectionNames`. Without it, the pages land under `Other`.
 - **Hide a page from `llms.txt` and the skills zip**: add its prefix to `llmsExcludePrefixes`, or move it out of the `.md` set. Excluding it from `publicExcludePrefixes` also removes its raw `.md` copy and HTML build output.
-- **Change the page description in `llms.txt`**: set `description` in the page frontmatter. Otherwise the first paragraph is used.
+- **Change the page description in `llms.txt`**: set `description` in the page frontmatter. Pages without it get no description in `llms.txt`.
 - **Change the footer**: edit `withMarkdownFooter()`. It must not alter HTML pages, which are rendered from the source separately.
 - **Change the site domain**: edit the repository root `CNAME` file. `siteUrl` in `markdown-export.ts` reads it, and the sitemap hostname in `config.mts` uses the same value.
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Environment Variables
+description: How Windwalker reads .env files and server variables, and why secrets and per-machine values belong in environment variables, not code.
 ---
 
 # Environment Variables

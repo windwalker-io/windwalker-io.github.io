@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Package Override
+description: Override a Windwalker package's MVC source, view paths, layouts, DI classes, entities and language strings from your project without editing vendor code.
 ---
 
 # Package Override

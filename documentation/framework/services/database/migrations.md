@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Migrations
+description: Version and apply database schema changes with migration files that run up and down in order, so every environment reaches the same schema.
 ---
 
 # Migrations

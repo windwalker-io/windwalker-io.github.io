@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Iterating Files
+description: List and filter directory contents with the FileObject and Filesystem listing methods, using glob patterns, metadata filters, and recursive walks.
 component: filesystem
 ---
 

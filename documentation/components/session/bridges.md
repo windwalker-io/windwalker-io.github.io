@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Bridges
+description: How session bridges load, keep, and save session data during a request, with PhpBridge setup, session ID handling, and the native bridge.
 component: session
 ---
 

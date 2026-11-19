@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Pool, a protocol-neutral connection pool with stacks, options, and connection states.
 part: Components
 component: pool
 ---

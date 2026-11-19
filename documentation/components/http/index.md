@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker HTTP, the PSR-7 and PSR-15 message foundation with an HTTP client, output layer, and server.
 component: http
 ---
 

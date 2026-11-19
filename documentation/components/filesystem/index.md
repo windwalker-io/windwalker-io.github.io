@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Filesystem, a fluent wrapper for file and directory operations, with installation and entry points.
 part: Components
 chapter: Filesystem
 menu: components/filesystem

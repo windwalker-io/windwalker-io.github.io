@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: JSON
+description: Read, filter, sort and update values inside JSON columns with path expressions that compile to each database's native JSON functions.
 component: query
 ---
 

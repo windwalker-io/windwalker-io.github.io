@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Database Tests
+description: Set up a shared database connection for PHPUnit tests, configured by DSN, with schema import and skipping when unavailable.
 part: Components
 component: test
 ---

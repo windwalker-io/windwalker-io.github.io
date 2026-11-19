@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: MailBuilder
+description: Describe transactional email content in PHP with MailBuilder, which adds the surrounding HTML layout around headings, paragraphs, buttons, and footers.
 ---
 
 # MailBuilder

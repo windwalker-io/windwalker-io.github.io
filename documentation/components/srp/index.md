@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to the SRP-6a password protocol in the PHP and JavaScript packages, with main classes and setup.
 part: Components
 chapter: SRP
 menu: components/srp

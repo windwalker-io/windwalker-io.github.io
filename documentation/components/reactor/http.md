@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: HTTP
+description: How the Reactor HTTP server turns Swoole requests into PSR-7 requests, runs middleware, and dispatches request, response, and error events.
 component: reactor
 ---
 

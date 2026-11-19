@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Helpers
+description: Pass PHP data to JavaScript as object literals and repair unclosed HTML fragments with the static HTMLHelper methods.
 part: Components
 chapter: HTML
 menu: components/html

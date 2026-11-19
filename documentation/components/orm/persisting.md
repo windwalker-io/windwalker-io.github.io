@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Persisting Data
+description: Create, update, save and delete rows with ORM and EntityMapper methods, passing entities as the preferred input.
 component: orm
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Cache
+description: Store expensive results with the cache service so later requests reuse them, with one place to read, write, and expire values.
 ---
 
 # Cache

@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Write your own console command with CommandWrapper, configure arguments and options, read input, write output, handle exit codes, and add tab completion.
 ---
 
 # Command Development

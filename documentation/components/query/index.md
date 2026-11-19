@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Query, a SQL builder that assembles and renders SELECT, INSERT, UPDATE, DELETE and UPSERT with bound values.
 component: query
 ---
 

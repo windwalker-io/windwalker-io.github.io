@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How AssetService collects and renders CSS and JavaScript and resolves asset URLs, including Vite mode with the @vite alias.
 ---
 
 # Asset Management

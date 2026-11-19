@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Placeholder page for Windwalker core concepts, including standalone components, first-class DI, low magic, multi-layer services and reactor support.
 ---
 
 # Concepts

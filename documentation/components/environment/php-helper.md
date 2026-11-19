@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: PHP Helper
+description: Check the PHP runtime, such as the SAPI, loaded extensions, and Xdebug, with PhpHelper instead of calling PHP functions directly.
 component: environment
 ---
 

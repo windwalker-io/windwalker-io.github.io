@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Connections
+description: How driver names select a driver and SQL platform, and how the lazily opened connection is kept for later queries.
 component: database
 ---
 

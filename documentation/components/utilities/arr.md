@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Arr
+description: Read, write and check nested arrays and objects by key path with the static Arr helper and its ArrayObject counterpart.
 component: utilities
 ---
 

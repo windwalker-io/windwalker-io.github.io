@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Iterators
+description: Chain lazy iterators to filter, map, paginate and deduplicate large or streamed data without loading it all into memory.
 component: utilities
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Workers
+description: Run a Worker process that takes messages from the queue, with retries and backoff, stop conditions, channels, and events.
 component: queue
 ---
 

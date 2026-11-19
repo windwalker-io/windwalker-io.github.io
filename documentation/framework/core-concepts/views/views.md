@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How full-page MVC views bind to routes and combine a ViewModel, Edge templates, and assets kept together in one folder.
 ---
 
 # Views

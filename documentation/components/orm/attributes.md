@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Attributes
+description: Describe entity tables, columns, casts, events and behaviors with attributes on the class, its properties and its methods.
 component: orm
 ---
 

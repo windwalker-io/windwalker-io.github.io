@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Cache, a PSR-6 and PSR-16 library with pluggable storages and serializers, read-through fetch, and tag invalidation.
 part: Components
 component: cache
 ---

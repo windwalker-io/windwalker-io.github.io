@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Control a queued job's run with JobController, including reading its state, adding middleware, limiting concurrency and rate, and retrying or failing.
 ---
 
 # Flow Control

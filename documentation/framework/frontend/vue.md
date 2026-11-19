@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Add Vue components to Fusion Next with the Vite Vue plugin, mount apps from view modules, register plugins and global helpers, and run type checks.
 ---
 
 # Vue Development

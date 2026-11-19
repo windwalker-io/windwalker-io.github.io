@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Path Utilities
+description: Clean, compare, resolve, and classify file paths with the Path helper, and validate uploaded file names safely.
 component: filesystem
 ---
 

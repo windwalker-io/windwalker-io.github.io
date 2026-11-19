@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Storage Handlers
+description: Choose a session storage handler, such as filesystem, database, PDO, or Redis, to decide where session data is kept.
 component: session
 ---
 

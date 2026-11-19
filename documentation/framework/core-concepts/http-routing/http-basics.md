@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: HTTP Basics
+description: Introduces Windwalker's HTTP layer, covering PSR-7 messages, PSR-15 middlewares, SystemUri, and how routes and navigation connect.
 ---
 
 # HTTP Basics

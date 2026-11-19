@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Hydrators
+description: How hydrators convert database rows into objects and back, and how they connect the database layer to ORM entity loading.
 component: database
 ---
 

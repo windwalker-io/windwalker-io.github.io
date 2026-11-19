@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Tagged Services
+description: Group several implementations of a service under tags and select one at runtime through the same service ID, using factories.
 component: di
 ---
 

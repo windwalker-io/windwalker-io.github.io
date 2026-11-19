@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Documentation
+description: Redirects to the Windwalker components documentation.
 head:
   - - meta
     - http-equiv: refresh

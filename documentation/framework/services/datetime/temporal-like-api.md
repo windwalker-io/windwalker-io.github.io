@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Temporal Like API
+description: Use Temporal-style value objects such as PlainDate for dates and times that do not need a time zone, with one concept per type.
 ---
 
 # Temporal Like API

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Caching Stream
+description: Cache a one-way or slow source so it can be read, rewound, and sought again, and extend streams with decorators.
 component: stream
 ---
 

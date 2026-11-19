@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: ORM & Query Builder
+description: Use the ORM entity mapper and the SelectorQuery query builder to load, save, and delete records without writing SQL by hand.
 ---
 
 # ORM & Query Builder

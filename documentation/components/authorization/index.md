@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: A simple ACL layer for registering named policies and checking whether a user may perform an action.
 part: Components
 chapter: Authorization
 menu: components/authorization

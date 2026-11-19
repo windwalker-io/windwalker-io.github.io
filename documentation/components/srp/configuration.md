@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Configuration
+description: Configure SRP group parameters, secret size, hash algorithm, and padding, and keep client and server settings matched.
 part: Components
 chapter: SRP
 menu: components/srp

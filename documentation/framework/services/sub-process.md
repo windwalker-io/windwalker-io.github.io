@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Start child OS processes from a running request or command through the application sub-process API, instead of raw exec or shell_exec calls.
 ---
 
 # Sub-Process

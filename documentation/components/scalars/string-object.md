@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: String Object
+description: Chain text operations such as trimming, searching, case conversion, and slicing on a StringObject that respects its encoding.
 component: scalars
 ---
 

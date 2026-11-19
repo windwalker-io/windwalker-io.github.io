@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Writer
+description: Insert, update, upsert and delete rows with WriterManager from plain arrays or objects, without building SQL by hand.
 component: database
 ---
 

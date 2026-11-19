@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Extending Edge
+description: Extend Edge with custom directives, source parsers, global variables, and extension classes registered with addExtension().
 part: Components
 component: edge
 ---

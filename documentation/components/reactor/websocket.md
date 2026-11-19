@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: WebSocket
+description: Handle WebSocket connections through handshake, open, message, and close events, and send data back through the message emitter.
 component: reactor
 ---
 

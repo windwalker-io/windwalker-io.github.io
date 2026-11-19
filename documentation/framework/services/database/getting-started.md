@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Getting Started
+description: Connect to MySQL, PostgreSQL, SQLite, SQL Server and other engines through the Database service, with transactions, TLS and read-only protection.
 ---
 
 # Getting Started

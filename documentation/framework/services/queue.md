@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Move slow work such as sending email or importing rows into queued jobs that a separate worker runs after the web request returns.
 ---
 
 # Queue Basics

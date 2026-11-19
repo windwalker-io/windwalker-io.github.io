@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Entry page for the Windwalker framework documentation, describing the application layer that assembles standalone components into a running application.
 ---
 
 # Framework

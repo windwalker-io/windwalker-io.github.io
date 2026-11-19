@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Placeholder page that will explain how Windwalker packages and standalone components relate to each other.
 ---
 
 # Packages & Components

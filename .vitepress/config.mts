@@ -26,6 +26,7 @@ const markdownOptions = {
   ],
   // Every route's sidebar tree; used to link chapter siblings in the Sitemap block
   sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...componentsSidebar],
+  frameworkSidebar: frameworkSidebar.value,
 };
 
 // Built before VitePress renders pages so the checksum can be shown on the download page

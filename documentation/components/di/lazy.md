@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Lazy Loading
+description: Defer object creation in the DI container with PHP 8.4 lazy proxies, container-wide, per call, or through the Lazy attribute.
 component: di
 ---
 

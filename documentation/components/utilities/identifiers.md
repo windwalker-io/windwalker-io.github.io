@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Identifiers
+description: Create in-memory numbered sequences with Serial and identity-compared named markers with Symbol for unique process-level values.
 component: utilities
 ---
 

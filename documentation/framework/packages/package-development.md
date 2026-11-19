@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Create a Windwalker Composer package with a package class and installer methods that copy config, routes, migrations, languages and MVC modules into a host app.
 ---
 
 # Package Development

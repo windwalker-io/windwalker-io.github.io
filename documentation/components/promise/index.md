@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Promise/A+ implementation with an ES-like interface, combinators, coroutines, and a scheduler.
 component: promise
 ---
 

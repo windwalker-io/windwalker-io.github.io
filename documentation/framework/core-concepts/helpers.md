@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: A tour of Windwalker's global helper functions and static utility classes for environment variables, HTML escaping, dates, filtering, and logging.
 ---
 
 # Helpers

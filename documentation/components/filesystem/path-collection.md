@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Path Collection
+description: Collect several root folders, skip roots nested inside others, and list or check files across them without duplicates.
 component: filesystem
 ---
 

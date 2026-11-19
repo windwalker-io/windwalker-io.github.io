@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Validation & Filter
+description: How to validate and filter untrusted input with native PHP callback rules through FilterService, keeping values clean before use.
 ---
 
 # Validation & Filter

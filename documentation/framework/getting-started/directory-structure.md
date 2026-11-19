@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Directory Structure
+description: Explains the directories of a Windwalker project, the resources folder, path aliases and constants, runtime folders, secret handling, and the MVC module layout.
 ---
 
 # Directory Structure

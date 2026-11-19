@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Transports
+description: Choose the transport that performs client requests, such as the default CurlTransport or StreamTransport when cURL is unavailable.
 component: http
 ---
 

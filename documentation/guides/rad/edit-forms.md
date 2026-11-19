@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Generate Unicorn's edit view to create and update products, using list, date, switch, and editor fields.
 ---
 
 # Edit Forms and Saving

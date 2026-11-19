@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Text Transforms
+description: Fill text templates, choose singular or plural word forms, and convert names between naming styles with SimpleTemplate, StrInflector and StrNormalize.
 component: utilities
 ---
 

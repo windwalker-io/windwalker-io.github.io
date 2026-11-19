@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Mailer
+description: Send email through one shared Mailer service that keeps SMTP or API transport settings and the default sender in configuration.
 ---
 
 # Mailer

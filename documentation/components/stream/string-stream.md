@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: String Stream
+description: Use StringStream to read, overwrite, and seek an in-memory string through the PSR-7 stream interface.
 component: stream
 ---
 

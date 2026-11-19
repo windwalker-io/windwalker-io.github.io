@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Build an admin area to manage the blog data, starting with an admin controller and list view.
 ---
 
 # Admin and Forms

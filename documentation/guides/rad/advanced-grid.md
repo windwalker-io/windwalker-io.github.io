@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Customize Unicorn's ListSelector with search and filter handlers, allow-listed sorting, and batch actions.
 ---
 
 # Advanced Grid Features

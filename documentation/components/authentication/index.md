@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Authentication, which runs a list of methods against credentials and reports the result without managing users or sessions.
 part: Components
 chapter: Authentication
 menu: components/authentication

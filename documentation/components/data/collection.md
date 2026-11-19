@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Collection
+description: Read, change, and copy nested data with path strings in Collection, and load or convert data in a given format.
 part: Components
 chapter: Data
 menu: components/data

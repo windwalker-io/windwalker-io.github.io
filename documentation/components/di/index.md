@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker DI, an inversion of control container for managing objects and their dependencies.
 part: Components
 component: di
 ---

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Form
+description: Build HTML forms as one definition that renders, fills, filters, and validates the same fields.
 part: Components
 chapter: Form
 menu: components/form

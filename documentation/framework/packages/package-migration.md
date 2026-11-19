@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Ship database migrations with a Windwalker package so host apps receive schema changes on upgrade, skip overridden entities, and test migrations safely.
 ---
 
 # Package Migrations

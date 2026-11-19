@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Querying
+description: Load entities with find methods, and build complex reads with SelectorQuery started from from() or select().
 component: orm
 ---
 

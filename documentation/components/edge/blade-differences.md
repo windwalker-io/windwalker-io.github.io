@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Differences from Blade
+description: Where Edge differs from Blade, covering Edge-only directives, directives that behave differently, and Laravel features that Edge omits.
 part: Components
 component: edge
 ---

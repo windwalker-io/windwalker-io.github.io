@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Generate controllers, views, models, entities, forms and routes from the console, revise generated files, and build entities and enums from tables.
 ---
 
 # Code Generator

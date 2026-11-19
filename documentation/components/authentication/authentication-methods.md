@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Authentication Methods
+description: Create authentication methods for different credential sources and run them in order through the Authentication object.
 part: Components
 chapter: Authentication
 menu: components/authentication

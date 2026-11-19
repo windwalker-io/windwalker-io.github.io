@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Async Operations
+description: Use the Async methods that return promises for file operations, chain them with then and catch, and wait for the results.
 component: filesystem
 ---
 

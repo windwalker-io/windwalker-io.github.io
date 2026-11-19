@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Check the PHP, Composer, database, and Node.js with Yarn requirements before setting up the project.
 ---
 
 # Project Setup

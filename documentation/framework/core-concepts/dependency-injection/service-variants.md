@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Service Variants
+description: How to bind several implementations of one interface and select one by tag, using bindings closures, providers, or a TaggingFactory.
 ---
 
 # Service Variants

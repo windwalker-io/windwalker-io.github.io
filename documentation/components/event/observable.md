@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Observable
+description: Turn event classes into RxPHP observables to filter and transform event streams, as an optional integration.
 component: event
 ---
 

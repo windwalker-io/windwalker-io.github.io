@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How to send CORS headers for an API route or group by attaching CorsMiddleware instead of setting the headers in the controller.
 ---
 
 # CORS

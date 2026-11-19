@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Enum Metadata
+description: Attach labels, colors, icons and other display metadata to native PHP enum cases with attributes and EnumRichTrait.
 component: utilities
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Template Loaders
+description: How Edge loaders find templates from directories or inline strings, kept separate from the compiler and cache.
 part: Components
 component: edge
 ---

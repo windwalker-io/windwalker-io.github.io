@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Composite Renderer
+description: Render layouts from several template engines by name with CompositeRenderer, which picks the adapter from the file extension.
 component: renderer
 ---
 

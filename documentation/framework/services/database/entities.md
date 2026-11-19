@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Entities
+description: Map database tables to entity classes with typed properties, automatic value conversion, and the primary key and column names of each table.
 ---
 
 # Entities

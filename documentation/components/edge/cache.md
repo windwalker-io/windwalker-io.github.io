@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Compiled Template Cache
+description: How Edge caches compiled templates in memory or on disk, and how the cache is checked on each render.
 part: Components
 component: edge
 ---

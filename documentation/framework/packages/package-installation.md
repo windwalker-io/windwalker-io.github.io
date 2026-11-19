@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Package Installation
+description: Install Windwalker package resources such as config, routes, migrations and MVC modules with pkg:install, using tags, command options and interactive mode.
 ---
 
 # Package Installation

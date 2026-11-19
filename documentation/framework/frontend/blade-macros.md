@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Write script and style macros inside Blade views, pass props from PHP, handle macros included more than once, and debug how macros are built.
 ---
 
 # Blade Macros

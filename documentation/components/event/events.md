@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Event Objects
+description: Create typed event objects, manage their arguments and names, and control propagation to listeners.
 component: event
 ---
 

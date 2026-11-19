@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Attributes
+description: Use DI attributes such as Autowire, Inject, Service, Decorator, Setup, Factory, and Lazy to control how the container resolves objects.
 component: di
 ---
 

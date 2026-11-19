@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How reusable Edge fragments work as HTML tags, either as anonymous templates or as classes that prepare data before rendering.
 ---
 
 # View Components

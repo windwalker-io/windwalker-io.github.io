@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Protocol
+description: Explains the SRP-6a flow for registration and login, which values are sent or kept secret, and the security rules.
 part: Components
 chapter: SRP
 menu: components/srp

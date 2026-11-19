@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Request & Input
+description: How requests are wrapped in AppRequest and read with input() and injection attributes such as Input and QueryParam.
 ---
 
 # Request & Input

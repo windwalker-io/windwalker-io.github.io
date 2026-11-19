@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Write Your Own Attribute Handlers
+description: Write attribute handlers that wrap the previous handler, and learn what each member type passes in and expects back.
 component: attributes
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Loading Files
+description: Load translation files for each locale into Language, and find them by path through Windwalker Core's LangService.
 component: language
 ---
 

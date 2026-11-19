@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Declare scheduled events in PHP on timetables such as every 5 minutes, and let one cron entry or worker run the ones that are due.
 ---
 
 # Scheduler

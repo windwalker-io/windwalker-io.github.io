@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Generate a Unicorn admin grid for products with search, filters, sorting, pagination, and CRUD actions.
 ---
 
 # Admin Grid

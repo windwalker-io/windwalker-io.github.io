@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Nested Sets
+description: Store trees as nested sets so branches and ancestors can be read with fewer queries than an adjacency list needs.
 component: orm
 ---
 

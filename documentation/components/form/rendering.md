@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Rendering
+description: Render form fields as wrapper, label, and input HTML, adjust their markup, and replace the renderer.
 part: Components
 chapter: Form
 menu: components/form

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Test, a set of PHPUnit traits for comparing SQL and HTML, database setup, and member access.
 part: Components
 component: test
 ---

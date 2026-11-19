@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Object Helpers
+description: Cache computed values inside a class, access members regardless of visibility, and check or unwrap PHP 8.4 lazy objects.
 component: utilities
 ---
 

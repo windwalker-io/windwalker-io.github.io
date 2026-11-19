@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Listener Providers
+description: How listener providers store and look up listeners, and how to combine, decorate, and extend them.
 component: event
 ---
 

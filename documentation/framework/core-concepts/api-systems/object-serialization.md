@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How entities and records serialize to JSON without a transformer, and how to hide, force, or change the value of exposed properties.
 ---
 
 # Object Serialization

@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Fields
+description: Field classes for text, HTML5 typed, hidden, file, checkbox, and non-input elements, with their shared methods.
 part: Components
 chapter: Form
 menu: components/form

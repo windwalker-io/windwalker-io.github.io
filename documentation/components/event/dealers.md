@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Dealers
+description: Forward emitted events from a local emitter to other dispatchers, with dealer lifetime and propagation rules.
 component: event
 ---
 

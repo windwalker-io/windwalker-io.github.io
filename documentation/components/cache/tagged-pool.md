@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Tagged Caches
+description: Invalidate groups of cache items at once with TaggedCachePool, which changes tag versions instead of deleting items one by one.
 component: cache
 ---
 

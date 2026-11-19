@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: App Secret
+description: How the APP_SECRET root secret feeds the keys that protect application data, and how to rotate it with the crypt:secret command.
 ---
 
 # App Secret

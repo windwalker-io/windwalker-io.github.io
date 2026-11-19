@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Miscellaneous
+description: Reference for the AttributeHandler methods available inside an attribute's __invoke() method, such as get, set, and getOptions.
 component: attributes
 ---
 

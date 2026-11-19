@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Failed Jobs
+description: Keep a record of jobs that fail after all attempts so they can be inspected, fixed, and pushed again through a failer.
 component: queue
 ---
 

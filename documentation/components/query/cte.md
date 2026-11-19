@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Common Table Expressions
+description: Name intermediate results with common table expressions, and write recursive CTEs to walk hierarchies such as category trees.
 component: query
 ---
 

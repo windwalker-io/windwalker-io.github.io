@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Parsing and Rendering
+description: Parse HTML strings into nodes with HTML5Factory, change them through the DOM API, and render the tree back to a string.
 part: Components
 chapter: DOM
 menu: components/dom

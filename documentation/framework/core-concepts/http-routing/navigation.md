@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Navigation
+description: How Navigator builds URLs and redirects from route names, so links keep working when route paths change.
 ---
 
 # Navigation

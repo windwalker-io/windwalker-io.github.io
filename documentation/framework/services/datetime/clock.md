@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Clock
+description: Use Clock as the single source of the current time, and replace it with a fixed value in tests instead of calling time functions directly.
 ---
 
 # Clock

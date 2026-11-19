@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Helpers
+description: Use the global Windwalker helper functions for debugging output, value wrapping, ID generation and attribute checks, plus the Env class.
 component: utilities
 ---
 

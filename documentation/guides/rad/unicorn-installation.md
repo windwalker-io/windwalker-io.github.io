@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Install the Unicorn, database, ORM, and form packages that the Windwalker Starter does not include.
 ---
 
 # Install the Unicorn Package

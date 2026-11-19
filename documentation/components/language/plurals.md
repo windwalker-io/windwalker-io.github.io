@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Plural Forms
+description: Select the correct plural form of a translated message with choice(), storing every form in one string.
 component: language
 ---
 

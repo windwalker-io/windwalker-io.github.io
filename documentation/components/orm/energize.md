@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Energize
+description: Attach services to entities when the ORM creates or hydrates them, using EnergizeEvent so entity methods can reach them.
 component: orm
 ---
 

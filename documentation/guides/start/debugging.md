@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Enter debug mode by adding /dev.php to the site URL to view DB queries, full errors, and skip CSS/JS caching.
 ---
 
 # Debugging

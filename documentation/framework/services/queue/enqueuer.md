@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Create queue jobs from a data source, such as a query for expired subscriptions or rows fetched from an external API.
 ---
 
 # Enqueuer
@@ -238,15 +239,7 @@ are written to the log channel.
 ## Scheduling Workers and Enqueuers
 
 The [Scheduler](/documentation/framework/services/scheduler) can start the
-worker and the enqueuer for you.
-
-- `ScheduleWorker` runs the worker logic. `runByCommand()` starts
-  `queue:worker` as a separate process.
-- `ScheduleEnqueuer` runs the enqueuer logic. `runByCommand()` starts
-  `queue:enqueuer` as a separate process.
-
-Both check that `windwalker/queue` is installed before they run. Use
-them when a scheduled task should keep the queue fed or drained, without
-a separate process-manager entry for each one. The scheduled task only
-starts the process; it does not replace a long-running worker in
-production.
+enqueuer on each tick. `ScheduleEnqueuer::runByCommand()` starts
+`queue:enqueuer` as a separate process. See
+[Scheduling Workers and Enqueuers](/documentation/framework/services/queue/scheduling)
+for the full setup.

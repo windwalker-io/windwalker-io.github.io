@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Uri, a PSR-7 URI value object for parsing, building, and rendering URLs without sharing mutable strings.
 part: Components
 chapter: Uri
 menu: components/uri

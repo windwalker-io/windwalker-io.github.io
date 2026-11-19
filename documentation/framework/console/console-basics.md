@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Learn how the Windwalker console runs, how commands are registered by name, and how exit codes, command logging, and shell completion work.
 ---
 
 # Console Basics

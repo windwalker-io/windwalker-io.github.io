@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: Use a connection pool in Windwalker to serve database queries from several coroutines in one Swoole worker without opening a connection per request.
 ---
 
 # Connection Pool

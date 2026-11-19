@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Output
+description: Send a PSR-7 response to the PHP SAPI with Output, and stream large files with StreamOutput without loading them into memory.
 component: http
 ---
 

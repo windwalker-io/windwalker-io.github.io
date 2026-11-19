@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Debugging
+description: Enable Language debug mode to mark found and missing translations and record where each missing key was requested.
 component: language
 ---
 

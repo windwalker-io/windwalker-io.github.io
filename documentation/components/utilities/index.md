@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Introduction
+description: Introduction to Windwalker Utilities, a set of small helpers for nested arrays, strings and other native PHP tasks, built around Arr and Str.
 part: Components
 chapter: Utilities
 menu: components/utilities

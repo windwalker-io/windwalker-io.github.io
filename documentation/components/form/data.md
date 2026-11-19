@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Data Lifecycle
+description: Fill, bind, filter, validate, and prepare form data for storage, treating the submitted request as untrusted.
 part: Components
 chapter: Form
 menu: components/form

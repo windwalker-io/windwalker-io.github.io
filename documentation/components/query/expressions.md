@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: Raw SQL and Bindings
+description: Insert raw SQL fragments and bind values safely with the builder's raw expression helpers and placeholders.
 component: query
 ---
 

@@ -1,5 +1,6 @@
 ---
 layout: doc
+description: How API controller methods receive JSON input through attributes and how to restrict HTTP methods with the Method attribute.
 ---
 
 # Routing and JSON Input

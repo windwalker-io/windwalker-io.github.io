@@ -1,6 +1,7 @@
 ---
 layout: doc
 title: HTML
+description: Introduction to Windwalker HTML, a set of helpers for generating repeated markup such as tables, key-value lists, and JavaScript data.
 part: Components
 chapter: HTML
 menu: components/html
