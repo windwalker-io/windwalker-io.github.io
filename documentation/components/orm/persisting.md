@@ -229,6 +229,18 @@ $tag = $orm->mapper(Tag::class)->upsert(
 The conflict keys must match a unique index of the table. See the warning in
 the next section.
 
+The same method is also available on the ORM, which takes the entity class as
+the first argument:
+
+```php
+$tag = $orm->upsert(
+    Tag::class,
+    ['type' => 'color', 'name' => 'red', 'state' => 1],
+    ['type', 'name'],
+    ['state'],
+);
+```
+
 ### Showcase
 
 A page view counter keeps one row for each page and each day. The first
@@ -272,8 +284,10 @@ entity, and the second argument replaces them.
 The keys must match a `PRIMARY` or `UNIQUE` index. On MySQL, the statement
 reacts to a conflict on any `PRIMARY` or `UNIQUE` index, not only on the
 listed keys. A table with several unique indexes can therefore update a row
-that you did not intend to change. See
-[Conflict Keys](/documentation/components/query/upsert#conflict-keys).
+that you did not intend to change. The key columns in the `ON` condition are the conflict target. See
+[Conflict Keys](/documentation/components/query/upsert#conflict-keys) and
+[Portable Usage](/documentation/components/query/upsert#portable-usage) for
+the rules that apply to every platform.
 :::
 
 ### Update Columns
@@ -284,10 +298,26 @@ forms:
 - `null`, the default. Every inserted column except the keys is updated.
 - A list of column names. Only those columns are updated, with the values
   that were inserted.
-- A `column => value` map. The columns are set to the given values. A value
+- A column => value map. The columns are set to the given values. A value
   can be a `raw()` expression, such as `raw('views + 1')`.
 - A closure with the signature `(array $data, array $keys)`. It returns one
   of the forms above.
+
+A list and a map can be mixed. An integer key is a column name, and a string
+key is a column with a custom value:
+
+```php
+$orm->mapper(PageView::class)->upsert(
+    [
+        'page' => $page,
+        'day' => $day,
+        'views' => 1,
+        'updated' => date('Y-m-d H:i:s'),
+    ],
+    ['page', 'day'],
+    ['updated', 'views' => raw('views + 1')],
+);
+```
 
 ```php
 $orm->mapper(Setting::class)->upsert(

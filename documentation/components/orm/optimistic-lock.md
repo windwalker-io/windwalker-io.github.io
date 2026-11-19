@@ -75,18 +75,30 @@ Use the `int` type in most cases.
 public int $version = 0;
 ```
 
-::: info
-An integer is not affected by the precision of a column, and two updates
-in the same second still get different versions. A time-based version works
-only with a column that stores microseconds, such as `DATETIME(6)` in MySQL
-or `timestamp(6)` in PostgreSQL. A column with seconds precision truncates
-the value, so the next update fails against the value that was stored.
+A date version needs a date column. `Schema` accepts any type name as the
+column type. Some platforms map a type to their own name, for example
+`datetime` becomes `datetime2` on SQL Server and `timestamp` on PostgreSQL.
+
+```php
+$schema->datetime('updated');
+$schema->timestamp('updated');
+```
+
+::: warning
+The ORM formats date values with the database date format,
+`Y-m-d H:i:s`. The stored time has second precision, even in a column with
+fractional seconds. A write in the same second as the previous one leaves the
+version unchanged, so a stale update in that second is not rejected. Use an
+`int` version when writers can change the same row within one second.
 :::
+
+SQLite has no native date type, so use an `int` version there.
 
 ### Custom Next Value
 
 Pass a callable as `nextHandler` to generate the next value yourself. It
-receives the current value and returns the next one.
+receives the current value and returns the next one. The handler replaces
+the type check, so it works for any property type.
 
 PHP attribute arguments must be constant expressions, so a closure or an
 arrow function cannot be used here. Refer to a `public static` method with a

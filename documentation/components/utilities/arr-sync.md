@@ -25,6 +25,27 @@ $result = Arr::sync($existing, $incoming, 'name');
 
 It returns an array with the keys `creating`, `deleting`, and `keeping`.
 
+## Method Signature
+
+```php
+public static function sync(
+    iterable $existing,
+    iterable $incoming,
+    string|callable|null $by = null,
+): array
+// Returns:
+// [
+//     'creating' => array,
+//     'deleting' => array,
+//     'keeping' => array,
+// ]
+```
+
+`$existing` and `$incoming` accept any `iterable`, such as an array or a
+`Traversable` object. `$by` is one of three types: a field path as
+`string`, a callback as `callable`, or `null` to match by array key. Each
+group is an array that keeps the original keys of its source.
+
 ## Showcase: Saving Post Tags
 
 The following example compares the tags stored for a post with the tags

@@ -166,6 +166,11 @@ SQLite supports check constraints only when the table is created. Adding a
 check to an existing SQLite table raises a `LogicException`.
 :::
 
+::: warning
+MySQL before 8.0.16 and MariaDB before 10.2.1 accept a check constraint but
+do not enforce it. Rows that break the rule are stored without an error.
+:::
+
 ## Generated Columns
 
 A generated column is computed by the database from an expression on the
@@ -186,8 +191,37 @@ $db->getTable('products')->create(
 );
 ```
 
-Pass a `raw()` value for an expression that should not be quoted. The
-expression is written into the DDL as-is, so use trusted code only.
+`generated()` takes the expression and a flag. `virtual()` and `stored()`
+call it with `false` and `true`:
+
+```php
+$schema->integer('double_price')->generated('price * 2', true);
+```
+
+The expression can also be a `raw()` value. The framework inserts it into
+the DDL in the same way as a string.
+
+::: warning
+The expression is written into the DDL as-is. Never build it from user
+input.
+:::
+
+To add a generated column to an existing table, pass a `Column` object to
+`addColumn()`:
+
+```php
+use Windwalker\Database\Schema\Ddl\Column;
+
+$table = $db->getTable('products');
+
+$table->addColumn(
+    new Column('price_with_tax', 'integer')
+        ->virtual('price * 1.05'),
+);
+```
+
+On MySQL, the expression and the stored flag are read back from an existing
+column. `renameColumn()` therefore keeps the generated definition.
 
 ::: info
 A generated column never gets a `DEFAULT` clause, even when you set a
@@ -218,6 +252,58 @@ $schema->addFunctionalIndex(
     'idx_users_country_email',
 );
 ```
+
+The framework wraps each expression in parentheses, which MySQL requires for
+functional key parts. To add a functional index to an existing table, pass
+an `Index` object to `addIndex()`, as shown in
+[Adding and Dropping Indexes and Constraints](#adding-and-dropping-indexes-and-constraints).
+
+## Platform Support
+
+Generated columns and functional indexes depend on the platform:
+
+| Platform   | Generated column                       | Functional index       |
+|------------|----------------------------------------|------------------------|
+| MySQL      | `VIRTUAL` and `STORED`                 | MySQL 8.0.13 and later |
+| PostgreSQL | `STORED`; `VIRTUAL` needs version 18+  | Supported              |
+| SQLite     | `VIRTUAL` and `STORED`                 | Supported              |
+| SQL Server | Non-persisted and `PERSISTED`          | Not supported          |
+| Oracle     | `VIRTUAL` only                         | Supported              |
+
+Unsupported definitions raise a `LogicException` when the DDL is built. On
+PostgreSQL before version 18, use `stored()` instead of `virtual()`:
+
+```php
+$schema->integer('price_with_tax')->virtual('price * 1.05');
+
+// ERROR: LogicException: VIRTUAL generated columns require
+//        PostgreSQL 18+, use STORED instead.
+```
+
+SQL Server does not support functional indexes. Create a computed column
+and index it instead:
+
+```php
+$schema->addFunctionalIndex([raw('LOWER(email)')], 'idx_lower');
+
+// ERROR: LogicException: SQL Server does not support functional
+//        index, add a computed column and index it instead.
+```
+
+```php
+$schema->varchar('email_lower')->stored('LOWER(email)');
+$schema->addIndex('email_lower');
+```
+
+::: info
+SQLite documents that `ADD COLUMN` cannot add a `STORED` column. Define it
+in `create()` instead.
+:::
+
+::: warning
+Oracle creates every generated column as `VIRTUAL`. `stored()` has no effect
+on Oracle, so the value is computed on read.
+:::
 
 ## Inspecting a Table
 
@@ -283,6 +369,14 @@ if ($table->hasIndex('idx_posts_state')) {
     $index->isUnique;         // false
 }
 ```
+
+::: warning
+MariaDB and MySQL before 8.0.13 do not report the expression of a functional
+index. The key part is listed as `(expression 1)`, so `sync()` sees a
+different index and rebuilds it on every run. On MySQL 8.0.13 and later, the
+reported text can differ in form from the text you wrote, and `sync()`
+compares the two strings.
+:::
 
 ### Constraints
 
@@ -441,6 +535,21 @@ name is a hash of the expression, so the name is not easy to predict:
 $table->addCheck('state IN (0, 1)');
 ```
 
+Pass a name when you need to drop or replace the check later:
+
+```php
+$table->addCheck('state IN (0, 1)', 'ck_posts_state');
+
+// The name exists, so this call changes nothing:
+$table->addCheck('state IN (0, 1, 2)', 'ck_posts_state');
+```
+
+::: warning
+`addCheck()` returns without changes when a constraint with the same name
+already exists, even if its expression is different. The table keeps the old
+rule. Drop the constraint first when the rule must change.
+:::
+
 `dropConstraint()` removes constraints by name:
 
 ```php
@@ -498,6 +607,38 @@ the definition only adds new columns.
 
 To change a table and keep it in sync with the definition in one step, see
 [Schema Diff](/documentation/components/database/schema-diff).
+
+### Changing a Check Expression
+
+`diff()` and `sync()` compare a check constraint by its name and type only.
+They do not compare the expression, because the database rewrites it. Use
+`update()` to change the expression. It drops and adds again every constraint
+in the Schema that has the same name:
+
+```php
+$table->update(
+    static function (Schema $schema) {
+        $schema->addCheck('state IN (0, 1, 2)', 'ck_posts_state');
+    },
+);
+```
+
+Or drop the constraint and add it again:
+
+```php
+$table->dropConstraint('ck_posts_state');
+$table->addCheck('state IN (0, 1, 2)', 'ck_posts_state');
+```
+
+::: warning
+`sync()` reports no change when only the expression differs, so the table
+keeps the old rule.
+:::
+
+::: info
+On SQLite, a check cannot be changed in place, because checks cannot be added
+to an existing table.
+:::
 
 ## Building a Schema Manually
 

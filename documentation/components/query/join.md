@@ -92,14 +92,22 @@ $query->join('LEFT', 'users', 'u', 'u.id', 'p.user_id');
 
 ### Cross Join
 
-A `CROSS JOIN` has no condition. Pass `true` as the condition, which renders
-`ON TRUE`:
+Pass `true` as the condition of a `CROSS JOIN`. It renders `ON TRUE`:
 
 ```php
 $query->join('CROSS', 'categories', 'c', true);
 ```
 
-`true` works for every join type, as a condition that always matches.
+```sql
+CROSS JOIN `categories` AS `c` ON TRUE
+```
+
+MySQL accepts the `ON` clause after `CROSS JOIN`. PostgreSQL does not, so
+use an inner join with `true` there:
+
+```php
+$query->join('INNER', 'categories', 'c', true);
+```
 
 ### Lateral Join
 
@@ -153,8 +161,8 @@ comparison.
 ### Join Condition
 
 A lateral join without a condition uses `ON TRUE`, because the subquery
-already holds the whole condition. Pass an explicit `true` to write the same
-thing yourself. The same `true` works for a regular join.
+already holds the whole condition. See [ON TRUE](#on-true) for the explicit
+form.
 
 ::: info
 Choose `LEFT` when an outer row without a match must still appear. Choose
@@ -315,6 +323,62 @@ The method name controls the join inside the group only. To express
 `a OR (b AND c)` in an `ON` clause, write that part with [`onRaw()`](/documentation/components/query/expressions#raw-methods) and bound
 values.
 :::
+
+### ON TRUE
+
+Pass `true` as the only condition to render `ON TRUE`. Every row of the
+joined table matches:
+
+```php
+$query = $db->createQuery()
+    ->select('a.id')
+    ->from('a')
+    ->leftJoin('bar', 'b', true);
+```
+
+```sql
+SELECT `a`.`id` FROM `a` LEFT JOIN `bar` AS `b` ON TRUE
+```
+
+`true` is special only as the single condition. Any other arguments use the
+normal column, operator and value form.
+
+The lateral shortcuts use `ON TRUE` when no condition is given, because the
+subquery already limits its rows:
+
+```php
+$query = $db->createQuery()
+    ->select('a.id')
+    ->from('a')
+    ->leftJoinLateral(
+        fn($query) => $query
+            ->select('b.id')
+            ->from('b')
+            ->where('b.a_id', 1),
+        'x',
+        // Default condition is ON TRUE
+    );
+```
+
+```sql
+SELECT `a`.`id` FROM `a`
+LEFT JOIN LATERAL (
+  SELECT `b`.`id` FROM `b` WHERE `b`.`a_id` = ?
+) AS `x` ON TRUE
+```
+
+Pass a condition to override the default:
+
+```php
+$query->joinLateral(
+    'inner',
+    $sub,
+    'x',
+    'a.id',
+    '=',
+    'x.id',
+);
+```
 
 ## Aliases and Column Names
 

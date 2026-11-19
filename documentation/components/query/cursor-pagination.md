@@ -206,12 +206,6 @@ reads the key `id`.
 - **Order** is replaced by the cursor columns, so the first page and the later
   pages use the same order.
 
-::: warning
-A `null` value throws an `InvalidArgumentException`. A `CursorPaginate` built
-with a closure cannot read values from an item, so it throws when it is passed
-an item.
-:::
-
 ## Iterators with a Cursor
 
 The iterate methods accept a `CursorPaginate` in place of a batch size. Use

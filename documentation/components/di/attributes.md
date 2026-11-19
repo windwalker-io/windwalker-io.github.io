@@ -411,15 +411,91 @@ class Cache
 
 ## `#[Factory]`
 
-`#[Factory]` marks a closure returned by a callable passed to `newInstance()` as a factory definition. The container
-resolves the returned closure instead of returning the closure itself. It does not need a registered attribute handler:
+`#[Factory]` marks a closure that a callable returns as a factory. When you
+pass a callable to `newInstance()`, the container calls it through
+`Container::call()`. If the returned closure has `#[Factory]`, the container
+resolves that closure instead. Its parameters are autowired, and its result
+gets the member attributes. The attribute does not need a registered handler.
+
+The attribute goes on the returned closure, not on the outer callable. Use it
+when the inner closure needs services from the container:
 
 ```php
 use Windwalker\DI\Attributes\Factory;
 
-$service = $container->newInstance(
+$container->set(SomeService::class, new SomeService());
+
+$greeter = $container->newInstance(
     static fn() => #[Factory]
-    static fn(): ReportService => new ReportService(),
+    static fn(SomeService $service): Greeter => new Greeter($service),
+);
+```
+
+The inner closure is resolved only when it has `#[Factory]`. Without the
+attribute, the closure is returned as it is:
+
+```php
+// Returns a Closure, not a Greeter.
+$closure = $container->newInstance(
+    static fn() => static fn(SomeService $service): Greeter
+        => new Greeter($service),
+);
+```
+
+`Container::resolve()` with a callable follows the same path.
+
+### Named Methods
+
+A method can return a factory too. Put `#[Factory]` on the method and return
+it as a first-class callable:
+
+```php
+use Windwalker\DI\Attributes\Factory;
+
+class GreeterFactory
+{
+    // Put the attribute on build(), because make() returns build(...).
+    #[Factory]
+    public function build(SomeService $service): Greeter
+    {
+        return new Greeter($service);
+    }
+
+    public function make(): \Closure
+    {
+        return $this->build(...);
+    }
+}
+
+$greeter = $container->newInstance([new GreeterFactory(), 'make']);
+```
+
+### Arguments and Options
+
+The `$args` and `DIOptions` of the outer call are passed to the inner
+resolution. Both calls use the same values:
+
+```php
+use Windwalker\DI\DIOptions;
+
+$greeter = $container->newInstance(
+    static fn(string $name) => #[Factory]
+    static fn(SomeService $service, string $name): Greeter
+        => new Greeter($service, $name),
+    ['name' => 'Alice'],
+    new DIOptions(autowire: true),
+);
+```
+
+Without `autowire: true`, the container must already have `SomeService`.
+Otherwise it throws an error:
+
+```php
+// ERROR: DependencyResolutionException: Cannot resolve argument 1:
+//        $service for ...
+$container->newInstance(
+    static fn() => #[Factory]
+    static fn(SomeService $service): Greeter => new Greeter($service),
 );
 ```
 

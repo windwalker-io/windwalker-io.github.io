@@ -82,6 +82,29 @@ Supported types, case-insensitive:
 
 Any other type name throws an `InvalidArgumentException`.
 
+A cast reads the value the way `->>` does, so the text is unquoted before it
+is converted. Without a cast, `->` returns the JSON text, with quotes around
+strings:
+
+```php
+$query->select('data->n AS raw', 'data->n::int AS number');
+```
+
+```sql
+SELECT JSON_EXTRACT(`data`, '$.n') AS `raw`,
+  CAST(JSON_UNQUOTE(JSON_EXTRACT(`data`, '$.n')) AS SIGNED) AS `number`
+```
+
+::: info
+A `::type` suffix without a JSON path is not a cast. The text stays part of
+the column name, so `a::int` refers to a column called `a::int`.
+:::
+
+```php
+$query->where('a::int', '>', 1);
+// WHERE `a::int` > 1
+```
+
 ::: info
 A cast requires at least one path segment, and it must be the last part of
 the expression. `a->b::int->c` throws. To use a key that contains `::`, wrap
@@ -200,6 +223,32 @@ $query = $db->createQuery()->update('articles');
 
 $query->set('params', $query->jsonSet('params->views', 100))
     ->set('backup', $query->jsonSet('other->n', 5));
+```
+
+A `jsonSet()` can also be the value of another `jsonSet()`. The inner
+expression becomes the value of the outer path:
+
+```php
+$query->set(
+    'backup',
+    $query->jsonSet(
+        'params->copy',
+        $query->jsonSet('other->n', 5),
+    ),
+);
+```
+
+`setJson()` and `setJsonRemove()` are shortcuts for `set()` with these
+expressions. The two calls below generate the same SQL:
+
+```php
+$query->setJson('params->views', 100);
+
+$query->set('params', $query->jsonSet('params->views', 100));
+
+$query->setJsonRemove('params->legacy');
+
+$query->set('params', $query->jsonRemove('params->legacy'));
 ```
 
 ::: warning

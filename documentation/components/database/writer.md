@@ -159,7 +159,7 @@ use function Windwalker\raw;
 
 $row = $db->writer->upsert(
     table: 'page_views',
-    fata: ['page' => '/home', 'views' => 1],
+    data: ['page' => '/home', 'views' => 1],
     keys: 'page',
     updateFields: ['views' => raw('page_views.views + 1')],
     options: ['returningIdField' => 'id'],
@@ -192,13 +192,16 @@ The `$updateFields` argument accepts four forms:
 - A map of column to value, such as `['views' => raw('views + 1')]`:
   each column is set to the given value. A plain value is bound as a
   parameter. Use `raw()` for an expression that refers to the existing row.
+- A list and a map can be mixed, such as
+  `['title', 'views' => raw('views + 1')]`. An integer key is a column
+  name, and a string key is a column that gets a value.
 - A closure that receives `(array $data, array $keys)` and returns one of
   the three forms above. Use it when the update depends on the row:
 
 ```php
 $db->writer->upsert(
     table: 'page_views',
-    fata: ['page' => '/about', 'views' => 1],
+    data: ['page' => '/about', 'views' => 1],
     keys: 'page',
     updateFields: static fn (array $data, array $keys) => [
         'views' => raw('page_views.views + 1'),
@@ -219,7 +222,7 @@ on update:
 ```php
 $db->writer->upsert(
     table: 'profiles',
-    fata: ['user_id' => 7, 'bio' => null, 'avatar' => null],
+    data: ['user_id' => 7, 'bio' => null, 'avatar' => null],
     keys: 'user_id',
     updateFields: null,
     options: ['updateNulls' => false],
@@ -237,12 +240,19 @@ The statement is generated for each platform, and one parameter behaves
 differently on MySQL:
 
 - MySQL ignores `$keys`. `INSERT ... ON DUPLICATE KEY UPDATE` triggers on a
-  conflict with any unique index or the primary key. Check that the table
-  has no other unique index that could cause an unwanted update.
+  conflict with any unique index or the primary key. If no such index
+  matches the row, MySQL simply inserts it. Check that the table has no
+  other unique index that could cause an unwanted update.
 - SQL Server requires version 2008 (10) or later. The writer throws an
   exception on older versions.
 - Oracle uses `MERGE`, which has no `RETURNING` clause. See the next
   section for how the ID is read.
+- Oracle never updates the key columns. A key in `$updateFields` is skipped
+  without an error.
+
+Keep the key columns covered by one unique index. For code that must run the
+same way on every platform, follow the
+[portable usage rules](/documentation/components/query/upsert#portable-usage).
 
 ::: warning
 On MySQL, the `$keys` argument has no effect on which row is updated. A
@@ -259,7 +269,7 @@ field filled in, whether the row was inserted or updated:
 ```php
 $row = $db->writer->upsert(
     table: 'page_views',
-    fata: ['page' => '/home', 'views' => 1],
+    data: ['page' => '/home', 'views' => 1],
     keys: 'page',
     updateFields: null,
     options: ['returningIdField' => 'id'],
