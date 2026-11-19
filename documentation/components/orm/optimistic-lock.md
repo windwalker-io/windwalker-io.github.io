@@ -94,6 +94,21 @@ version unchanged, so a stale update in that second is not rejected. Use an
 
 SQLite has no native date type, so use an `int` version there.
 
+### Date and Time Columns
+
+A `DateTimeInterface` property takes the current time, with microseconds.
+A column without fractional seconds, such as a plain `DATETIME`, stores the
+value truncated. The next update then no longer matches the value held in
+memory, so the check fails.
+
+::: warning
+A time-based lock is reliable only with a microsecond column, such as
+`DATETIME(6)` on MySQL or `timestamp(6)` on PostgreSQL. Two writes in the
+same microsecond still cannot be told apart, so use an integer version when
+the lock must be strict. SQLite has no real date type, so use an integer
+version there.
+:::
+
 ### Custom Next Value
 
 Pass a callable as `nextHandler` to generate the next value yourself. It

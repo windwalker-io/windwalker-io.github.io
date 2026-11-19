@@ -11,6 +11,11 @@ each call immediately. The `*Async()` methods return a `Promise` that
 resolves with the value of the matching synchronous method. You can chain
 the promise with `then()` and `catch()`, or wait for it with `wait()`.
 
+::: info
+The `*Async()` methods need `windwalker/promise`. Without it, the call
+throws a `LogicException`.
+:::
+
 ## Calling an Async Method
 
 `FileObject` handles any call whose name ends in `Async` and whose base

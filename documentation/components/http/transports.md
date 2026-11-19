@@ -62,12 +62,14 @@ Every driver reads the same base set from `TransportOptions`:
 - `verifyPeer` and `certpath`: TLS verification and the CA file. See
   [CA Bundle](#ca-bundle) below.
 - `writeStream`: a path or a stream that receives the body.
+- `writeHandler`: a callback that receives each chunk of the body.
+- `maxResponseSize`: the largest body the transport accepts, in bytes.
 - `files`: multipart file uploads.
 - `progress`: a callback that receives a `ProgressEvent`.
 
 The client copies `timeout`, `userAgent`, `followLocation`, `verifyPeer`,
-`certpath`, `files`, and `progress` from its `HttpClientOptions` into
-every request. You only need the transport options for settings that the
+`certpath`, `files`, `progress`, `writeStream`, `writeHandler`, and
+`maxResponseSize` from its `HttpClientOptions` into every request. You only need the transport options for settings that the
 client does not expose.
 
 `CurlOptions` adds the cURL-specific settings:

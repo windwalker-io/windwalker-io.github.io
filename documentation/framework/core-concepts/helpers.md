@@ -50,7 +50,7 @@ use function Windwalker\to_plain_date;
 
 $now = chronos();                       // Current date and time
 $tokyo = chronos('now', 'Asia/Tokyo');  // With a timezone
-$instant = to_instant('2025-01-01 10:00:00');
+$instant = to_instant('2025-01-01T10:00:00+08:00');
 $date = to_plain_date('2025-01-01');
 ```
 

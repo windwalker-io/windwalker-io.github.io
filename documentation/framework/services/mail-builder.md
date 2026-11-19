@@ -174,10 +174,9 @@ $mail->text('- First item' . "\n" . '- Second item');
 Markdown needs the `league/commonmark` package. Install it in the host
 application if it is not already present.
 
-Markdown is converted to HTML first, and the result is escaped again if you
-place it in a plain text field. The escaped HTML then shows as raw tags and
-the styles are lost. Use `raw()` for HTML content, and keep Markdown for
-plain text paragraphs.
+Markdown is converted to HTML and inserted as HTML, so the tags render
+as formatting. Use `raw()` for HTML you write yourself, and keep Markdown
+for text paragraphs.
 
 ::: info
 Markdown is parsed by CommonMark with `html_input` set to escape and

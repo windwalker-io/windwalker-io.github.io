@@ -239,7 +239,8 @@ types and the examples are described on the
 ::: warning
 A cursor cannot follow a nullable column. A `NULL` value never matches the
 comparison that the cursor uses, so rows with `NULL` in a cursor column can be
-skipped. Use cursor columns that are `NOT NULL`.
+skipped. Use cursor columns that are `NOT NULL`. A `NULL` last seen value
+throws an `InvalidArgumentException`.
 :::
 
 ## Related Pages

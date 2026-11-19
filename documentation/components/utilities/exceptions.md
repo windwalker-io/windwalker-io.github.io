@@ -107,6 +107,12 @@ echo $e->getMessageByVerbosity(true);  // detailed message for logs
 The trait checks only whether the argument is truthy. To support several
 levels, override `getMessageByVerbosity()` in your class.
 
+Exceptions that implement `SafeMessageExceptionInterface` provide a message
+that is safe to show users, even at the `HIDDEN` verbosity. The interface
+requires `getSafeMessage()`. See
+[Exceptions](/documentation/framework/core-concepts/http-routing/exceptions)
+for how the application uses it.
+
 ## Bad Method Calls
 
 `ExceptionFactory::badMethodCall()` builds the exception that `TypeCast`

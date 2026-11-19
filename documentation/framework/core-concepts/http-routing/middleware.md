@@ -520,8 +520,7 @@ class PostController
 ```
 
 ::: info
-`#[Method]` returns `400` for a method that is not listed. It does not
-return `405`.
+`#[Method]` returns `405` for a method that is not listed.
 :::
 
 ::: warning

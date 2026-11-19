@@ -82,6 +82,8 @@ if ($loader->has('pages.home')) {
 }
 ```
 
+`Edge::exists()` checks a template the same way, and it also accepts a file path.
+
 `find()` throws `LayoutNotFoundException` when the template is missing.
 The exception message lists the directories that were searched.
 

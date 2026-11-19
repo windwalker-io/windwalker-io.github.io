@@ -293,6 +293,39 @@ the stream and `getContent()` returns an empty string. Read the file after
 the request completes.
 :::
 
+## Limiting and Streaming the Body
+
+`maxResponseSize` sets the largest body in bytes. The transport stops the
+download once the body passes the limit, so memory use stays bounded:
+
+```php
+use Windwalker\Http\HttpClientOptions;
+
+// ERROR: HttpResponseSizeExceededException:
+//   Response body exceeds the configured max size of 10000000 bytes.
+$client->get(
+    'exports/all',
+    new HttpClientOptions(maxResponseSize: 10_000_000),
+);
+```
+
+`writeHandler` receives each chunk as it arrives. When it is set without a
+`writeStream`, the body is not kept in memory. Return `false` from the
+handler to abort the download:
+
+```php
+$total = 0;
+
+$client->get(
+    'exports/all',
+    new HttpClientOptions(
+        writeHandler: function (string $chunk) use (&$total): void {
+            $total += strlen($chunk);
+        },
+    ),
+);
+```
+
 ## Asynchronous Requests
 
 Every verb has an `Async` variant, such as `getAsync()` or

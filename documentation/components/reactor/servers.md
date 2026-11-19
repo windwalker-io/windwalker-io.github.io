@@ -35,7 +35,8 @@ php windwalker pkg:install windwalker/reactor --tag swoole_websocket
 
 The command copies the script to `servers/` in your application and
 registers it under the `swoole` engine, so `server:start` can find it.
-The `swoole_websocket` tag also generates `App\Web\WsApplication`.
+The `swoole_websocket` tag also installs `etc/app/websocket.config.php` and
+`routes/websocket.route.php`, and generates `App\Web\WsApplication`.
 
 Options that matter here:
 

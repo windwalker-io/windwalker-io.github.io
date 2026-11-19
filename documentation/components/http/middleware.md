@@ -19,8 +19,8 @@ every middleware has passed the request on.
 
 ## Minimal Setup
 
-Add a middleware with `middleware()`. The method returns the server, so
-calls can be chained:
+Add a middleware with `middleware()`, on `PhpServer` or `ReactServer`. The
+method returns the server, so calls can be chained:
 
 ```php
 use Windwalker\Http\Middleware\FaviconFixMiddleware;

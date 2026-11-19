@@ -189,8 +189,8 @@ iterator_to_array($all, false); // [1, 2, 3, 4, 5, 6, 7]
 ```
 
 The third constructor argument, `$limit`, caps the total number of items.
-Choose a limit that is a multiple of the page size, so the last page is
-complete.
+The iterator stops at exactly that count, even when the last page is partial,
+so the limit does not need to be a multiple of the page size.
 
 ::: tip
 Use `PaginateIterator` with an API client that returns one page per

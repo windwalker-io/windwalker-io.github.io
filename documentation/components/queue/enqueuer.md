@@ -117,11 +117,11 @@ $worker->enqueuerChannels = ['feeds'];
 $worker->loop(['import', 'mail']);
 ```
 
-If the enqueuer's handler returns a job object or a closure, the worker
-runs it immediately in its own process and does not store it. If the
-handler returns `null`, the worker continues with the queue as usual. In a
-Windwalker application, the `queue:worker --enqueuer` command enables this
-mode.
+If the handler returns a job object, a closure, or a `QueueMessage`, the
+enqueuer pushes it to the queue, and the worker takes it from the queue in
+the same cycle. If the handler returns `null`, the worker continues with the
+queue as usual. In a Windwalker application, the `queue:worker --enqueuer`
+command enables this mode.
 
 ## Handler Return Values
 
@@ -147,9 +147,15 @@ $enqueuer->channel('feeds', function (EnqueuerController $c) use ($feeds) {
 });
 ```
 
-When the enqueuer is attached to a worker, a returned job is run by that
-worker right away and is not stored. A returned `QueueMessage` is handled
-the same way:
+When the enqueuer runs on its own or with `enqueue()`, a returned job object,
+closure, or `QueueMessage` is pushed to the queue, once per call. A
+`QueueMessage` goes to its own channel when it has one, and to the handler's
+channel otherwise. Arrays of these values are pushed one by one.
+
+When the enqueuer is attached to a worker, the worker then takes the pushed
+job from the queue in the same cycle. Older jobs in that channel are popped
+first. Jobs pushed with `$controller->enqueue()` are picked up from the queue
+as usual:
 
 ```php
 $enqueuer->channel('health', fn () => new CheckHealth());
