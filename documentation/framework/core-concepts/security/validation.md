@@ -5,14 +5,16 @@ title: Validation & Filter
 
 # Validation & Filter
 
-The standalone package has its own detailed guide: [Filter](../../../components/filter/index.md). This page focuses on using it inside the Windwalker framework.
-
 Input from forms, query strings, and APIs is untrusted. Windwalker splits
 the work into two steps:
 
 - **Validation** checks that a value meets a rule and rejects it if not.
 - **Filtering** converts a value into a clean form, such as trimming it,
   keeping only letters, or casting it to an integer.
+
+:::info
+The standalone package has its own detailed guide: [Filter](../../../components/filter/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 Two APIs cover both steps. Prefer the native callback API, which uses plain
 PHP. The string DSL is still available for configuration-driven rules.

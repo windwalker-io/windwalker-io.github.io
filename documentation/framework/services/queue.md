@@ -4,13 +4,15 @@ layout: doc
 
 # Queue Basics
 
-The standalone package has its own detailed guide: [Queue](../../components/queue/index.md). This page focuses on using it inside the Windwalker framework.
-
 Some work should not run inside an HTTP request. Sending an email,
 generating a report, or importing thousands of rows can take seconds or
 minutes. The Queue package stores that work as a message and lets a
 separate worker process run it later. The web request only pushes the
 message and returns.
+
+:::info
+The standalone package has its own detailed guide: [Queue](../../components/queue/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 The package provides:
 

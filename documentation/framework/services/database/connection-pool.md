@@ -4,9 +4,11 @@ layout: doc
 
 # Connection Pool
 
-The standalone package has its own detailed guide: [Connection Pool](../../../components/pool/connection-pool.md). This page focuses on using it inside the Windwalker framework.
-
 Connection pooling keeps a set of open database connections in memory and lends them to code that needs one. Windwalker uses a pool to serve database queries from several coroutines inside a single Swoole worker process without opening a new connection for every request.
+
+:::info
+The standalone package has its own detailed guide: [Connection Pool](../../../components/pool/connection-pool.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Why Use a Connection Pool
 

@@ -5,8 +5,6 @@ title: Entities
 
 # Entities
 
-The standalone package has its own detailed guide: [Entities](../../../components/orm/entities.md). This page focuses on using it inside the Windwalker framework.
-
 An entity is a PHP class that maps one table to one object, and each
 property maps to one column. Entities give your code typed properties,
 automatic conversion between PHP and database values, and a single place
@@ -15,6 +13,10 @@ that records the primary key and column names of a table.
 Windwalker can generate most of an entity from the database, so you do
 not have to write every property by hand. The generated code is kept
 in sync with the table, and you can still edit it afterwards.
+
+:::info
+The standalone package has its own detailed guide: [Entities](../../../components/orm/entities.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Generating Entities
 

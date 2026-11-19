@@ -4,13 +4,15 @@ layout: doc
 
 # Session & Cookies
 
-The standalone package has its own detailed guide: [Session](../../../components/session/index.md). This page focuses on using it inside the Windwalker framework.
-
 Windwalker manages sessions itself. It does not use PHP's native
 `session_start()` by default. The session is created by the
 `Session` object, which stores its data through a handler and reads
 and writes it through a bridge. Cookies are handled by a separate
 `CookiesInterface`.
+
+:::info
+The standalone package has its own detailed guide: [Session](../../../components/session/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Session Configuration
 

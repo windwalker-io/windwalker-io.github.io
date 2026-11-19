@@ -5,14 +5,16 @@ title: Cache
 
 # Cache
 
-The standalone package has its own detailed guide: [Windwalker Cache](../../components/cache/index.md). This page focuses on using it inside the Windwalker framework.
-
 Caching keeps the result of expensive work so later requests can reuse it.
 A product page that runs several database joins and a remote price lookup
 can compute its summary once and serve it from the cache for the next few
 minutes. The cache service gives the application one place to read, write,
 and expire these values, and lets each part of the application choose its
 own storage through named cache instances.
+
+:::info
+The standalone package has its own detailed guide: [Windwalker Cache](../../components/cache/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 In Windwalker Core, the cache is provided by `CachePackage` from the
 `windwalker/cache` package and assembled by `CacheFactory`.

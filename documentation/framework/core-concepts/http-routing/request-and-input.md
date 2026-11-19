@@ -5,13 +5,15 @@ title: Request & Input
 
 # Request & Input
 
-The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
-
 ## Overview
 
 Every request arrives as a PSR-7 `ServerRequestInterface`. Windwalker
 wraps it in an `AppRequest`, which adds the values a web app needs: the
 route variables, the query string, the parsed body, and uploaded files.
+
+:::info
+The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 The input layer has three parts:
 

@@ -4,8 +4,6 @@ layout: doc
 
 # View Components
 
-The standalone package has its own detailed guide: [Edge Components](../../../components/edge/components.md). This page focuses on using it inside the Windwalker framework.
-
 View components are reusable Edge fragments that you call as HTML tags,
 such as `<x-address />`. A component is either a template alone
 (anonymous component) or a PHP class that prepares data and then
@@ -13,6 +11,10 @@ renders a template (class component). The system is built on Edge; see
 [Edge Templates](./edge-templates) for the base syntax. For a quick syntax lookup, see
 [Edge Components](/documentation/components/edge/) and
 [Components](/documentation/components/edge/components).
+
+:::info
+The standalone package has its own detailed guide: [Edge Components](../../../components/edge/components.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Minimal Usage
 

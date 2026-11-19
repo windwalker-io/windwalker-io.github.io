@@ -201,9 +201,25 @@ if (getenv('WINDWALKER_CLI_SERVER') === '1') {
 }
 ```
 
-> !review
-> 可以介紹 `ApplicationInterface` 內的 client 可以用來判斷是 Web 還是 CLIWeb
-> 用來在 service 中判斷環境處理工作很有幫助
+### Detecting the Runtime
+
+Services that run in both environments can ask the application which runtime
+it is in. `getType()` returns an `AppType`:
+
+- `AppType::WEB`: a PHP-FPM or Apache request.
+- `AppType::CLI_WEB`: a long-running server, such as the Swoole server.
+- `AppType::CONSOLE`: a console command.
+
+```php
+use Windwalker\Core\Application\AppType;
+
+if ($app->getType() === AppType::CLI_WEB) {
+    // Long-running server: no state may leak between requests.
+}
+```
+
+The database package uses the same check to decide whether to create a
+connection pool. See [Swoole Web Server](./swoole-web-server#connection-pool).
 
 ::: info
 The `php` engine does not boot `CliServerRuntime` and writes no state file.
@@ -274,7 +290,7 @@ depends on `APP_ENV`:
 
 ```php
 CliServerRuntime::registerErrorReporting(
-    include WINDWALKER_ETC . '/conf/error-reporting.php',
+    include WINDWALKER_ETC . '/conf/error-reporting.config.php',
 );
 ```
 

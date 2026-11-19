@@ -5,9 +5,11 @@ title: ORM & Query Builder
 
 # ORM & Query Builder
 
-The standalone package has its own detailed guides: [ORM](../../../components/orm/index.md) and [Query Builder](../../../components/orm/querying.md). This page focuses on using them inside the Windwalker framework.
-
 ## Purpose
+
+:::info
+The standalone package has its own detailed guides: [ORM](../../../components/orm/index.md) and [Query Builder](../../../components/orm/querying.md). This page focuses on using them inside the Windwalker framework.
+:::
 
 The database adapter runs SQL through a driver. Writing SQL by hand for
 every table gets repetitive, and mapping rows to objects by hand gets

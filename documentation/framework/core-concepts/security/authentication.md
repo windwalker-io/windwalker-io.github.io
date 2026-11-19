@@ -5,8 +5,6 @@ title: Authentication
 
 # Authentication
 
-The standalone package has its own detailed guide: [Authentication](../../../components/authentication/index.md). This page focuses on using it inside the Windwalker framework.
-
 Authentication checks a user's credentials and answers one question: is
 this login valid? It does not decide what the user may do. For that, see
 [Authorization](/documentation/components/authorization/).
@@ -15,6 +13,10 @@ Applications often accept logins from several sources, such as a local
 user table and a company directory. Windwalker runs the methods in order
 and stops at the first success, so the calling code makes one call for
 all of them.
+
+:::info
+The standalone package has its own detailed guide: [Authentication](../../../components/authentication/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## How the Parts Fit Together
 

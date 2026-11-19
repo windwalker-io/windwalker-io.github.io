@@ -5,13 +5,15 @@ title: Service Variants
 
 # Service Variants
 
-The standalone package has its own detailed guide: [Tagged Services](../../../components/di/tagged-services.md). This page focuses on using it inside the Windwalker framework.
-
 ## Introduction
 
 Often one interface has several implementations, such as an AI model chosen
 per request or an error handler chosen per error type. Callers depend on
 the interface and pass a short tag, such as `'claude'`, to pick a variant.
+
+:::info
+The standalone package has its own detailed guide: [Tagged Services](../../../components/di/tagged-services.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 Windwalker offers three ways to bind the variants:
 

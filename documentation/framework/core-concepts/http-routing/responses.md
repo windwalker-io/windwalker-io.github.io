@@ -5,14 +5,16 @@ title: Responses
 
 # Responses
 
-The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
-
 ## Overview
 
 A controller returns a value, and the framework turns it into the HTTP
 response that the client receives. The value can be a plain string or
 array, or a response object that you build yourself. Both paths produce
 a PSR-7 `ResponseInterface`, so the framework handles them the same way.
+
+:::info
+The standalone package has its own detailed guide: [Messages](../../../components/http/messages.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 The response layer has four parts:
 

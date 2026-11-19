@@ -5,14 +5,16 @@ title: Middleware
 
 # Middleware
 
-The standalone package has its own detailed guide: [Middleware](../../../components/http/middleware.md). This page focuses on using it inside the Windwalker framework.
-
 ## Overview
 
 A middleware wraps the request handling. It receives the request, can
 change it or stop it, calls the rest of the chain, and can change the
 response on the way back. Windwalker uses PSR-15 middlewares, so any class
 that implements `Psr\Http\Server\MiddlewareInterface` works.
+
+:::info
+The standalone package has its own detailed guide: [Middleware](../../../components/http/middleware.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 Many routes share the same checks and setup, such as login, CSRF
 validation, an organization scope, or JSON output. A middleware keeps these

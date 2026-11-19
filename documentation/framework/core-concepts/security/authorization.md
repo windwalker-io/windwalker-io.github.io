@@ -5,8 +5,6 @@ title: Authorization
 
 # Authorization
 
-The standalone package has its own detailed guide: [Authorization](../../../components/authorization/index.md). This page focuses on using it inside the Windwalker framework.
-
 Authorization decides whether an authenticated user may perform an
 action. It answers a different question than
 [Authentication](./authentication), which only confirms who the user is.
@@ -15,6 +13,10 @@ A policy is a named rule, such as `post.edit`. The policy receives the
 user and any extra arguments, and returns `true` or `false`. Controllers,
 services and templates ask the policy by name, so the rule lives in one
 place instead of being repeated as `if` checks.
+
+:::info
+The standalone package has its own detailed guide: [Authorization](../../../components/authorization/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 The `Authorization` service in the `windwalker/framework` package holds
 the policies. Windwalker's core wraps it in `AuthService`, which resolves

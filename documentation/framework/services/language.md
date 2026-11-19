@@ -5,13 +5,15 @@ title: Language
 
 # Language
 
-The standalone package has its own detailed guide: [Windwalker Language](../../components/language/index.md). This page focuses on using it inside the Windwalker framework.
-
 Internationalization (i18n) lets one application serve users in several
 languages. The code asks for a key such as `user.welcome`, and the framework
 returns the text for the current locale, such as `Welcome` for `en-US` or
 `歡迎` for `zh-TW`. Translations live in files, one directory per locale, so
 translators can change text without touching code.
+
+:::info
+The standalone package has its own detailed guide: [Windwalker Language](../../components/language/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 The language system has two layers:
 

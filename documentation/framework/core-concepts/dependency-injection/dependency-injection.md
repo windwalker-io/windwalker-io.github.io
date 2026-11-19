@@ -5,9 +5,11 @@ title: Dependency Injection
 
 # Dependency Injection
 
-The standalone package has its own detailed guide: [Basic Usage](../../../components/di/basic-usage.md). This page focuses on using it inside the Windwalker framework.
-
 ## Introduction
+
+:::info
+The standalone package has its own detailed guide: [Basic Usage](../../../components/di/basic-usage.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 Dependency injection (DI) means a class declares what it needs in its
 constructor, and code outside the class supplies it. Compare a service that

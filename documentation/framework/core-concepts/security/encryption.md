@@ -5,12 +5,14 @@ title: Encryption
 
 # Encryption
 
-The standalone package has its own detailed guide: [Crypt](../../../components/crypt/index.md). This page focuses on using it inside the Windwalker framework.
-
 Encryption protects data you need to read back later, such as an API token
 stored in a database or a file that a job decrypts. Windwalker's
 `SodiumCipher` provides symmetric encryption, where the same key encrypts
 and decrypts. It is built on libsodium, which is the recommended backend.
+
+:::info
+The standalone package has its own detailed guide: [Crypt](../../../components/crypt/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Overview
 

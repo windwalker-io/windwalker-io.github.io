@@ -287,6 +287,8 @@ export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
         { text: 'Server Basics', link: `/${frameworkRoutePrefix}/cli-servers/server-basics` },
         {
           text: 'Swoole',
+          link: `/${frameworkRoutePrefix}/cli-servers/swoole-web-server`,
+          collapsed: true,
           items: [
             { text: 'Swoole Web Server', link: `/${frameworkRoutePrefix}/cli-servers/swoole-web-server` },
             { text: 'Swoole WebSocket', link: `/${frameworkRoutePrefix}/cli-servers/swoole-websocket` },

@@ -4,11 +4,13 @@ layout: doc
 
 # Enqueuer
 
-The standalone package has its own detailed guide: [Enqueuer](../../../components/queue/enqueuer.md). This page focuses on using it inside the Windwalker framework.
-
 The worker runs jobs already in the queue. The enqueuer creates jobs. Use
 it when work comes from a source, such as expired subscriptions found by
 a query, or rows fetched from an external API.
+
+:::info
+The standalone package has its own detailed guide: [Enqueuer](../../../components/queue/enqueuer.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Register a Channel Handler
 

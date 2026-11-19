@@ -5,9 +5,11 @@ title: Testing
 
 # Testing
 
-The standalone package has its own detailed guide: [Windwalker Test](../../components/test/index.md). This page focuses on using it inside the Windwalker framework.
-
 A framework grows in layers, and each layer needs its own kind of test. A pricing class can be tested alone with plain assertions. A checkout route needs a web application to dispatch a request. A repository needs a real database to prove that its queries return the right rows. Windwalker separates these needs into a small base package, `windwalker/test`, and a set of testing helpers in `windwalker/core` for applications that run on the framework.
+
+:::info
+The standalone package has its own detailed guide: [Windwalker Test](../../components/test/index.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 This page shows how to set up PHPUnit in any project, how to write tests for each layer, and which helpers to reach for.
 

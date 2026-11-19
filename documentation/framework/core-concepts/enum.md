@@ -4,13 +4,15 @@ layout: doc
 
 # Enum
 
-The standalone package has its own detailed guide: [Enum Metadata](../../components/utilities/enum-metadata.md). This page focuses on using it inside the Windwalker framework.
-
 Windwalker builds on PHP's native `enum` type. A native enum gives a
 fixed set of values that the type system can check. The
 `EnumRichInterface` and `EnumRichTrait` add helpers for lookup,
 display titles, and translation, so an enum can be used directly in
 forms, grids, and views. The `g enum` command generates the file for you.
+
+:::info
+The standalone package has its own detailed guide: [Enum Metadata](../../components/utilities/enum-metadata.md). This page focuses on using it inside the Windwalker framework.
+:::
 
 ## Minimal Setup
 
