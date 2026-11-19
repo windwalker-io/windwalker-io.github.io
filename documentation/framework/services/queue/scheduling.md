@@ -187,6 +187,15 @@ recommend a batch every five minutes at minutes 2, 7, 12, and so on
 (`2-59/5 * * * *`). Each batch processes the queue for a fixed time and
 exits. See [Choose the Interval](#choose-the-interval) for the reasons.
 
+::: warning Limited throughput
+This pattern gives you only one worker. Each task runs one process at a
+time, and the tasks run only a few minutes in every five. It suits small
+scheduled jobs and work that does not need to run right away. For a
+large volume of real-time background work, use proper queue workers
+under a process manager, as described in
+[Keeping the Worker Running](/documentation/framework/services/queue#keeping-the-worker-running).
+:::
+
 ### Set Up the Cron Line
 
 Start the scheduler with the crontab entry described in
