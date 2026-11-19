@@ -99,6 +99,34 @@ Starting hundreds of tasks at once can exhaust memory and file descriptors
 on the host. Batch large workloads yourself.
 :::
 
+Each `run()` returns a `Promise`, so you can combine the promises
+by `Promise::allSettled()`:
+
+```php
+use Windwalker\Core\Task\TaskRunner;
+use Windwalker\Promise\Promise;
+
+$runner = $app->retrieve(TaskRunner::class);
+
+$settled = Promise::allSettled([
+    'rates' => $runner->run(fn () => fetchRemoteRates()),
+    'report' => $runner->run(fn () => buildMonthlyReport()),
+    'thumb' => $runner->run(fn () => generateThumbnail('photo.jpg')),
+])->wait();
+
+foreach ($settled as $key => $item) {
+    if ($item->status->isFulfilled()) {
+        echo $key . ': ' . $item->value->value . "\n";
+    } else {
+        // The rejection reason is the TaskExecutionException
+        echo $key . ' failed: ' . $item->value->getMessage() . "\n";
+    }
+}
+```
+
+This is the same call that `runMultiple()` makes internally. Use the
+manual form when the promises come from different places in your code.
+
 ## Running a Batch with mustRunMultiple()
 
 `runMultiple()` takes an array of tasks and returns a promise. The array
