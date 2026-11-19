@@ -36,10 +36,12 @@ use Windwalker\Core\Schedule\Schedule;
 
 /** @var Schedule $schedule */
 
-$schedule->minutely('queue-worker')
+$schedule->task('queue-worker')
+    // Every 5 minutes at minutes 4, 9, 14, ... (4-59/5 * * * *)
+    ->everyMinutes(5, 4, 59)
     ->handler(
         fn (ScheduleWorker $worker) => $worker->runByCommand(
-            lifetime: 3600,
+            lifetime: 180,
             channels: ['mail', 'report'],
             options: new ScheduleWorkerOptions(tries: 3),
         )
@@ -52,7 +54,7 @@ exits.
 
 Every tick checks the task lock first. While a worker is running, later
 ticks skip the event. When the worker exits, the next tick starts a new
-one, so at most about a minute passes without a worker.
+one, so up to about two minutes pass without a worker.
 
 ::: warning
 Set `lifetime` above zero. With `lifetime: 0`, the worker never exits.
@@ -71,10 +73,12 @@ jobs from a source on each tick:
 use Windwalker\Core\Queue\ScheduleEnqueuer;
 use Windwalker\Core\Queue\ScheduleEnqueuerOptions;
 
-$schedule->minutely('queue-enqueuer')
+$schedule->task('queue-enqueuer')
+    // Every 5 minutes at minutes 2, 7, 12, ... (2-59/5 * * * *)
+    ->everyMinutes(5, 2, 59)
     ->handler(
         fn (ScheduleEnqueuer $enqueuer) => $enqueuer->runByCommand(
-            lifetime: 300,
+            lifetime: 60,
             channels: 'mail',
             options: new ScheduleEnqueuerOptions(
                 stopWhenEmpty: true,
@@ -86,53 +90,9 @@ $schedule->minutely('queue-enqueuer')
 With `stopWhenEmpty`, the process exits as soon as every handler returns
 `null`. It does not idle until the lifetime ends.
 
-The command runs in a new process, so it loads its channel handlers
-itself. Register them in the file listed under `queue.enqueuer.handlers`
-in `etc/packages/queue.php`:
-
-```php
-// etc/packages/queue.php (excerpt)
-return [
-    // ...
-    'enqueuer' => [
-        'handlers' => [
-            __DIR__ . '/../../resources/registry/enqueuers.php',
-        ],
-    ],
-];
-```
-
-The handler file receives `$app` and `$enqueuer`:
-
-```php
-// resources/registry/enqueuers.php
-use App\Job\SendMailJob;
-use App\Repository\MailRepository;
-use Windwalker\Queue\Enqueuer\EnqueuerController;
-
-/** @var \Windwalker\Queue\Enqueuer $enqueuer */
-
-$enqueuer->channel(
-    'mail',
-    function (EnqueuerController $controller) use ($app) {
-        $repo = $app->make(MailRepository::class);
-        $mail = $repo->findNextPending();
-
-        if (!$mail) {
-            return null;
-        }
-
-        $controller->enqueue(
-            new SendMailJob($mail->to, $mail->subject)
-        );
-
-        return true;
-    }
-);
-```
-
-See [Enqueuer](/documentation/framework/services/queue/enqueuer) for the
-handler API.
+The command loads its channel handlers in the new process. See
+[Enqueuer](/documentation/framework/services/queue/enqueuer) for how to
+write them.
 
 ## Options
 
@@ -185,22 +145,34 @@ two scheduled events instead when throughput matters.
 
 ## Run in the Scheduler Process
 
-`runOnce()` runs the worker loop in the scheduler's own process, without
-starting a command. It processes the queue once and returns:
+`run()` runs the worker loop inside the scheduler process. Unlike
+`runByCommand()`, it does not start a separate `queue:worker` process.
+Compared with that process, the loop shares memory and services with the
+scheduler, so memory grows across the whole loop. `memoryLimit` still
+stops the loop when it is reached. A fatal error or `exit()` in a job also
+ends the scheduler, and the events after it in that run do not start.
+
+`run()` keeps processing until the lifetime ends:
 
 ```php
-$schedule->minutely('queue-drain')
+$schedule->task('queue-worker-inline')
+    // Every 5 minutes at minutes 4, 9, 14, ... (4-59/5 * * * *)
+    ->everyMinutes(5, 4, 59)
     ->handler(
-        fn (ScheduleWorker $worker) => $worker->runOnce(
+        fn (ScheduleWorker $worker) => $worker->run(
+            lifetime: 180,
             channels: 'default',
-            options: new ScheduleWorkerOptions(tries: 3),
+            options: new ScheduleWorkerOptions(
+                stopWhenEmpty: true,
+                tries: 3,
+            ),
         )
     );
 ```
 
-`run($lifetime, ...)` keeps the loop going until the lifetime ends.
-Both methods throw a `DomainException` when `windwalker/queue` is not
-installed.
+`runOnce()` is a similar method. It processes the queue until it is
+empty, then returns. Both methods throw a `DomainException` when
+`windwalker/queue` is not installed.
 
 ::: warning
 Jobs run inside the scheduler process. A slow job delays the other
@@ -208,37 +180,116 @@ events, and a job that leaks memory affects the whole process. For long
 work, use `runByCommand()`.
 :::
 
-## Handle Failures
+## Simulate a Queue with Cron
 
-`runByCommand()` throws Symfony's `ProcessFailedException` when the
-command exits with an error. Attach `catch()` to the event to receive it:
+Without a background process, cron can run short batches instead. We
+recommend a batch every five minutes at minutes 2, 7, 12, and so on
+(`2-59/5 * * * *`). Each batch processes the queue for a fixed time and
+exits. See [Choose the Interval](#choose-the-interval) for the reasons.
+
+### Set Up the Cron Line
+
+Start the scheduler with the crontab entry described in
+[Installing the Crontab](/documentation/framework/services/scheduler#installing-the-crontab).
+The batch below is one of the events it runs.
+
+### A Queue Batch
+
+Register two tasks in your schedules file. The enqueuer task runs at
+minutes 2, 7, and so on. The worker task runs at minutes 4, 9, and so on,
+so the two never overlap. The enqueuer task comes first in the file:
 
 ```php
-$schedule->minutely('queue-worker')
+use Windwalker\Core\Queue\ScheduleEnqueuer;
+use Windwalker\Core\Queue\ScheduleEnqueuerOptions;
+use Windwalker\Core\Queue\ScheduleWorker;
+use Windwalker\Core\Queue\ScheduleWorkerOptions;
+
+$schedule->task('queue-enqueuer')
+    // Every 5 minutes at minutes 2, 7, 12, ... (2-59/5 * * * *)
+    ->everyMinutes(5, 2, 59)
     ->handler(
-        fn (ScheduleWorker $worker) => $worker->runByCommand(3600)
-    )
-    ->catch(function (\Throwable $e) {
-        // ERROR: ProcessFailedException: The command "php windwalker ..."
-        // failed with exit code 1.
-        // Notify the team or retry here.
-    });
+        fn (ScheduleEnqueuer $enqueuer) => $enqueuer->run(
+            lifetime: 60,
+            channels: 'mail',
+            options: new ScheduleEnqueuerOptions(
+                stopWhenEmpty: true,
+            ),
+        )
+    );
+
+$schedule->task('queue-worker')
+    // Every 5 minutes at minutes 4, 9, 14, ... (4-59/5 * * * *)
+    ->everyMinutes(5, 4, 59)
+    ->handler(
+        fn (ScheduleWorker $worker) => $worker->run(
+            lifetime: 180,
+            channels: ['mail', 'default'],
+            options: new ScheduleWorkerOptions(
+                stopWhenEmpty: true,
+                tries: 3,
+            ),
+        )
+    );
 ```
 
-The scheduler logs the failure to the `system/schedule-error` channel,
-then continues with the next event.
-
-## Overlap and Multiple Servers
-
-The scheduler's task lock stops a second copy of the event from starting
-while the first one still runs. The default lock is a file lock on one
-host. On several servers, each server needs a shared lock or a claim. See
-[Claims and Overlap Protection](/documentation/framework/services/scheduler#claims-and-overlap-protection).
+Each task has its own task lock and lifetime. Keep each lifetime below
+the five-minute interval, so a task ends before its next tick starts it
+again. `stopWhenEmpty` makes each part exit as soon as its work is done,
+so an idle queue does not hold the batch open. The enqueuer task also
+needs its channel handlers. See [Enqueuer](/documentation/framework/services/queue/enqueuer).
 
 ::: tip
-Use a process manager for production workers, as described in
-[Keeping the Worker Running](/documentation/framework/services/queue#keeping-the-worker-running).
-Scheduled workers suit small setups and hosts without a process manager.
+Keep each `lifetime` below the interval. A task that ends early leaves
+the queue idle until the next tick.
+:::
+
+### Choose the Interval
+
+The pattern `2-59/5 * * * *` runs the enqueuer at minutes 2, 7, 12, and
+so on. The worker uses `4-59/5 * * * *`, two minutes later. Use
+`everyMinutes(5, 2, 59)` and `everyMinutes(5, 4, 59)` to write them. These
+are a good default for queue tasks:
+
+- It avoids minute `0`. Hourly, daily, and most system cron jobs start at
+  `:00`, so the batch does not compete with them.
+- It avoids every minute used by `*/5`, `*/10`, `*/15`, and `*/30`. Those
+  expressions all run at multiples of 5, and this pattern never lands on
+  one.
+- It leaves room for the task. Each lifetime ends before the next run at
+  the five-minute mark.
+
+Other step values hit some of the same minutes. For example, `*/3` also
+runs at minutes 12 and 57. A one-minute interval also works, but then
+`lifetime` must stay below 60 seconds.
+
+::: info
+The worker checks `lifetime` between jobs. A job that starts just
+before the limit can run past it. Keep a margin of at least the job's
+`timeout` below the interval.
+:::
+
+### Place the Batch Last
+
+Events due in the same minute run one after another in the scheduler
+process. A queue task blocks the events that come after it in that
+minute, so register the queue tasks last in the file. Register other
+events above them.
+
+```php
+$schedule->daily('purge-sessions')
+    ->handler(fn () => print("Sessions purged\n"));
+
+// Last: the queue tasks block the events that follow them.
+// Every 5 minutes at minutes 4, 9, 14, ... (4-59/5)
+$schedule->task('queue-worker')
+    ->everyMinutes(5, 4, 59)
+    /* ... */;
+```
+
+::: warning
+An event registered after the batch can start late. If the batch runs
+past its minute, the scheduler may skip the event for that minute.
 :::
 
 ## Summary
@@ -249,5 +300,7 @@ Scheduled workers suit small setups and hosts without a process manager.
   continues.
 - Register enqueuer handlers in `queue.enqueuer.handlers`, because the
   command runs in a new process.
-- Use `runOnce()` or `run()` to run the loop in the scheduler process.
-- Handle failures with `catch()` on the event.
+- Use `run()` to run the loop in the scheduler process.
+- Without a background process, use the cron tasks with the intervals
+  `2-59/5 * * * *` (enqueuer) and `4-59/5 * * * *` (worker), and register
+  the queue tasks as the last events.
