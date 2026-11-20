@@ -6,6 +6,7 @@ import { guidesSidebar } from './data/guides';
 import { findFrameworkParentText, frameworkSidebar } from './data/framework';
 import { componentRoutePrefix, frameworkRoutePrefix, guideRoutePrefix } from './store/routing-store';
 import { buildSkillsPackage } from './data/skills-package';
+import { cloudflareAISearch } from 'vitepress-plugin-cloudflare-ai-search';
 import {
   buildLlmsTxt,
   exportMarkdownAndLlmsTxt,
@@ -64,7 +65,12 @@ export default withMermaid(defineConfig({
       __SKILLS_VERSION__: JSON.stringify(skillsPackage.sha256.slice(0, 12)),
       __SKILLS_FILE_COUNT__: JSON.stringify(skillsPackage.fileCount),
     },
-    plugins: [markdownExportPlugin(markdownOptions)],
+    plugins: [
+      markdownExportPlugin(markdownOptions),
+      cloudflareAISearch({
+        endpoint: 'https://ns-23403827-252e-43da-9b8c-0f90118d1445.search.ai.cloudflare.com/'
+      })
+    ],
   },
   buildEnd: async (siteConfig) => {
     exportMarkdownAndLlmsTxt(siteConfig.outDir, skillsPackage.stagingDir, markdownOptions);
@@ -142,6 +148,11 @@ export default withMermaid(defineConfig({
       message: 'Released under the MIT License.',
       copyright: `Copyright © ${new Date().getFullYear()} <a href="https://simular.co/" target="_blank">Simular Inc.</a>.`
     }
+  },
+  transformHead({ pageData }) {
+    return [
+      ['meta', { name: 'title', content: pageData.title || 'Windwalker PHP Framework' }],
+    ];
   },
   transformPageData(pageData, { siteConfig }) {
     if (pageData.frontmatter?.component) {

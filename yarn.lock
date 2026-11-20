@@ -104,6 +104,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cloudflare/ai-search-snippet@npm:0.0.43, @cloudflare/ai-search-snippet@npm:^0.0.43":
+  version: 0.0.43
+  resolution: "@cloudflare/ai-search-snippet@npm:0.0.43"
+  checksum: 10c0/d04d92f5dd21285bf1b53e501f9519e88fbd25692a38418fe15c763d77652eb54e355d674f03d2b9930003579efbf14d97f627d9c19c8a066fee39f81e5ac484
+  languageName: node
+  linkType: hard
+
 "@docsearch/css@npm:^4.7.1":
   version: 4.7.1
   resolution: "@docsearch/css@npm:4.7.1"
@@ -2334,12 +2341,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
+    "@cloudflare/ai-search-snippet": "npm:^0.0.43"
     "@types/lodash-es": "npm:^4.17.12"
     "@types/node": "npm:^26.6.6"
     lodash-es: "npm:^4.17.21"
     mermaid: "npm:^12.3.0"
     playwright-core: "npm:^1.65.0"
     vitepress: "npm:>=2.0.0-alpha.1||>=2.0.0-beta.1||>=2.0.0-rc.1||^2.0"
+    vitepress-plugin-cloudflare-ai-search: "npm:^0.1.0"
     vitepress-plugin-mermaid: "npm:^2.0.17"
     vue: "npm:^3.5.43"
   languageName: unknown
@@ -2621,6 +2630,19 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/21bf5b04159214fbc9f42e297afd26398a3630704959f85290e8b8eb9cac49be20a6a37a5765bfdb997b606c21ccba99f991671f81c5da5a590ae5cedad3e127
+  languageName: node
+  linkType: hard
+
+"vitepress-plugin-cloudflare-ai-search@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "vitepress-plugin-cloudflare-ai-search@npm:0.1.0"
+  dependencies:
+    "@cloudflare/ai-search-snippet": "npm:0.0.43"
+  peerDependencies:
+    vite: ">=5.0.0"
+    vitepress: ^2.0.0-0
+    vue: ^3.2.25
+  checksum: 10c0/f2363eed2c478f4a52a1d2c58b42b0fd8ab1807526fe4239082e4ab8493da45e94027938fee93507952a5de8ffd41586f93ec4dd021afc2527589496b34d26ff
   languageName: node
   linkType: hard
 

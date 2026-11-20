@@ -144,6 +144,33 @@ $html = $serializer->serialize(42); // "42"
 Types are not preserved. A stored `42` comes back as `"42"`, and an array cannot be converted to a string.
 :::
 
+## CallbackSerializer
+
+Delegates encoding and decoding to two closures. Use it for types that no built-in serializer handles, such as
+value objects with a custom string format.
+
+```php
+use Windwalker\Cache\Serializer\CallbackSerializer;
+
+$serializer = new CallbackSerializer(
+    serializer: fn (\DateTimeImmutable $date): string
+        => $date->format(DATE_ATOM),
+    unserializer: fn (string $data): \DateTimeImmutable
+        => new \DateTimeImmutable($data),
+);
+
+$stored = $serializer->serialize(new \DateTimeImmutable('2026-01-01'));
+$date = $serializer->unserialize($stored);
+```
+
+- `serializer`: receives the value and returns the stored form.
+- `unserializer`: receives the stored form and returns the value.
+
+::: warning
+The closures are not stored with the data. Changing their format makes old entries decode incorrectly, without an
+error. Keep the old logic or clear the cache after changing it.
+:::
+
 ## DeflateSerializer
 
 Compresses the output of a wrapped serializer with `gzdeflate()`. It reduces storage size and network transfer for
