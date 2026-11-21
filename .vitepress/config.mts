@@ -68,7 +68,7 @@ export default withMermaid(defineConfig({
     plugins: [
       markdownExportPlugin(markdownOptions),
       cloudflareAISearch({
-        endpoint: 'https://ns-23403827-252e-43da-9b8c-0f90118d1445.search.ai.cloudflare.com/'
+        endpoint: 'https://docs-search.windwalker.io/'
       })
     ],
   },
@@ -149,9 +149,9 @@ export default withMermaid(defineConfig({
       copyright: `Copyright © ${new Date().getFullYear()} <a href="https://simular.co/" target="_blank">Simular Inc.</a>.`
     }
   },
-  transformHead({ pageData }) {
+  transformHead({ title }) {
     return [
-      ['meta', { name: 'title', content: pageData.title || 'Windwalker PHP Framework' }],
+      ['meta', { name: 'title', content: title }],
     ];
   },
   transformPageData(pageData, { siteConfig }) {
