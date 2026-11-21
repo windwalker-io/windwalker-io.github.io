@@ -149,9 +149,12 @@ export default withMermaid(defineConfig({
       copyright: `Copyright © ${new Date().getFullYear()} <a href="https://simular.co/" target="_blank">Simular Inc.</a>.`
     }
   },
-  transformHead({ title }) {
+  transformHead({ title, siteData }) {
+    const suffix = ` | ${siteData.title}`;
+    const metaTitle = title.endsWith(suffix) ? title.slice(0, -suffix.length) : title;
+
     return [
-      ['meta', { name: 'title', content: title }],
+      ['meta', { name: 'title', content: metaTitle }],
     ];
   },
   transformPageData(pageData, { siteConfig }) {
