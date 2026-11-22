@@ -1,4 +1,4 @@
-import type { Plugin } from 'vitepress';
+import { Plugin } from 'vitepress';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, sep } from 'node:path';
 

@@ -49,7 +49,7 @@ export function findFrameworkParentText(relativePath: string): string | undefine
   return match?.text;
 }
 
-export const frameworkSidebar = computed<DefaultTheme.Sidebar>(() => {
+export const frameworkSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
   return [
     {
       text: 'Introduction',

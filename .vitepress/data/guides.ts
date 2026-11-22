@@ -2,7 +2,7 @@ import { DefaultTheme } from 'vitepress';
 import { computed } from 'vue';
 import { guideRoutePrefix } from '../store/routing-store';
 
-export const guidesSidebar = computed<DefaultTheme.Sidebar>(() => {
+export const guidesSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
   return [
     {
       text: 'Start',

@@ -10,7 +10,7 @@ import { cloudflareAISearch } from 'vitepress-plugin-cloudflare-ai-search';
 import {
   buildLlmsTxt,
   exportMarkdownAndLlmsTxt,
-  llmsMarkdownFiles,
+  llmsMarkdownFiles, MarkdownExportOptions,
   markdownExportPlugin,
   publicExcludePrefixes,
   siteUrl,
@@ -20,7 +20,7 @@ import {
 const componentsSidebar = await getComponentsSidebar();
 
 // Markdown export options, passed to the plugin and every export entry point
-const markdownOptions = {
+const markdownOptions: MarkdownExportOptions = {
   // Globs (`*`, `**`, `?`) or RegExp. Excluded files get no raw .md and no llms.txt entry; HTML pages are kept.
   excludes: [
     'documentation/components/index.md',
@@ -86,7 +86,7 @@ export default withMermaid(defineConfig({
     ['meta', { property: 'og:image', content: 'https://repository-images.githubusercontent.com/15371097/87e3e600-736d-11e9-9c49-64382cf43093' }],
 
     // Scripts
-    ['script', { async: true, src: 'https://www.googletagmanager.com/gtag/js?id=G-MYMEG7N4RV' }],
+    ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-MYMEG7N4RV' }],
     ['script', {}, `  window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
