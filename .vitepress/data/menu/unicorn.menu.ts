@@ -33,11 +33,16 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
       text: 'MVC & CRUD',
       items: [
         {
+          text: 'MVC Concepts',
+          link: `/${unicornRoutePrefix}/mvc-crud/mvc-concepts`
+        },
+        {
           text: 'Code Generation',
           link: `/${unicornRoutePrefix}/mvc-crud/code-generation`
         },
         {
           text: 'Admin MVC Basics',
+          link: `/${unicornRoutePrefix}/mvc-crud/admin-mvc-basics/list-management`,
           collapsed: true,
           items: [
             {
@@ -77,6 +82,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Uploader',
+          link: `/${unicornRoutePrefix}/services/uploader/upload-service`,
           collapsed: true,
           items: [
             {
@@ -103,6 +109,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Utilities',
+          link: `/${unicornRoutePrefix}/services/utilities/breadcrumbs`,
           collapsed: true,
           items: [
             {
@@ -142,6 +149,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Form Utilities',
+          link: `/${unicornRoutePrefix}/form-fields/form-utilities/form-fields-layout`,
           collapsed: true,
           items: [
             {
@@ -164,6 +172,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Field Types',
+          link: `/${unicornRoutePrefix}/form-fields/field-types/button-radio`,
           collapsed: true,
           items: [
             {
@@ -243,32 +252,34 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
       items: [
         {
           text: 'Unicorn JS',
+          link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js`
+        },
+        {
+          text: 'Basics',
+          link: `/${unicornRoutePrefix}/javascript-frontend/basics/macros`,
           collapsed: true,
           items: [
             {
-              text: 'Overview',
-              link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js/overview`
-            },
-            {
               text: 'Macros',
-              link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js/macros`
+              link: `/${unicornRoutePrefix}/javascript-frontend/basics/macros`
             },
             {
               text: 'Event Bug',
-              link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js/event-bug`
+              link: `/${unicornRoutePrefix}/javascript-frontend/basics/event-bug`
             },
             {
               text: 'Mixin',
-              link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js/mixin`
+              link: `/${unicornRoutePrefix}/javascript-frontend/basics/mixin`
             },
             {
               text: 'Data Transfer',
-              link: `/${unicornRoutePrefix}/javascript-frontend/unicorn-js/data-transfer`
+              link: `/${unicornRoutePrefix}/javascript-frontend/basics/data-transfer`
             },
           ],
         },
         {
           text: 'Utilities',
+          link: `/${unicornRoutePrefix}/javascript-frontend/utilities/dom-utilities`,
           collapsed: true,
           items: [
             {
@@ -299,6 +310,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'UI',
+          link: `/${unicornRoutePrefix}/javascript-frontend/ui/ui-helpers`,
           collapsed: true,
           items: [
             {
@@ -349,6 +361,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Bootstrap 5',
+          link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/keep-tab`,
           collapsed: true,
           items: [
             {

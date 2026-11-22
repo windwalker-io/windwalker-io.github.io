@@ -1,5 +1,5 @@
 <script setup>
-import { componentNames } from '../data/menu/components';
+import { componentNames } from '../data/menu/components.menu';
 
 </script>
 
