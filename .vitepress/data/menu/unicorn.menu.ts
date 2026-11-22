@@ -264,8 +264,8 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
               link: `/${unicornRoutePrefix}/javascript-frontend/basics/macros`
             },
             {
-              text: 'Event Bug',
-              link: `/${unicornRoutePrefix}/javascript-frontend/basics/event-bug`
+              text: 'Event Bus',
+              link: `/${unicornRoutePrefix}/javascript-frontend/basics/event-bus`
             },
             {
               text: 'Mixin',

@@ -166,60 +166,20 @@ data(form, 'dirty'); // true
 ## Macros
 
 A macro adds a function to the app object, so inline HTML can call it as
-`u.<name>()`. Use `useMacro()` to register one or several macros:
+`u.<name>()`. Register macros with `useMacro()`, and see
+[Macros](./basics/macros) for the full rules, naming, and typing.
 
 ```ts
-import {
-  fadeIn,
-  useMacro,
-  useTomSelect,
-} from '@windwalker-io/unicorn-next';
+import { fadeIn, useMacro } from '@windwalker-io/unicorn-next';
 
-useMacro('useTomSelect', useTomSelect);
-
-useMacro({
-  fadeIn,
-});
+useMacro({ fadeIn });
 ```
 
 ```html
 <script>
-  u.useTomSelect('.js-tom-select');
   u.fadeIn('#notice');
 </script>
 ```
-
-::: info
-A macro name must be unique on the app. Registering the same name twice
-throws an error.
-:::
-
-```ts
-useMacro('fadeIn', fadeIn);
-useMacro('fadeIn', fadeIn);
-
-// ERROR: Error: Macro: fadeIn already exists.
-```
-
-::: tip
-Declare your macros with `declare module` to get IDE autocompletion for
-`u.` calls:
-
-```ts
-const macro = useMacro({ fadeIn });
-
-declare module '@windwalker-io/unicorn-next' {
-  type MyMacros = typeof macro;
-
-  interface UnicornApp extends MyMacros {}
-}
-```
-:::
-
-::: warning
-Every macro is reachable from inline HTML through `u` once
-`pushUnicornToGlobal()` runs. Expose only the functions the HTML needs.
-:::
 
 ## Bundled Imports
 
@@ -283,7 +243,7 @@ selectAll('.js-row-check', (el) => {
 const label = trans('app.save.button');
 
 // Routing: build a URL from a named route.
-const editUrl = route('user.edit', { id: 1 });
+const editUrl = route('user_edit', { id: 1 });
 
 // Forms and grids: attach behavior to existing markup.
 const form = useForm('#admin-form');
@@ -311,3 +271,4 @@ For the complete list of functions and signatures, see the
 - [Macros](./basics/macros)
 - [Mixin](./basics/mixin)
 - [Data Transfer](./basics/data-transfer)
+- [Event Bus](./basics/event-bus)
