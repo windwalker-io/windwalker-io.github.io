@@ -41,21 +41,37 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           link: `/${unicornRoutePrefix}/mvc-crud/code-generation`
         },
         {
-          text: 'Admin MVC Basics',
-          link: `/${unicornRoutePrefix}/mvc-crud/admin-mvc-basics/list-management`,
+          text: 'MVC Admin',
+          link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/list-management`,
           collapsed: true,
           items: [
             {
               text: 'List Management',
-              link: `/${unicornRoutePrefix}/mvc-crud/admin-mvc-basics/list-management`
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/list-management`
             },
             {
               text: 'Edit Management',
-              link: `/${unicornRoutePrefix}/mvc-crud/admin-mvc-basics/edit-management`
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/edit-management`
             },
             {
               text: 'Form Management',
-              link: `/${unicornRoutePrefix}/mvc-crud/admin-mvc-basics/form-management`
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/form-management`
+            },
+            {
+              text: 'Nested Set MVC',
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/nested-set-mvc`
+            },
+            {
+              text: 'Ordering',
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/ordering`
+            },
+            {
+              text: 'Modal List View',
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/modal-list-view`
+            },
+            {
+              text: 'Grid Filter Bar',
+              link: `/${unicornRoutePrefix}/mvc-crud/mvc-admin/filter-bar`
             },
           ],
         },
@@ -66,14 +82,6 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         {
           text: 'CSS & JS in MVC Pages',
           link: `/${unicornRoutePrefix}/mvc-crud/css-js-in-mvc-pages`
-        },
-        {
-          text: 'Nested Set MVC',
-          link: `/${unicornRoutePrefix}/mvc-crud/nested-set-mvc`
-        },
-        {
-          text: 'Ordering',
-          link: `/${unicornRoutePrefix}/mvc-crud/ordering`
         },
         {
           text: 'Scoped Routing',

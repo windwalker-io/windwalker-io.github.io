@@ -99,9 +99,61 @@ $selector->addSearchHandler(
 
 This handler matches aliases by prefix. The field is also added to the allow list.
 
-## Custom Filter Rules: Date Range
+## Custom Filter Rules
 
-A filter handler translates a filter value into a condition. The following example builds a date range from two virtual fields in the grid form:
+Each grid filter field is passed to a filter handler. Without a handler,
+the default handler runs: a scalar value becomes an `=` condition, an array
+becomes `IN`, and an empty string is skipped. A custom handler replaces that
+behavior and receives the raw value, which can be empty or an array.
+
+### Basic Handler
+
+Use a scalar guard for a filter that accepts one value:
+
+```php
+use Windwalker\Query\Query;
+
+$selector->addFilterHandler(
+    'category_id',
+    function (Query $query, string $field, mixed $value): void {
+        if ((string) $value !== '') {
+            $query->where('product.category_id', '=', $value);
+        }
+    }
+);
+```
+
+The guard assumes a scalar value. `(string)` on an array triggers a PHP
+warning, so use the array branch below when the filter accepts several
+values.
+
+### Allowing Arrays
+
+To accept arrays on purpose, branch on `is_array()` before the scalar check:
+
+```php
+$selector->addFilterHandler(
+    'category_id',
+    function (Query $query, string $field, mixed $value): void {
+        if (is_array($value)) {
+            if ($value !== []) {
+                $query->where('product.category_id', 'in', $value);
+            }
+
+            return;
+        }
+
+        if ((string) $value !== '') {
+            $query->where('product.category_id', '=', $value);
+        }
+    }
+);
+```
+
+### Date Range
+
+A date range uses two virtual fields in the grid form and two handlers. The
+example builds the range from those fields:
 
 ```php
 use Windwalker\Query\Query;
@@ -110,7 +162,7 @@ $selector->addFilterHandler(
     'start_date',
     function (Query $query, string $field, mixed $value): void {
         // The grid sends an empty string when the field is cleared.
-        if ($value !== '') {
+        if ((string) $value !== '') {
             $query->where('product.created', '>=', $value);
         }
     }
@@ -119,7 +171,7 @@ $selector->addFilterHandler(
 $selector->addFilterHandler(
     'end_date',
     function (Query $query, string $field, mixed $value): void {
-        if ($value !== '') {
+        if ((string) $value !== '') {
             $query->where('product.created', '<=', $value);
         }
     }
@@ -127,7 +179,8 @@ $selector->addFilterHandler(
 ```
 
 ::: warning
-A filter handler receives the value even when it is empty. Without the `!== ''` check, the condition `product.created >= ''` is added and the list shows no records.
+A filter handler receives the value even when it is empty. Without the guard,
+the condition `product.created >= ''` is added and the list shows no records.
 :::
 
 The virtual names `start_date` and `end_date` are not table columns. See [Advanced Grid Features](/documentation/guides/rad/advanced-grid) for the matching grid form fields.
@@ -322,6 +375,11 @@ protected function configureSelector(
 
 The condition is part of the query, so it also applies to `count()` and pagination.
 
+The default ordering can also be a composite key, such as
+`item.category_id ASC, item.ordering ASC`. Keep the check and the sort header
+on the same string. See [Composite Ordering](./ordering#composite-ordering)
+for the full setup.
+
 ## Batch Events
 
 A repository method can listen to batch events with an attribute. The method runs for every batch action of this repository:
@@ -342,7 +400,8 @@ The attribute has the same effect as `$action->afterBatch()` in a `#[ConfigureAc
 
 ## Selecting Records in a Modal
 
-Other pages can pick a record from a list through a modal. Add a `ModalField` that points to the list route:
+Other pages can pick a record from a list through a modal. Add a `ModalField`
+that points to the list route:
 
 ```php
 use Unicorn\Field\ModalField;
@@ -354,25 +413,9 @@ $form->add('product_id', ModalField::class)
     ->keyField('id');
 ```
 
-The field opens the list route with the `modal` layout and a `callback` query value. The generated modal template renders each row as a link:
-
-```blade
-@php($data = [
-    'title' => $item->title,
-    'value' => $item->id,
-    'image' => $item->image,
-])
-
-<a href="javascript://"
-    data-task="post-message"
-    data-instance-id="{{ $callback }}"
-    data-payload="@json($data)"
->
-    {{ $item->title }}
-</a>
-```
-
-When the user clicks a row, the script sends the instance ID and the payload to the parent window with `postMessage()`. The parent window then fills the field. The modal layout is the `modal` entry in the ListView's `layout` option, so a list page has the modal view without extra code.
+The modal view that renders the picker is described in
+[Modal List View](./modal-list-view), including how to use it without
+`ModalField`.
 
 ## Scoped Routing & Filter State
 
@@ -385,5 +428,7 @@ For details, see [Scoped Routing](/documentation/unicorn/mvc-crud/scoped-routing
 - [Scoped Routing](/documentation/unicorn/mvc-crud/scoped-routing)
 - [Admin Grid](/documentation/guides/rad/admin-grid)
 - [Advanced Grid Features](/documentation/guides/rad/advanced-grid)
+- [Modal List View](./modal-list-view)
+- [Grid Filter Bar](./filter-bar)
 - [Edit Management](./edit-management)
 - [Form Management](./form-management)

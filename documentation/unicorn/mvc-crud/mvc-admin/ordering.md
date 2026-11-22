@@ -279,7 +279,7 @@ protected function configureReorderAction(ReorderAction $action): void
 }
 ```
 
-Add a category filter to the grid form, as described in [List Management](./admin-mvc-basics/list-management). The filter key is `product_category_map.category_id`, so the list selector applies it to the mapping table.
+Add a category filter to the grid form, as described in [List Management](./list-management). The filter key is `product_category_map.category_id`, so the list selector applies it to the mapping table.
 
 In the list view, the join and the selected columns are added only when the filter is active. The selected mapping columns are aliased, so the template can read them without clashing with the product's own `id` and `ordering`:
 
@@ -331,6 +331,6 @@ When the admin saves the order, `batchReorder()` receives the mapping IDs. The r
 
 ## Related
 
-- [List Management](./admin-mvc-basics/list-management)
+- [List Management](./list-management)
 - [Advanced Grid Features](/documentation/guides/rad/advanced-grid)
 - [Nested Set MVC](./nested-set-mvc)

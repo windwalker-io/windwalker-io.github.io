@@ -335,7 +335,7 @@ Do not write `lft`, `rgt`, or `level` directly, and do not use `deleteBulk()` to
 
 ## Related
 
-- [List Management](./admin-mvc-basics/list-management)
+- [List Management](./list-management)
 - [Ordering](./ordering)
-- [Form Management](./admin-mvc-basics/form-management)
+- [Form Management](./form-management)
 - [Nested Sets](/documentation/components/orm/nested-set)

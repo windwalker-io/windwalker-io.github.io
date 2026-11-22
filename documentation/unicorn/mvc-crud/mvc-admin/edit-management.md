@@ -24,6 +24,7 @@ When the page is opened without an ID, the record is new.
 The generated view reads the `id` route parameter and loads the record with `getItem()`:
 
 ```php
+// ProductEditView.php
 $id = $app->input('id');
 
 $item = $this->repository->getItem($id);
@@ -32,6 +33,7 @@ $item = $this->repository->getItem($id);
 A new record has no `id`, so `getItem()` returns `null`, and the form starts empty. An unknown ID also returns `null`. If an unknown ID must show a 404 page, use `mustGetItem()` in a view that always has an ID:
 
 ```php
+// ProductEditView.php
 // Throws RouteNotFoundException when no record matches.
 $item = $this->repository->mustGetItem($id);
 ```
@@ -41,6 +43,7 @@ $item = $this->repository->mustGetItem($id);
 The Save button posts the form to the edit route. The controller saves the data and redirects according to the `task` input:
 
 ```php
+// ProductController.php
 return match ($app->input('task')) {
     'save2close' => $nav->to('product_list'),
     default => $uri,
@@ -56,6 +59,7 @@ If saving fails, `CrudController` keeps the submitted data in the state under `e
 The Save as Copy action saves the current record, then opens a new record that starts with the same values. `rememberForClone()` removes the primary key from the submitted data and stores the rest in the state. The new edit page reads that state:
 
 ```php
+// ProductController::save()
 $uri = $app->call(
     $controller->saveWithNamespace(...),
     compact('repository', 'form')
@@ -72,16 +76,33 @@ return $uri;
 
 ## Extending the Save Process
 
-The save runs in this order:
+The generated controller's `save()` method registers the hooks below and then
+calls `saveWithNamespace()`. The save itself is delegated to `CrudController`,
+which runs these steps through the repository's `SaveAction`:
 
 1. The form filters the input and keeps only the fields that the form defines.
 2. The form validates the filtered data.
 3. `PrepareSaveEvent` runs with the filtered and validated data.
 4. The ORM runs `BeforeSaveEvent`, saves the entity, and runs `AfterSaveEvent`.
 
-Register the hooks in the generated controller's `save()` method. Each hook takes a callable and returns the controller:
+Register the hooks in the generated controller's `save()` method. Each hook takes a callable and returns the controller.
+
+Set data changes in `prepareSave`, not in `beforeSave` or `afterSave`.
+`beforeSave` runs after the data is ready and already extracted to plain
+text, so values you add there are hard to handle. `prepareSave` runs before
+that extraction. In the controller, read the values from the input and assign
+them there. At this point you can assign arrays or objects, and the entity
+casts them to the required format.
+
+::: warning
+In `beforeSave`, the data is already plain text, and the entity does not cast
+it again. Use `beforeSave` to validate data, not to assign values.
+:::
+
+The following example registers all three hooks:
 
 ```php
+// ProductController.php
 use Unicorn\Repository\Event\PrepareSaveEvent;
 use Windwalker\ORM\Event\AfterSaveEvent;
 use Windwalker\ORM\Event\BeforeSaveEvent;
@@ -114,6 +135,7 @@ $controller->afterSave(
 To change the save for every request, use the repository instead. Configure the `SaveAction` in the repository, as the generated repository does:
 
 ```php
+// ProductRepository.php
 use Unicorn\Repository\Actions\SaveAction;
 use Windwalker\ORM\Event\BeforeSaveEvent;
 
@@ -133,6 +155,7 @@ Use the controller for request-specific logic, and the repository for logic that
 The repository can also listen to ORM save events with an attribute on one of its methods. This is the same as calling `beforeSave()` on the `SaveAction`:
 
 ```php
+// ProductRepository.php
 use Windwalker\ORM\Event\BeforeSaveEvent;
 
 #[BeforeSaveEvent]
@@ -147,6 +170,7 @@ public function normalizeAlias(BeforeSaveEvent $event): void
 Set validation rules on the field in the form class. A failed rule stops the save before any data is written:
 
 ```php
+// ProductEditForm.php
 $form->add('title', TextField::class)
     ->label($this->trans('unicorn.field.title'))
     ->addFilter('trim')
@@ -170,6 +194,7 @@ The generated controller stores the submitted input under `edit.data` before it 
 The save accepts an options value that changes what runs. `SaveAction::IGNORE_VALIDATE` skips the form validators, and `SaveAction::IGNORE_FILTER` skips the form filter. Set the flag in trusted code, such as an import job:
 
 ```php
+// ProductImportJob.php
 use Unicorn\Repository\Actions\SaveAction;
 
 $action = $repository->createSaveAction();
@@ -191,6 +216,7 @@ $item = $action->processDataAndSave(
 Use `addFilter()` to change a value before it is validated and saved. The generated title field uses the `trim` filter:
 
 ```php
+// ProductEditForm.php
 $form->add('alias', TextField::class)
     ->addFilter('trim');
 ```
@@ -198,6 +224,7 @@ $form->add('alias', TextField::class)
 `defaultValue()` sets the value that the field returns when it has no value. The generated save does not apply it, because the save filters the input without the default-value option. To store a default, set the value in a `prepareSave` hook:
 
 ```php
+// ProductController.php
 $controller->prepareSave(
     function (PrepareSaveEvent $event): void {
         $event->data['state'] ??= 0;
@@ -210,6 +237,7 @@ $controller->prepareSave(
 Use `showon()` to show a field only when another field has a given value. The keys are field paths in the form, and the value is the value that shows the field:
 
 ```php
+// ProductEditForm.php
 $form->add('discount', NumberField::class)
     ->showon(['item/type' => 'sale']);
 ```
@@ -225,6 +253,7 @@ The path must match a field in the same form. Unicorn renders the condition as a
 Use `tooltip()` for hover help, and `attr()` for any HTML attribute:
 
 ```php
+// ProductEditForm.php
 $form->add('title', TextField::class)
     ->tooltip('Shown when the user hovers over the field.')
     ->attr('placeholder', 'Product name')
