@@ -18,11 +18,22 @@ are sent to the page with the rest of the Unicorn data:
 ```php
 $unicornScript->addRoute(
     'user_edit',
-    '/admin/user/edit/{id}'
+    // '/admin/user/edit[/{id}]'
+    $nav->to('user_edit')->id($id)
 );
 ```
 
-Omit the URL to let the server build it with its navigation service.
+Omit the URL to let the server build it with its navigation service:
+
+```php
+$unicornScript->addRoute('@post_ajax');
+```
+
+::: info
+The server stores every name with an `@` prefix, so `user_edit` is saved as
+`@user_edit`. You can pass the name with or without `@`. `route()` finds
+the route either way. `hasRoute()` follows the same rule.
+:::
 
 Then build URLs in JavaScript with `route()`:
 
@@ -204,12 +215,13 @@ route('user_preview', { id: 5 });
 ```
 
 ::: info
-`hasRoute()` checks the exact name, without the `@` fallback that `route()`
-uses. Server routes are stored with the `@` prefix, so check them with it:
+`hasRoute()` uses the same `@` rule as `route()`. It checks the name as
+given, then retries with the `@` prefix added or removed. Both forms return
+`true` for a server route:
 
 ```ts
 hasRoute('user_edit');
-// false
+// true
 
 hasRoute('@user_edit');
 // true

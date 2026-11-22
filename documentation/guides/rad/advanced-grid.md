@@ -122,7 +122,7 @@ The template can pair an order-sort header with an order control:
 
 ```blade
 <th>
-    <x-order-sort
+    <x-order-sort field="product.ordering"
         :enabled="$vm->reorderEnabled($ordering)"
         asc="product.ordering ASC"
         desc="product.ordering DESC"

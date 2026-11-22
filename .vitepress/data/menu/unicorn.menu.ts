@@ -71,6 +71,10 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           text: 'Nested Set MVC',
           link: `/${unicornRoutePrefix}/mvc-crud/nested-set-mvc`
         },
+        {
+          text: 'Ordering',
+          link: `/${unicornRoutePrefix}/mvc-crud/ordering`
+        },
       ],
     },
     {
@@ -318,10 +322,6 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
               link: `/${unicornRoutePrefix}/javascript-frontend/ui/ui-helpers`
             },
             {
-              text: 'ButtonRadio',
-              link: `/${unicornRoutePrefix}/javascript-frontend/ui/button-radio`
-            },
-            {
               text: 'Checkbox MultiSelect',
               link: `/${unicornRoutePrefix}/javascript-frontend/ui/checkbox-multiselect`
             },
@@ -361,12 +361,20 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Bootstrap 5',
-          link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/keep-tab`,
+          link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/overview`,
           collapsed: true,
           items: [
             {
+              text: 'Overview',
+              link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/overview`
+            },
+            {
               text: 'KeepTab',
               link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/keep-tab`
+            },
+            {
+              text: 'ButtonRadio',
+              link: `/${unicornRoutePrefix}/javascript-frontend/bootstrap-5/button-radio`
             },
             {
               text: 'ModalAlert',

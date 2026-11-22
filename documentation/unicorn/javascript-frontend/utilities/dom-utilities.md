@@ -329,6 +329,10 @@ domready(() => {
 stylesheets. It accepts one or more sources. Each source is a CSS string,
 a `CSSStyleSheet`, or a function that imports CSS text:
 
+> !review
+> 提供一個示範，這個功能實用的情境是 import css / scss with ?inline or ?raw 時，
+> 可以直接 inject 到 document，避免在 vite build 時，css/scss 被打包成 js，導致無法被瀏覽器解析的問題。
+
 ```ts
 import { injectCssToDocument } from '@windwalker-io/unicorn-next';
 

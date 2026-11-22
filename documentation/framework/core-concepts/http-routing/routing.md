@@ -229,6 +229,38 @@ $router->any('post_resource', '/post/{id}')
     );
 ```
 
+`controller()` accepts the same named arguments. Pass the class first, then
+one name per HTTP method. Each value is the method on the class that handles
+that request:
+
+```php
+<?php
+
+/** @var RouteCreator $router */
+
+$router->any('product_list', '/product/list')
+    ->controller(
+        ProductController::class,
+        post: 'copy',
+        put: 'filter',
+        patch: 'batch',
+    );
+```
+
+This call sets only the methods you list. Methods you leave out get no
+handler from this call, so add them as named arguments too, or set them with
+another `handler()` call. The accepted names are:
+
+- `get`, `query`, `post`, `put`, `patch`, `delete`, `options`, `head`
+- `fetch`: sets `get` and `query`
+- `save`: sets `post`, `put`, and `patch`
+
+::: tip
+The same declaration is used by the Unicorn MVC pages. See
+[MVC Concepts](/documentation/unicorn/mvc-crud/mvc-concepts) for a generated
+list route.
+:::
+
 ::: warning
 Within one `handlers()` call, the keys are applied in order. `fetch` and
 `save` also set the methods they cover, so a later key replaces an earlier

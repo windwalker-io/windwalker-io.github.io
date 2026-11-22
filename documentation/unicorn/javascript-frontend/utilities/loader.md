@@ -11,6 +11,12 @@ form or a chart on one report. The loader functions fetch modules, scripts,
 and stylesheets at runtime. The bundler then leaves that code out of the
 pages that do not use it.
 
+> !review
+> 這個頁面說明一下，大多數時候，只要用 ES 原生的 `import` 與 `import()` 就可以了，
+> 只要 Vite 能追蹤到的城市都會被自動打包與 tree shake
+> 這個 loader 提供的 import 主要是用在不得已要從 HTML runtime 使用 HTTP 載入的傳統 js or CSS
+> 檔案，或者因為語法問題造成無法打包的套件，這時候可以使用 loader 來載入，他等同於傳統的 `<script>` 與 `<link>` 標籤，並且提供了 import map 的功能，讓你可以在 HTML 上定義一個 prefix 來對應到實際的路徑。
+
 The loader covers four kinds of resources:
 
 - Modules, with `useImport()` and `useSeriesImport()`.
