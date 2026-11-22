@@ -13,6 +13,12 @@ Plain HTML forms send only `GET` and `POST`. The module sends `PUT`,
 
 Each form element keeps one instance, so repeated calls share its state.
 
+Markup can call the form through Alpine.js, the lightweight framework that
+runs inline directives such as `@click`. The form module is also exposed to
+Alpine as the `form` store. See [UI Helpers](./ui-helpers#alpine-js) for the
+Alpine setup, and the [Alpine.js documentation](https://alpinejs.dev) for
+directive syntax.
+
 ## Enable the module
 
 ```js
@@ -173,6 +179,32 @@ Remove the field before the next request, or pass the method on every call.
 ::: info
 The `url` and `method` arguments change the form attributes. The new values
 stay until another call changes them.
+:::
+
+## Running a Task from an Edit Page
+
+An edit page has no grid, so its toolbar buttons send a task with the form.
+The task applies to the current item. Pass the URL of the controller that
+handles the task. The default URL is the current page, which is the edit
+route:
+
+```ts
+import { useForm } from '@windwalker-io/unicorn-next';
+
+const form = useForm('#edit-form');
+
+document.querySelector('#btn-feature')?.addEventListener('click', () => {
+  form?.patch('/admin/article/batch', { task: 'featured', id: 42 });
+});
+```
+
+The `id` value is injected into the request, and the handler reads it as
+`id`. Use the same handler rules as the grid's batch tasks.
+
+::: warning
+The request is a full form submit. Every field in the form is sent with the
+task, including values the user has not saved yet. Save the form first, or
+send the task from a separate form.
 :::
 
 ## Instances

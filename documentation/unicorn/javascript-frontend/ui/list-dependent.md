@@ -124,13 +124,15 @@ ignored.
 ## Loading from a URL
 
 Set `ajax.url` to load options with a GET request. The URL can be a string or
-a function that returns a string:
+a function that returns a string. Use `route()` for a named route:
 
 ```ts
+import { route } from '@windwalker-io/unicorn-next';
+
 await useListDependent('#city', '#country', {
   ajax: {
-    // A string URL.
-    url: '/api/cities',
+    // A named route, built by route().
+    url: route('city_ajax_list'),
   },
 });
 
@@ -454,6 +456,75 @@ await useListDependent();
 ```
 
 The `dependent` key replaces the second argument of the function form.
+
+Changing the attribute updates the options and reloads the list.
+
+::: warning
+The attribute value must be valid JSON. An empty attribute makes
+`JSON.parse()` throw, and the list is not initialized.
+:::
+
+## Calling from PHP
+
+`FormScript::listDependent()` renders the same call from a view. Pass a URL
+to load options from the server, or an array to use local data:
+
+```php
+use Unicorn\Script\FormScript;
+
+$formScript = $app->retrieve(FormScript::class);
+
+$formScript->listDependent(
+    '#input-item-city',
+    '#input-item-country',
+    $nav->to('city_ajax_list')->var('type', $type),
+    [
+        'default_value' => $item?->getCityId(),
+    ]
+);
+```
+
+A URL argument sets `ajax.url`. Any other argument is used as `source`. The
+options array is passed to the JavaScript call as the options object.
+
+## Server Endpoint
+
+The endpoint returns the items for one controlling value. The `#[JsonApi]`
+attribute wraps the array in the `success` and `data` envelope:
+
+```php
+use Windwalker\Core\Attributes\JsonApi;
+
+#[JsonApi]
+public function ajaxList(AppContext $app, ORM $orm): array
+{
+    $categoryId = (int) $app->input('value');
+
+    $items = $orm->from(City::class)
+        ->where('country_id', $categoryId)
+        ->order('name', 'ASC')
+        ->getIterator(City::class);
+
+    $options = [];
+
+    foreach ($items as $item) {
+        $options[] = [
+            'name' => $item->getName(),
+            'id' => $item->getId(),
+        ];
+    }
+
+    return $options;
+}
+```
+
+The controlling value arrives as `value` by default. Set `ajax.value_field`
+on the client to use another name.
+
+::: warning
+The `value` input is supplied by the browser. Check it on the server and
+return only the rows that the current user may read.
+:::
 
 ## Options Reference
 

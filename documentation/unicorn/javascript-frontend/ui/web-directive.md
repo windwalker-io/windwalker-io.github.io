@@ -32,6 +32,27 @@ await useUniDirective('copy', {
 
 The first call starts observing `document.body`. Each registration mounts its directive on matching elements already on the page, and later DOM changes are handled automatically.
 
+## Waiting for Registration
+
+`useUniDirective()` is async, because it loads the directive engine the
+first time it runs. Await it before any code that depends on the directive.
+To register several directives, pass each call to `Promise.all()`:
+
+```ts
+await Promise.all([
+  useUniDirective('copy', {
+    mounted(el) {
+      // ...
+    }
+  }),
+  useUniDirective('char-count', {
+    mounted(el) {
+      // ...
+    }
+  }),
+]);
+```
+
 ## Complete Example
 
 This example adds a copy button and a character counter. The counter also works on fields added at runtime.
@@ -187,6 +208,33 @@ el.addEventListener('wd:mounted', (e) => {
 
 Event names are `wd:mounted`, `wd:updated`, `wd:unmounted`, and `wd:children-updated`.
 
+::: info
+Only a change to the directive attribute itself calls `updated()`. Changing
+another attribute, such as `data-target`, does not. Read the other
+attributes in the handler when you need their current value.
+:::
+
+## Binding Reference
+
+Each hook receives a binding object. The fields are the same in every hook:
+
+```ts
+await useUniDirective('panel', {
+  mounted(el, binding) {
+    binding.directive; // Attribute name with args: 'uni-panel:warn'
+    binding.name;      // Attribute name only: 'uni-panel'
+    binding.node;      // The element, same as the first argument.
+    binding.value;     // Attribute value, or null after removal.
+    binding.oldValue;  // Previous value in updated(), otherwise undefined.
+    binding.mutation;  // The MutationRecord that caused the hook, if any.
+    binding.arg;       // Text after the colon, or null.
+    binding.modifiers; // Modifier names in camelCase, each set to true.
+    binding.handler;   // The handler object you registered.
+    binding.instance;  // The WebDirective instance that runs the handler.
+  }
+});
+```
+
 ## Arguments and Modifiers
 
 A directive can take an argument and modifiers. Enable them with the `enableAttrParams` option on the instance that serves the directive.
@@ -233,9 +281,33 @@ await useWebDirective('tools', {
 ```
 
 - `enableAttrParams`: Enables arguments and modifiers. Default `false`.
+- `enableAttrParams`: Enables arguments and modifiers. Default `false`.
 - `enableChildrenUpdated`: Enables the `childrenUpdated` hook. Default `false`.
+- `eventPrefix`: Prefix of the hook events. Default `wd:`.
 
 Unicorn always uses the `uni-` prefix. A `prefix` value you pass is replaced.
+
+## Removing Directives
+
+The instance returned by `useWebDirective()` can remove a directive or stop
+observing the page. `remove()` takes the name without the prefix:
+
+```ts
+import { useWebDirective } from '@windwalker-io/unicorn-next';
+
+const wd = await useWebDirective();
+
+// Unmount 'uni-panel' from every element, then unregister it.
+wd.remove('panel');
+
+// Stop observing the page and unmount every directive.
+wd.disconnect();
+```
+
+::: info
+After `disconnect()`, no directive runs until you call `listen()` on the
+instance again.
+:::
 
 ::: warning
 Options apply only when `useWebDirective()` creates the instance. If an

@@ -75,6 +75,10 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           text: 'Ordering',
           link: `/${unicornRoutePrefix}/mvc-crud/ordering`
         },
+        {
+          text: 'Scoped Routing',
+          link: `/${unicornRoutePrefix}/mvc-crud/scoped-routing`
+        },
       ],
     },
     {

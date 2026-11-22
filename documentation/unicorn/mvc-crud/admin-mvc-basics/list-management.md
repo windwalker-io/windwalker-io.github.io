@@ -374,8 +374,15 @@ The field opens the list route with the `modal` layout and a `callback` query va
 
 When the user clicks a row, the script sends the instance ID and the payload to the parent window with `postMessage()`. The parent window then fills the field. The modal layout is the `modal` entry in the ListView's `layout` option, so a list page has the modal view without extra code.
 
+## Scoped Routing & Filter State
+
+Because the filter and search state is stored in the session, a controller that serves several scopes or a view with different types, must use a different state prefix for each scope in the repository. This keeps users in different scopes from interfering with each other's filters and searches.
+
+For details, see [Scoped Routing](/documentation/unicorn/mvc-crud/scoped-routing).
+
 ## Related
 
+- [Scoped Routing](/documentation/unicorn/mvc-crud/scoped-routing)
 - [Admin Grid](/documentation/guides/rad/admin-grid)
 - [Advanced Grid Features](/documentation/guides/rad/advanced-grid)
 - [Edit Management](./edit-management)
