@@ -9,7 +9,7 @@ The site publishes LLM-friendly plain text next to the HTML pages. All of it is 
 ## Where the code lives
 
 - `.vitepress/data/markdown-export.ts`: the main logic.
-  - `publicMarkdownFiles()` collects `.md` files under the repo. It skips `node_modules`, `.vitepress`, `.git`, `.yarn`, `tmp`, and `dist`. `publicExcludePrefixes` also excludes `tmp/`.
+  - `publicMarkdownFiles()` collects `.md` files under the repo. It skips `node_modules`, `.vitepress`, `.git`, `.yarn`, `tmp`, and `dist`. `publicExcludePrefixes` (glob patterns) also excludes `tmp/**`.
   - `llmsMarkdownFiles()` selects the pages for `llms.txt` and the skills package. It drops root-level files (no `/` in the path) and anything under `.github/` (`llmsExcludePrefixes`).
   - `buildLlmsTxt()` writes `llms.txt`. Pages are grouped by `sectionNames` (`documentation/guides`, `documentation/components`, `documentation/framework`); anything else goes under `Other`. Subdirectories become nested lists. The Framework section follows `frameworkSidebar` instead: sidebar group headings are skipped, item nesting is kept, and pages missing from the sidebar are appended flat. Each entry uses only the frontmatter `description`.
   - `withMarkdownFooter()` appends the `llms.txt` and HTML links to every raw Markdown file.

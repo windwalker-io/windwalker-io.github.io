@@ -2,7 +2,7 @@ User may provide a component folder, audit the Windwalker framework documentatio
 
 Context and sources:
 - Follow `.github/skills/source-lookup/README.md` to locate the host app, read the package source, and verify runtime behavior. Do not search the whole filesystem.
-- Site component docs: `documentation/components/<component>/`. Navigation metadata: `.vitepress/data/components.ts` and `.vitepress/menu/components/`.
+- Site component docs: `documentation/components/<component>/`. Navigation metadata: `../../.vitepress/data/menu/components.ts` and `.vitepress/menu/components/`.
 
 Requirements:
 1. For provided component in `documentation/components/`, compare the existing pages with the current source. Record which content is outdated (wrong APIs, signatures, defaults, or examples) and which is missing (new features, options, or behavior).

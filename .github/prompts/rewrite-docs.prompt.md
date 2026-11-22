@@ -5,7 +5,7 @@ Read the source documents the user points to (internal tutorials, notes, or outd
 
 Requirements:
 - Verify every command and API against the current code, following `.github/skills/source-lookup/README.md`. Delete temporary files afterwards.
-- Prefer updating an existing page over creating an overlapping one. When adding or renaming a page, update `.vitepress/data/guides.ts` or `.vitepress/data/components.ts`, and keep the route patterns and `layout: doc` frontmatter.
+- Prefer updating an existing page over creating an overlapping one. When adding or renaming a page, update `../../.vitepress/data/menu/guides.ts` or `../../.vitepress/data/menu/components.ts`, and keep the route patterns and `layout: doc` frontmatter.
 - Apply all rules in `.github/instructions/documentation-style.instructions.md`: English tone, no internal or IDE material, no personal remarks, and no images (replace each image with text or simulated terminal output, and delete unreferenced image files).
 - Follow the page structure and the method-introduction example in `.github/docs/templates/doc-page.md`.
 - Give every rewritten topic page a complete flow: purpose and problem solved, minimal enabling and assembly, a complete showcase example, then detailed features, with reminders placed in the sections they concern. Add the missing introduction and showcase when the source jumps straight into details.

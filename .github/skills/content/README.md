@@ -11,4 +11,4 @@ This folder defines the conventions used when editing docs and instructions in t
 
 ## Example
 
-When adding a new documentation page, confirm whether it needs an entry in `.vitepress/data/components.ts` or `.vitepress/data/guides.ts`.
+When adding a new documentation page, confirm whether it needs an entry in `../../../.vitepress/data/menu/components.ts` or `../../../.vitepress/data/menu/guides.ts`.

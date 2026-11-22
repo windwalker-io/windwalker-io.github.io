@@ -1,6 +1,6 @@
 import { DefaultTheme } from 'vitepress';
 import { computed } from 'vue';
-import { frameworkRoutePrefix } from '../store/routing-store';
+import { frameworkRoutePrefix } from '../../store/routing-store';
 
 function normalizeUrl(url: string): string {
   return url.replace(/\/+$/, '');

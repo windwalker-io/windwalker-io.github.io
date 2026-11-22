@@ -1,6 +1,6 @@
 <script setup>
 import { kebabCase } from 'lodash-es';
-import { groupedComponents } from '../data/components';
+import { groupedComponents } from '../data/menu/components.menu';
 </script>
 
 <template>

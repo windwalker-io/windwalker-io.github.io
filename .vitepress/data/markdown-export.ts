@@ -1,6 +1,7 @@
 import { Plugin } from 'vitepress';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, sep } from 'node:path';
+import { publicExcludePrefixes } from './excludes';
 
 // Repository root (this file lives in .vitepress/data/)
 export const srcDir = join(import.meta.dirname, '../..');
@@ -10,9 +11,6 @@ export const siteUrl = `https://${(process.env.SITE_DOMAIN || readFileSync(join(
 
 // Directories never scanned for markdown files
 const skipDirs = new Set(['node_modules', '.vitepress', '.git', '.yarn', 'tmp', 'dist']);
-
-// Shared compile restrictions: every public output (pages, raw markdown, llms.txt, skills) uses these
-export const publicExcludePrefixes = ['tmp/', '.github/'];
 
 // Markdown export options, built once in config.mts and passed to every export entry point
 export type MarkdownExclude = string | RegExp;
@@ -40,7 +38,7 @@ const isMarkdownExcluded = (file: string, excludes: MarkdownExclude[]) => exclud
 );
 
 const isPublicMarkdown = (file: string, excludes: MarkdownExclude[]) =>
-  !publicExcludePrefixes.some((prefix) => file.startsWith(prefix)) && !isMarkdownExcluded(file, excludes);
+  !isMarkdownExcluded(file, publicExcludePrefixes) && !isMarkdownExcluded(file, excludes);
 
 // ---------------------------------------------------------------------------
 // Markdown file discovery

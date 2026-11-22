@@ -36,7 +36,7 @@ There are no explicit `test` or `lint` scripts in `package.json`, so there is no
 ## Key conventions
 
 - This repo is content-first. Most changes are Markdown pages plus VitePress metadata, not application code.
-- If you add or rename a documentation page, keep the generated navigation in sync with `.vitepress/data/components.ts` or `.vitepress/data/guides.ts`.
+- If you add or rename a documentation page, keep the generated navigation in sync with `../.vitepress/data/menu/components.ts` or `../.vitepress/data/menu/guides.ts`.
 - Page frontmatter is meaningful: pages commonly use `layout: doc` and the home page uses `layout: home`.
 - The site uses route prefixes and generated sidebars (`guideRoutePrefix` and `componentRoutePrefix` in `.vitepress/config.mts`); follow the existing route patterns when adding content.
 - Deployment uses Yarn in CI (`.github/workflows/deploy.yml`), so keep the package manager and scripts aligned with that workflow.

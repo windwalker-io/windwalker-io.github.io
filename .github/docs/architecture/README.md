@@ -15,7 +15,7 @@ This repo is a VitePress documentation site for the Windwalker PHP framework. Ke
 
 - `package.json` for scripts and dependency management
 - `.vitepress/config.mts` for site setup and generated navigation
-- `.vitepress/data/components.ts` and `.vitepress/data/guides.ts` for sidebar content
+- `../../../.vitepress/data/menu/components.ts` and `../../../.vitepress/data/menu/guides.ts` for sidebar content
 - `.github/workflows/deploy.yml` for deployment
 
 Keep these files aligned when changing docs structure or navigation.

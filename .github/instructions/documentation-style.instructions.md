@@ -7,7 +7,7 @@
 - Exclude internal material: private repository or commit links, IDE tutorials, personal remarks, and team conventions phrased as warnings.
 - Use no images by default. Show results as text or simulated terminal output, and delete unused files in `public/`.
 - Keep pages aligned with the navigation in `.vitepress/data/`, and finish with `yarn build`.
-- When a component's first-time docs are complete, remove its `wip` flag (`extra: { 'wip': true }`) in `.vitepress/data/components.ts` and set `extra: {}`.
+- When a component's first-time docs are complete, remove its `wip` flag (`extra: { 'wip': true }`) in `../../.vitepress/data/menu/components.ts` and set `extra: {}`.
 - Write manuals, not API references. A page guides developers through a feature: its purpose, how it works, how the parts fit together, and the design philosophy.
 - Introduce domain knowledge briefly when a feature depends on it.
 - When a feature solves a real-world problem, add a short paragraph before the usage. Explain why it is needed and what it gains, using a concrete scenario. Verify the advantages in the source first. Good candidates include the cache tagged pool and the reactor memory table.

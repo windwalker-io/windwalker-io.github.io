@@ -8,8 +8,8 @@ This repository is the documentation website for the Windwalker PHP framework. I
 
 - `package.json`: scripts and package manager setup
 - `.vitepress/config.mts`: site configuration, navigation, and sidebar behavior
-- `.vitepress/data/components.ts`: component taxonomy used to generate documentation navigation
-- `.vitepress/data/guides.ts`: guide navigation for the docs site
+- `.vitepress/data/menu/components.ts`: component taxonomy used to generate documentation navigation
+- `.vitepress/data/menu/guides.ts`: guide navigation for the docs site
 - `.github/copilot-instructions.md`: repo-specific Copilot guidance for future sessions
 
 ## Build and validation

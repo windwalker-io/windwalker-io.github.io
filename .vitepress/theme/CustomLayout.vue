@@ -2,7 +2,7 @@
 import { useData, withBase } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 import { computed } from 'vue';
-import { flatComponents } from '../data/components';
+import { flatComponents } from '../data/menu/components.menu';
 import { componentRoutePrefix } from '../store/routing-store';
 import icon from '../../public/images/logo-icon.png';
 // import { register } from 'swiper/element/bundle';

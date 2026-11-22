@@ -1,21 +1,27 @@
-import { defineConfig } from 'vitepress'
-import { withMermaid } from 'vitepress-plugin-mermaid'
 import { join } from 'node:path';
-import { flatComponents, getComponentsSidebar } from './data/components';
-import { guidesSidebar } from './data/guides';
-import { findFrameworkParentText, frameworkSidebar } from './data/framework';
-import { componentRoutePrefix, frameworkRoutePrefix, guideRoutePrefix } from './store/routing-store';
-import { buildSkillsPackage } from './data/skills-package';
+import { defineConfig } from 'vitepress';
 import { cloudflareAISearch } from 'vitepress-plugin-cloudflare-ai-search';
+import { withMermaid } from 'vitepress-plugin-mermaid';
+import { publicExcludePrefixes } from './data/excludes';
 import {
   buildLlmsTxt,
   exportMarkdownAndLlmsTxt,
-  llmsMarkdownFiles, MarkdownExportOptions,
+  llmsMarkdownFiles,
+  MarkdownExportOptions,
   markdownExportPlugin,
-  publicExcludePrefixes,
   siteUrl,
   srcDir,
 } from './data/markdown-export';
+import { flatComponents, getComponentsSidebar } from './data/menu/components.menu';
+import { findFrameworkParentText, frameworkSidebar } from './data/menu/framework.menu';
+import { guidesSidebar } from './data/menu/guides.menu';
+import { unicornSidebar } from './data/menu/unicorn.menu';
+import { buildSkillsPackage } from './data/skills-package';
+import {
+  componentRoutePrefix,
+  frameworkRoutePrefix,
+  guideRoutePrefix, unicornRoutePrefix,
+} from './store/routing-store';
 
 const componentsSidebar = await getComponentsSidebar();
 
@@ -24,6 +30,9 @@ const markdownOptions: MarkdownExportOptions = {
   // Globs (`*`, `**`, `?`) or RegExp. Excluded files get no raw .md and no llms.txt entry; HTML pages are kept.
   excludes: [
     'documentation/components/index.md',
+    'AGENTS.md',
+    'README.md',
+    'index.md',
   ],
   // Every route's sidebar tree; used to link chapter siblings in the Sitemap block
   sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...componentsSidebar],
@@ -42,7 +51,7 @@ const skillsPackage = await buildSkillsPackage({
 // https://vitepress.dev/reference/site-config
 export default withMermaid(defineConfig({
 
-  srcExclude: publicExcludePrefixes.map((prefix) => `${prefix}**`),
+  srcExclude: publicExcludePrefixes,
   sitemap: {
     hostname: siteUrl,
   },
@@ -68,8 +77,8 @@ export default withMermaid(defineConfig({
     plugins: [
       markdownExportPlugin(markdownOptions),
       cloudflareAISearch({
-        endpoint: 'https://docs-search.windwalker.io/'
-      })
+        endpoint: 'https://docs-search.windwalker.io/',
+      }),
     ],
   },
   buildEnd: async (siteConfig) => {
@@ -83,7 +92,10 @@ export default withMermaid(defineConfig({
     ['link', { rel: 'icon', href: '/images/logo-icon.png' }],
 
     // Meta
-    ['meta', { property: 'og:image', content: 'https://repository-images.githubusercontent.com/15371097/87e3e600-736d-11e9-9c49-64382cf43093' }],
+    ['meta', {
+      property: 'og:image',
+      content: 'https://repository-images.githubusercontent.com/15371097/87e3e600-736d-11e9-9c49-64382cf43093',
+    }],
 
     // Scripts
     ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-MYMEG7N4RV' }],
@@ -96,7 +108,7 @@ export default withMermaid(defineConfig({
     logo: "/images/logo-cw-h.svg",
     siteTitle: false,
     editLink: {
-      pattern: 'https://github.com/windwalker-io/windwalker-io.github.io/blob/master/:path'
+      pattern: 'https://github.com/windwalker-io/windwalker-io.github.io/blob/master/:path',
     },
 
     outline: {
@@ -112,9 +124,10 @@ export default withMermaid(defineConfig({
           { text: 'Guide', link: `/${guideRoutePrefix}/start/` },
           { text: 'Framework', link: `/${frameworkRoutePrefix}/` },
           { text: 'Components', link: `/${componentRoutePrefix}/` },
-        ]
+          { component: 'separator' },
+          { text: 'Unicorn RAD', link: `/${unicornRoutePrefix}/` },
+        ],
       },
-      { text: 'Unicorn RAD', link: '#' },
       { text: 'Skills', link: '/agent-skills' },
       { text: 'Status', link: 'status' },
       { text: 'Others', link: '#' },
@@ -124,6 +137,7 @@ export default withMermaid(defineConfig({
       [`/${guideRoutePrefix}`]: guidesSidebar.value,
       [`/${frameworkRoutePrefix}`]: frameworkSidebar.value,
       [`/${componentRoutePrefix}`]: componentsSidebar,
+      [`/${unicornRoutePrefix}`]: unicornSidebar.value,
     },
 
     // sidebar: [
@@ -141,13 +155,13 @@ export default withMermaid(defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/windwalker-io/framework/' }
+      { icon: 'github', link: 'https://github.com/windwalker-io/framework/' },
     ],
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="https://simular.co/" target="_blank">Simular Inc.</a>.`
-    }
+      copyright: `Copyright © ${new Date().getFullYear()} <a href="https://simular.co/" target="_blank">Simular Inc.</a>.`,
+    },
   },
   transformHead({ title, siteData }) {
     const suffix = ` | ${siteData.title}`;
@@ -170,5 +184,5 @@ export default withMermaid(defineConfig({
         pageData.titleTemplate = `:title | ${parent} | ${siteConfig.site.title}`;
       }
     }
-  }
-}))
+  },
+}));
