@@ -61,7 +61,7 @@ described in [Custom Filter Rules](./list-management#custom-filter-rules).
 The bar has two rows. The top row holds the toggle, clear, and search
 controls. The panel below holds the filter fields:
 
-![Filter Bar Layout](https://github.com/user-attachments/assets/e3a3ce30-7f1b-4941-a173-9e0b0eff4225)
+![Filter Bar Layout](https://github.com/user-attachments/assets/be3844a3-c83b-4207-b0ec-7688232762df)
 
 Fields without a fieldset print in the first group. A field in a fieldset
 prints under the fieldset's title, and its label floats inside the input.
@@ -151,6 +151,8 @@ Two slots add content to the top row:
     </x-slot>
 </x-filter-bar>
 ```
+
+![](https://github.com/user-attachments/assets/1b09fce8-fb15-47cf-90f3-c968f07154d5)
 
 The `start` and `end` slots print their content as HTML without escaping.
 Escape any user-supplied value with `{{ }}` inside the slot, as the example
