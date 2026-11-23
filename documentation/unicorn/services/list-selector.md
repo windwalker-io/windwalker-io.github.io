@@ -68,7 +68,7 @@ $selector->where('product.shop_id', 5);
 // The callback of a Query method returns the Query object.
 $selector->where(function (Query $query) {
     return $query->where('product.state', 1)
-        ->orWhere('product.featured', 1);
+        ->orWhereGroup([['product.featured', 1]]);
 });
 
 // Chaining methods such as tap() pass the selector to the callback.

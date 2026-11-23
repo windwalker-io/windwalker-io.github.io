@@ -309,7 +309,7 @@ use Windwalker\Query\Query;
 
 +        // Add search
 +        if ($q !== '') {
-+            $query->orWhere(
++            $query->orWhereGroup(
 +                function (Query $query) use ($q) {
 +                    $query->where('title', 'like', '%' . $q . '%');
 +                    $query->where('content', 'like', '%' . $q . '%');

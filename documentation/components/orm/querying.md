@@ -389,7 +389,7 @@ links go to the description in this page or in the Query component.
 | [selectRaw](#starting-a-select) | start a SELECT with an expression |
 | [where](/documentation/components/query/where) | add a condition |
 | [whereRaw](#raw-conditions) | add a raw SQL condition |
-| [orWhere](#grouping-or-conditions) | add a grouped OR condition |
+| [orWhereGroup](#grouping-or-conditions) | add a grouped OR condition |
 | [join](#joins) | join another table, with or without `ON` |
 | [leftJoin](#automatic-on-conditions) | left join, with the `ON` built from the entities |
 | [groupByJoins](#automatic-selections-and-grouped-joins) | select the joined columns, grouped by alias |
@@ -487,7 +487,7 @@ that holds the grouped conditions.
 ```php
 $items = $orm->from(Sakura::class)
     ->where('state', 1)
-    ->orWhere(
+    ->orWhereGroup(
         function ($query) {
             $query->where('created_by', 42)
                 ->where('state', 0);

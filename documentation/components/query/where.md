@@ -171,19 +171,19 @@ conditions in the group are joined by the method that receives the closure:
 
 ```php
 $query->where('state', 1)
-    ->andWhere(function (Query $q) {
+    ->andWhereGroup(function (Query $q) {
         $q->where('created_by', 42)
             ->where('state', 0);
     });
 // WHERE `state` = 1 AND (`created_by` = 42 AND `state` = 0)
 ```
 
-`andWhere()` joins the group's conditions with `AND`, and `orWhere()`
+`andWhereGroup()` joins the group's conditions with `AND`, and `orWhereGroup()`
 joins them with `OR`:
 
 ```php
 $query->where('state', 1)
-    ->orWhere(function (Query $q) {
+    ->orWhereGroup(function (Query $q) {
         $q->where('created_by', 42)
             ->where('state', 0);
     });
@@ -194,7 +194,7 @@ Arrays work the same way, using the same glue for every element:
 
 ```php
 $query->where('state', 1)
-    ->orWhere([
+    ->orWhereGroup([
         ['created_by', 5],
         ['state', 3],
     ]);
@@ -202,7 +202,7 @@ $query->where('state', 1)
 
 ::: warning
 The parenthesized group is always joined to the preceding conditions with
-`AND`, even when it was added with `orWhere()`. The method name controls
+`AND`, even when it was added with `orWhereGroup()`. The method name controls
 the join inside the group only. The builder has no top-level `OR` between
 two conditions. To express `a OR (b AND c)`, write that part with
 [`whereRaw()`](/documentation/components/query/expressions#raw-methods) and bound values:

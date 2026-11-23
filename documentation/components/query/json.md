@@ -124,12 +124,12 @@ $query->whereJsonNotExists('params->legacy');
 ```
 
 `havingJsonExists()` and `havingJsonNotExists()` are the `HAVING` versions.
-To match any of several paths, group them in an `orWhere()` closure, with
+To match any of several paths, group them in an `orWhereGroup()` closure, with
 the paths written as separate conditions inside the group. Each condition
 inside the group is joined by `OR`:
 
 ```php
-$query->orWhere(function (Query $q) {
+$query->orWhereGroup(function (Query $q) {
     $q->whereJsonExists('params->a')
         ->whereJsonExists('params->b');
 });
@@ -148,13 +148,13 @@ $query->whereJsonContainsAll('tags', ['php', 'json']);
 // The array must contain both 'php' and 'json'.
 ```
 
-For `OR`, put each condition in an `orWhere()` group. The group is joined to
+For `OR`, put each condition in an `orWhereGroup()` group. The group is joined to
 the rest of the `WHERE` clause with `AND`, as described on the
 [Conditions](/documentation/components/query/where#nested-groups) page:
 
 ```php
 $query->where('state', 1)
-    ->orWhere(function (Query $q) {
+    ->orWhereGroup(function (Query $q) {
         $q->whereJsonContainsAll('tags', 'php')
             ->whereJsonContainsAll('tags', 'json');
     });

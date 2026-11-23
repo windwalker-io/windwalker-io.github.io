@@ -56,13 +56,13 @@ The typed join methods, such as `leftJoin()`, are listed in
 |--------|-------------|
 | [`where()`](/documentation/components/query/where#operators) | Adds a condition. Accepts a column, an array or a closure. |
 | [`whereRaw()`](/documentation/components/query/expressions#raw-methods) | Adds a condition as raw SQL text, with template tokens. |
-| [`andWhere()`](/documentation/components/query/where#nested-groups) | Adds a group of conditions, joined by `AND` inside the group. |
-| [`orWhere()`](/documentation/components/query/where#nested-groups) | Adds a group of conditions, joined by `OR` inside the group. |
+| [`andWhereGroup()`](/documentation/components/query/where#nested-groups) | Adds a group of conditions, joined by `AND` inside the group. |
+| [`orWhereGroup()`](/documentation/components/query/where#nested-groups) | Adds a group of conditions, joined by `OR` inside the group. |
 | [`whereExists()`](/documentation/components/query/where#exists) | Adds an `EXISTS` condition for a subquery. |
 | [`whereNotExists()`](/documentation/components/query/where#exists) | Adds a `NOT EXISTS` condition for a subquery. |
 | [`having()`](/documentation/components/query/where#having) | Adds a `HAVING` condition. |
 | [`havingRaw()`](/documentation/components/query/expressions#raw-methods) | Adds a `HAVING` condition as raw SQL text. |
-| [`orHaving()`](/documentation/components/query/where#nested-groups) | Adds a group of `HAVING` conditions, joined by `OR` inside. |
+| [`orHavingGroup()`](/documentation/components/query/where#nested-groups) | Adds a group of `HAVING` conditions, joined by `OR` inside. |
 | [`havingExists()`](/documentation/components/query/where#exists) | Adds a `HAVING EXISTS` condition for a subquery. |
 | [`havingNotExists()`](/documentation/components/query/where#exists) | Adds a `HAVING NOT EXISTS` condition for a subquery. |
 | [`convertAllToWheres()`](/documentation/components/query/where#array-conditions) | Static. Converts an array into conditions on a query. |
