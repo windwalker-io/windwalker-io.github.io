@@ -156,7 +156,7 @@ const nonce = randomBytesString(32);
 
 ::: tip
 Use these values for client-side nonces and request ids. Tokens that
-protect the server must come from the server. For example, read the CSRF
+protect the server must come from the server. For example, read the [CSRF](/documentation/framework/core-concepts/security/csrf-protection)
 token with `data('csrf-token')`.
 :::
 

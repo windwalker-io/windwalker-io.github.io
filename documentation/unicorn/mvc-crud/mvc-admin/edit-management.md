@@ -6,7 +6,7 @@ description: Work with the generated admin edit page, its save and cancel action
 
 # Edit Management
 
-The admin edit page creates and updates one record. It renders a form from the edit form class, saves the submitted data through the repository, and redirects back to the page. The generator builds the controller, the view, and the form, so you add only the rules and hooks that your record needs.
+The admin edit page creates and updates one record. It renders a form from the edit form class, saves the submitted data through the [repository](/documentation/unicorn/services/repository), and redirects back to the page. The generator builds the controller, the view, and the form, so you add only the rules and hooks that your record needs.
 
 ## Features of the Generated Edit Page
 
@@ -15,7 +15,7 @@ The generated edit page provides these parts:
 - The `EditView`, which loads the record by the `id` route parameter.
 - The `EditForm`, which defines the title, alias, and hidden ID fields.
 - A toolbar with Save, Save & Close, and Cancel buttons.
-- A hidden ID field and a CSRF token.
+- A hidden ID field and a [CSRF](/documentation/framework/core-concepts/security/csrf-protection) token.
 
 When the page is opened without an ID, the record is new.
 
@@ -52,7 +52,7 @@ return match ($app->input('task')) {
 
 `$uri` is the redirect that `CrudController::saveWithNamespace()` returns. It points to the edit page of the saved record, with the new ID. Save & Close returns to the list page. Cancel is a link to the list page, and it does not save.
 
-If saving fails, `CrudController` keeps the submitted data in the state under `edit.data`. The edit view reads that data after the redirect, so the user does not lose the input.
+If saving fails, `CrudController` keeps the submitted data in the [state](/documentation/framework/core-concepts/state-control/shared-state) under `edit.data`. The edit view reads that data after the redirect, so the user does not lose the input.
 
 ## Saving as a Copy
 
@@ -83,7 +83,7 @@ which runs these steps through the repository's `SaveAction`:
 1. The form filters the input and keeps only the fields that the form defines.
 2. The form validates the filtered data.
 3. `PrepareSaveEvent` runs with the filtered and validated data.
-4. The ORM runs `BeforeSaveEvent`, saves the entity, and runs `AfterSaveEvent`.
+4. The [ORM](/documentation/components/orm/index) runs `BeforeSaveEvent`, saves the entity, and runs `AfterSaveEvent`.
 
 Register the hooks in the generated controller's `save()` method. Each hook takes a callable and returns the controller.
 
@@ -91,7 +91,7 @@ Set data changes in `prepareSave`, not in `beforeSave` or `afterSave`.
 `beforeSave` runs after the data is ready and already extracted to plain
 text, so values you add there are hard to handle. `prepareSave` runs before
 that extraction. In the controller, read the values from the input and assign
-them there. At this point you can assign arrays or objects, and the entity
+them there. At this point you can assign arrays or objects, and the [entity](/documentation/components/orm/entities)
 casts them to the required format.
 
 ::: warning
@@ -167,7 +167,7 @@ public function normalizeAlias(BeforeSaveEvent $event): void
 
 ## Validating Fields
 
-Set validation rules on the field in the form class. A failed rule stops the save before any data is written:
+Set [validation rules](/documentation/components/form/data#validating) on the field in the form class. A failed rule stops the save before any data is written:
 
 ```php
 // ProductEditForm.php
@@ -262,7 +262,7 @@ $form->add('title', TextField::class)
 
 ## Printing Fieldsets and Fields
 
-Print a fieldset or group with its `<x-fieldset>` component. The generated edit blade prints its two groups this way:
+Print a [fieldset](/documentation/components/form/rendering) or group with its `<x-fieldset>` component. The generated edit blade prints its two groups this way:
 
 ```blade
 <x-fieldset name="basic" :title="$lang('unicorn.fieldset.basic')"

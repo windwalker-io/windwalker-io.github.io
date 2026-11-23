@@ -274,4 +274,4 @@ Otherwise, the first option is selected. This refresh does not fire
 `change`. Dispatch `change` yourself if other code depends on it.
 
 The Unicorn `ListDependent` module dispatches the same event after it
-updates a select box.
+updates a [select box](/documentation/unicorn/javascript-frontend/ui/list-dependent).

@@ -55,7 +55,7 @@ The script in the template posts `[callback, payload]` to the parent. The
 payload always has `title`, `value`, and `image` keys.
 
 ::: info
-The modal view uses the same route and controller as the admin list. It
+The modal view uses the same route and controller as the [admin list](/documentation/unicorn/mvc-crud/mvc-admin/list-management). It
 has the same access rules and the same state and filters.
 :::
 

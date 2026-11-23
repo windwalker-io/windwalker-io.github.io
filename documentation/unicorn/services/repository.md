@@ -6,9 +6,9 @@ description: Organize data access for a subject with Unicorn's repository traits
 
 # Repository
 
-A repository is the data layer for one subject, such as `Product`. It owns the entity, the table, the database connection, and the rules for saving, deleting, reordering, and batch updates. The admin grid, the edit form, and a front-end list all need the same rules. Keeping them in one repository prevents each controller from building its own SQL. For example, a new product can always go to the end of its category, no matter which screen created it.
+A repository is the data layer for one subject, such as `Product`. It owns the [entity](/documentation/components/orm/entities), the table, the database connection, and the rules for saving, deleting, reordering, and batch updates. The [admin grid](/documentation/unicorn/mvc-crud/mvc-admin/list-management), the [edit form](/documentation/unicorn/mvc-crud/mvc-admin/edit-management), and a front-end list all need the same rules. Keeping them in one repository prevents each controller from building its own SQL. For example, a new product can always go to the end of its category, no matter which screen created it.
 
-A repository is optional. Windwalker's architecture is already well layered, and direct database access in a service is often enough. Unicorn repositories add the admin features: CRUD, batch, and reorder actions, plus list selectors. They can also serve as a switchable data source.
+A repository is optional. Windwalker's architecture is already well layered, and direct database access in a service is often enough. Unicorn repositories add the admin features: CRUD, batch, and reorder actions, plus [list selectors](/documentation/unicorn/services/list-selector). They can also serve as a switchable data source.
 
 A Unicorn repository can define its own methods, such as `findEnabledById()`. It can also use the built-in `save()`, `delete()`, and `createSelector()` methods, or combine traits for the features it needs.
 
@@ -168,7 +168,7 @@ $action->beforeSave(function (BeforeSaveEvent $event): void {
 $action->save($product);
 ```
 
-Nested sets use `NestedSaveAction` and `NestedReorderAction` in place of the default actions.
+[Nested sets](/documentation/components/orm/nested-set) use `NestedSaveAction` and `NestedReorderAction` in place of the default actions.
 
 ## List Selector
 
@@ -211,7 +211,7 @@ $product = $repository->save(['title' => 'Green tea']);
 
 ::: warning
 `save()` does not check the input. Do not pass request data to it directly.
-Use `processDataAndSave()` with a form, so that filters and validation
+Use `processDataAndSave()` with a form, so that [filters and validation](/documentation/framework/core-concepts/http-routing/validation-and-filter)
 run first:
 
 ```php
@@ -224,7 +224,7 @@ $product = $repository->processDataAndSave($data, $form);
 
 ### Save Events
 
-Add listeners to a repository method with an event attribute. The method runs for every save of this repository:
+Add listeners to a repository method with an [event attribute](/documentation/components/orm/events). The method runs for every save of this repository:
 
 ```php
 use Windwalker\ORM\Event\AfterSaveEvent;

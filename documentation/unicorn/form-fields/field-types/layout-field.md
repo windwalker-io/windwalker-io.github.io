@@ -14,7 +14,7 @@ keeps the label and the wrapper that the other fields use.
 ## Enabling the Field
 
 Add `LayoutField`, and name the template with `layout()`. The name is a
-renderer template, written with dots. See
+[renderer](/documentation/components/renderer/index) template, written with dots. See
 [Form Fields Layout](/documentation/unicorn/form-fields/form-utilities#form-fields-layout)
 for how template names are resolved.
 
@@ -141,7 +141,7 @@ The table lists the methods specific to the layout field.
 | `layout()` | Set the layout path for this field. | `null` |
 | `getLayout()` | Return the layout path in use. | Throws if not set |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

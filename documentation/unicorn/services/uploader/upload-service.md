@@ -7,7 +7,7 @@ description: Upload files with Unicorn profiles, validate them, and store them t
 # Upload Service
 
 The Upload Service receives files from forms, AJAX requests, and base64
-strings. It checks the file, chooses the destination, optionally processes
+strings. It checks the file, chooses the destination, optionally [processes](/documentation/unicorn/services/uploader/image-processing)
 images, and writes the result to a storage. Without it, each controller
 repeats the same error checks, extension checks, path building, and storage
 calls.
@@ -294,9 +294,9 @@ The service throws these errors:
 
 ## Uploads from the Browser
 
-The `file_upload` route accepts uploads from AJAX and Unicorn fields, such as
+The `file_upload` [route](/documentation/framework/core-concepts/http-routing/routing) accepts uploads from AJAX and Unicorn fields, such as
 `SingleDragImageField` and `MultiUploaderField`. It is a `POST` route named
-`file_upload`, and it requires a logged-in user. It reads these inputs:
+`file_upload`, and it requires a [logged-in](/documentation/framework/core-concepts/security/authentication) user. It reads these inputs:
 
 | Input | Description |
 | --- | --- |

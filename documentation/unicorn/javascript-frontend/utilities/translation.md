@@ -8,7 +8,7 @@ description: Translate strings in Unicorn JS with the server's language data.
 
 Messages that a script shows to the user, such as confirmations and
 validation errors, must follow the page's language. Unicorn JS keeps a
-dictionary of translated strings and looks them up by key. The server
+dictionary of [translated strings](/documentation/components/language/translation) and looks them up by key. The server
 copies only the keys a page needs, so scripts never load the whole
 language file.
 

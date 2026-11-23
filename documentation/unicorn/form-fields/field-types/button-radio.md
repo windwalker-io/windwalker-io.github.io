@@ -6,7 +6,7 @@ description: ButtonRadio field page for Windwalker Unicorn.
 
 # ButtonRadio
 
-A radio group works well for a short list of choices, but it takes space and
+A [radio group](/documentation/components/form/choices) works well for a short list of choices, but it takes space and
 the choices look alike. `ButtonRadioField` shows the same choices as a row of
 buttons. The active button is colored, so users see the current value at a
 glance. Use it for two to four options, such as a report period (Day, Week,
@@ -77,7 +77,7 @@ class ReportEditForm
 ## Adding Options
 
 `option()` takes the text, the value, optional attributes, and an optional
-group name. Use `registerFromEnums()` when the choices come from an enum.
+group name. Use `registerFromEnums()` when the choices come from an [enum](/documentation/framework/core-concepts/enum).
 Each option text is the case title, or the case name when it has no title.
 Hidden cases are skipped:
 
@@ -153,7 +153,7 @@ field.
 | `layout()` | Sets a custom layout template for the field. | — |
 | `getLayout()` | Returns the layout template in use. | `@theme::field.button-radio` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

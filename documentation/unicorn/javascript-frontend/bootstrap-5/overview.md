@@ -9,7 +9,7 @@ description: Use Bootstrap 5 with Unicorn JS for messages, tooltips, and compone
 Admin pages built on Bootstrap 5 need the same few things: a way to show
 messages, tooltips on controls, and components such as tabs and modals.
 Unicorn JS provides these through one Bootstrap 5 integration. It installs
-a message theme for the UI helpers, and it exposes helpers for Bootstrap
+a message theme for the [UI helpers](/documentation/unicorn/javascript-frontend/ui/ui-helpers), and it exposes helpers for Bootstrap
 components.
 
 ## Enabling Bootstrap 5

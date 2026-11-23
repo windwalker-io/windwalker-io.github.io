@@ -17,7 +17,7 @@ presigned URL, a listing, or a raw AWS command.
 
 ## Getting the Service
 
-The container binds `S3Service` to the `s3` storage instance, so a lookup
+The [container](/documentation/framework/core-concepts/dependency-injection/dependency-injection) binds `S3Service` to the `s3` storage instance, so a lookup
 without a tag returns the service for that bucket:
 
 ```php

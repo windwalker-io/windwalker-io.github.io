@@ -7,8 +7,8 @@ description: Overview of Unicorn JS, the browser-side library for Unicorn RAD.
 # Unicorn JS
 
 Unicorn JS is the browser-side library of Unicorn RAD. Admin and frontend
-pages often need the same wiring: events between components, DOM lookups,
-bootstrap-based UI, forms, grids, and HTTP calls. Unicorn JS provides this
+pages often need the same wiring: [events](/documentation/unicorn/javascript-frontend/basics/event-bus) between components, [DOM lookups](/documentation/unicorn/javascript-frontend/utilities/dom-utilities),
+[bootstrap-based UI](/documentation/unicorn/javascript-frontend/bootstrap-5/overview), [forms](/documentation/unicorn/javascript-frontend/ui/form), [grids](/documentation/unicorn/javascript-frontend/ui/grid), and [HTTP calls](/documentation/unicorn/javascript-frontend/ui/http-client). Unicorn JS provides this
 wiring in one shared application object, so each page only adds the
 behavior it needs.
 
@@ -37,7 +37,7 @@ the instance around.
 ## Complete Example
 
 The following entry file sets up the app for a typical admin page. It
-installs the Bootstrap 5 theme, enables the PHP adapter, exposes `u` to
+installs the [Bootstrap 5 theme](/documentation/unicorn/javascript-frontend/bootstrap-5/overview), enables the PHP adapter, exposes `u` to
 inline HTML, and reacts to an event once the page is ready.
 
 ```ts
@@ -203,7 +203,7 @@ await fadeIn(selectOne('#notice'));
 await useTomSelect('.js-tom-select');
 ```
 
-Use `useImport()` to load a module at runtime, when the bundler should not
+Use `useImport()` to [load a module at runtime](/documentation/unicorn/javascript-frontend/utilities/loader), when the bundler should not
 include it. The module must be available through the page's import map:
 
 ```ts

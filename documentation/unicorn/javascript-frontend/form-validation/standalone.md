@@ -6,8 +6,8 @@ description: Use form validation in plain HTML pages, without Windwalker or Unic
 
 # Standalone Usage
 
-The validation module works on any HTML page. It needs no PHP, no route
-table, and no Unicorn data. Use it for forms that the server renders without
+The validation module works on any HTML page. It needs no PHP, no [route
+table](/documentation/unicorn/javascript-frontend/utilities/router), and no [Unicorn data](/documentation/unicorn/javascript-frontend/basics/data-transfer). Use it for forms that the server renders without
 Unicorn fields, or for pages outside a Unicorn application. For PHP fields,
 see [Basic Features](./basic-features).
 
@@ -264,7 +264,7 @@ validation?.addValidator('account_free', async (value: string) => {
 The browser's submit check cannot wait for a promise. An async result appears
 after the request finishes, so a fast submit can pass before the check ends.
 Use `validateAllAsync()` before you submit, or disable the submit button until
-the check finishes. See Checking Asynchronously below.
+the check finishes. See [Checking Asynchronously](#checking-asynchronously) below.
 :::
 
 ## Checking
@@ -343,7 +343,7 @@ server already validates the data.
 
 ### Attributes
 
-The attributes are grouped by the directive they belong to.
+The attributes are grouped by the [directive](/documentation/unicorn/javascript-frontend/ui/web-directive) they belong to.
 
 #### Global Attributes
 

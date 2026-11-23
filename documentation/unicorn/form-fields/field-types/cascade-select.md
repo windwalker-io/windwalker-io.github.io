@@ -11,7 +11,7 @@ single list. CascadeSelect renders one select per level. Choosing an item
 in one level loads the options of the next level. The field submits the
 id of the last selected item.
 
-Use it in place of a modal field when users move down a hierarchy.
+Use it in place of a [modal field](/documentation/unicorn/form-fields/field-types/modal-field) when users move down a hierarchy.
 
 ## Enabling the Field
 
@@ -202,7 +202,7 @@ endpoint change is not needed.
 ```
 
 `placeholder()` sets the text of the empty first option in every level. The
-default comes from the `unicorn.select.placeholder` translation key.
+default comes from the `unicorn.select.placeholder` [translation key](/documentation/components/language/translation).
 `placeholders()` sets a different text for each level, by index:
 
 ```php
@@ -373,7 +373,7 @@ chaining.
 | `layout()` | Sets the layout that renders the field. | `null` |
 | `getLayout()` | Returns the layout that renders the field. | `@theme::field.cascade-select` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

@@ -287,7 +287,7 @@ except the last must be at least 5 MiB, so the default chunk size is 5 MiB.
 ### Routes
 
 Register a route for the controller. The four actions are the `{task}`
-values, and the route needs a login middleware in front of it:
+values, and the route needs a login [middleware](/documentation/framework/core-concepts/http-routing/middleware) in front of it:
 
 ```php
 use Lyrasoft\Luna\Middleware\LoginRequireMiddleware;
@@ -504,7 +504,7 @@ s3.on('failure', ({ error, id, path }) => {
 
 ### Custom Requests
 
-By default, the uploader calls the routes with the Unicorn HTTP client. To
+By default, the uploader calls the routes with the [Unicorn HTTP client](/documentation/unicorn/javascript-frontend/ui/http-client). To
 send the requests yourself, set `requestHandler`. It receives the action and
 the data, and it must return the data part of the JSON response:
 

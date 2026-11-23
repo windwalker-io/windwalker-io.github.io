@@ -16,7 +16,7 @@ added with the same arguments.
 ## Script Classes
 
 All script classes live in `Unicorn\Script`. Each one is a shared object in
-the container, so you can inject it or retrieve it with `$app->retrieve()`.
+the [container](/documentation/framework/core-concepts/dependency-injection/dependency-injection), so you can inject it or retrieve it with `$app->retrieve()`.
 
 - `UnicornScript`: the runtime entry, page data, translations, and routes.
 - `BootstrapScript`: tooltips, popovers, tabs, and iframe modals.
@@ -86,7 +86,7 @@ work in both modes, so your PHP code stays the same.
 :::
 
 `main()` runs inside `init()`. It adds the system URI data, the Unicorn
-translation keys, and the CSRF token to the page. You can call `main()`
+translation keys, and the [CSRF](/documentation/framework/core-concepts/security/csrf-protection) token to the page. You can call `main()`
 alone when a page has no entry file:
 
 ```php
@@ -216,7 +216,7 @@ $this->formScript->repeatable();
 
 ## Editor, Vue, and Other Helpers
 
-`EditorScript` starts a rich-text editor on a selector:
+`EditorScript` starts a [rich-text editor](/documentation/unicorn/javascript-frontend/ui/editors) on a selector:
 
 ```php
 $this->editorScript->tinymce('#content', [

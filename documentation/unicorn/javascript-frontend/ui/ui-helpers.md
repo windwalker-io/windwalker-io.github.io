@@ -7,7 +7,7 @@ description: Show messages, confirm actions, animate elements, and guard forms.
 # UI Helpers
 
 Admin and form pages repeat the same UI tasks. They show messages, ask for
-confirmation, animate panels, stop double submits, and keep a session alive.
+confirmation, animate panels, stop double submits, and keep a [session](/documentation/framework/core-concepts/state-control/session-and-cookies) alive.
 The UI helpers provide these tasks as plain functions. They are exported
 from `@windwalker-io/unicorn-next` and need no other framework.
 
@@ -315,7 +315,7 @@ sizes.
 
 ## Color Picker
 
-`useColorPicker()` loads Spectrum, the color picker library, and applies
+`useColorPicker()` loads Spectrum, the [color picker](/documentation/unicorn/form-fields/field-types/color-picker) library, and applies
 it to a selector. The `theme` option chooses the light or dark stylesheet:
 
 ```ts
@@ -363,7 +363,7 @@ uploads.pop(); // The stack is empty, so the buttons are back on.
 ```
 
 `useDisableOnSubmit()` disables the matching buttons only when the form
-passes its validity check. Buttons clicked within 1.5 seconds of the submit
+passes its [validity check](/documentation/unicorn/javascript-frontend/form-validation/basic-features). Buttons clicked within 1.5 seconds of the submit
 count as the source of the submit, and they show the spinner.
 
 `useDisableIfStackNotEmpty()` watches a named stack. It disables the

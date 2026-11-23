@@ -6,8 +6,8 @@ description: Pass values from PHP to Unicorn JS, and read them in the browser.
 
 # Data Transfer
 
-Server-rendered pages often need values in JavaScript, such as a CSRF token,
-translated strings, route URLs, or the selected items of a field. Unicorn
+Server-rendered pages often need values in JavaScript, such as a [CSRF token](/documentation/framework/core-concepts/security/csrf-protection),
+[translated strings](/documentation/unicorn/javascript-frontend/utilities/translation), [route URLs](/documentation/unicorn/javascript-frontend/utilities/router), or the selected items of a field. Unicorn
 PHP collects these values and writes them to the page once. Unicorn JS then
 reads them with `data()`, `trans()`, `route()`, and `useSystemUri()`.
 
@@ -29,7 +29,7 @@ class UserEditView
 ```
 
 `UnicornScript` writes the collected values into `document.__unicorn`
-before the page scripts run. `main()` already exposes the URI data and the
+before the page scripts run. `main()` already exposes the [URI data](/documentation/unicorn/javascript-frontend/utilities/system-uri) and the
 CSRF token, so you only add what the page needs.
 
 ## Complete Example
@@ -148,7 +148,7 @@ const path = useSystemUri('path');
 const token = data('csrf-token');
 ```
 
-Call `exposeCspNonce()` when your page uses a Content Security Policy with
+Call `exposeCspNonce()` when your page uses a [Content Security Policy](/documentation/framework/core-concepts/security/content-security-policy) with
 nonces. The nonce is then available as `data('csp-nonce')`:
 
 ```php

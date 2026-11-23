@@ -355,7 +355,7 @@ $sakura = $orm->mustFindOne(
 
 Pass `ORMOptions::NOWAIT` or `ORMOptions::SKIP_LOCKED` as the value of
 `forUpdate` or `forShare` to change how the lock waits. Locks are useful
-only inside a transaction. See [Persisting Data](./persisting#transactions).
+only inside a transaction. See [Persisting Data](./persisting#ormoptions).
 
 ## Query Builder Through the ORM
 

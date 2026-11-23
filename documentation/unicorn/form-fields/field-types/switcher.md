@@ -150,7 +150,7 @@ field.
 | `description()` | Sets the description of the field. | — |
 | `getDescription()` | Returns the description of the field. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

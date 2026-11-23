@@ -14,7 +14,7 @@ selected key, or a list of keys, and shows the chosen titles beside the
 button.
 
 The picker reuses the list route with the `modal` layout. The search,
-filters, and pagination of the admin list therefore work inside the dialog.
+[filters](/documentation/unicorn/mvc-crud/mvc-admin/filter-bar), and pagination of the admin list therefore work inside the dialog.
 See [Modal List View](/documentation/unicorn/mvc-crud/mvc-admin/modal-list-view)
 for how the list renders that layout.
 
@@ -373,7 +373,7 @@ and the stored records. Each setter returns the field for chaining.
 | `getImageField()` | Returns the column used as the record image. | `image` |
 | `getItems()` | Returns the selected records with title, value, and image. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

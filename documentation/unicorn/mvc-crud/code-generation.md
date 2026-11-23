@@ -6,7 +6,7 @@ description: Generate Unicorn admin and front-end MVC modules, forms, and routes
 
 # Code Generation
 
-Unicorn's generator writes the parts of a CRUD module for you: the entity and repository, the controller, the grid and edit views, the forms, the routes, the migration, and the seeder. A module spans many files that must agree on class names, namespaces, and route names. The generator writes them from templates, so every module follows the same layout, and you can spend your time on fields and business rules.
+Unicorn's generator writes the parts of a CRUD module for you: the entity and repository, the controller, the grid and edit views, the forms, the routes, the [migration](/documentation/framework/services/database/migrations), and the [seeder](/documentation/framework/services/database/seeders). A module spans many files that must agree on class names, namespaces, and route names. The generator writes them from templates, so every module follows the same layout, and you can spend your time on fields and business rules.
 
 ## Recommended Workflow
 
@@ -225,7 +225,7 @@ Define the table columns in the migration, run the migration, and then sync the 
 php windwalker build:entity Product
 ```
 
-The generated grid searches `product.id`, `product.title`, and `product.alias`, and it sorts by `product.id DESC`. Change `getSearchFields()` and `getDefaultOrdering()` in the list view to match your columns, or the search fails.
+The generated [grid](/documentation/unicorn/mvc-crud/mvc-admin/list-management) searches `product.id`, `product.title`, and `product.alias`, and it sorts by `product.id DESC`. Change `getSearchFields()` and `getDefaultOrdering()` in the list view to match your columns, or the search fails.
 
 The generated `.ts` and `.scss` files under `assets/` are compiled by the host app's Yarn build. The list and edit pages need the compiled scripts to work. Run one of these commands in the host app after you generate a module:
 

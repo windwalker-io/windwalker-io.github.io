@@ -23,7 +23,7 @@ $form->add('brand_color', ColorPickerField::class)
 ```
 
 The input is a text input (`type="text"`). Use Windwalker's `ColorField` when
-you want the browser's native color input instead.
+you want the browser's [native color input](/documentation/components/form/fields#colorfield) instead.
 
 ## Complete Example
 
@@ -93,7 +93,7 @@ form validator when the value must be a color.
 | `pickerOptions()` | Sets the options passed to the color picker. | `[]` |
 | `getPickerOptions()` | Returns the picker options. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

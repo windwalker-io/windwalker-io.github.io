@@ -222,7 +222,7 @@ $form->add('size', InlineField::class)
 | `getShowLabel()` | Returns whether sub-field labels are shown. | — |
 | `rwdBreakpoint()` | Sets the breakpoint where sub-fields wrap to new lines. | `'lg'` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

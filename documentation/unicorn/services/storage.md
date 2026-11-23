@@ -32,7 +32,7 @@ that apply to all of them come first.
 
 ## Defining Storage Instances
 
-The host app keeps the storage configuration in
+The host app keeps the storage [configuration](/documentation/framework/getting-started/configuration) in
 `etc/packages/storage.config.php`. Its `factories.instances` section defines
 named storages. Each entry is a closure that returns a storage object created
 by `StorageFactory`:
@@ -84,7 +84,7 @@ section.
 
 ## Getting a Storage
 
-Look up `StorageInterface` from the container. Without a tag you get the
+Look up `StorageInterface` from the [container](/documentation/framework/core-concepts/dependency-injection/dependency-injection). Without a tag you get the
 `default` instance. A tag selects a named instance:
 
 ```php

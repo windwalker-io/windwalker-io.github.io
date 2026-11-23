@@ -10,7 +10,7 @@ these fields by hand is repetitive, because each one needs a type, a label,
 and a translation key. The `build:form` command reads the columns of a
 database table and writes the matching fields into an existing form class.
 It chooses each field type from the column type, and it builds the labels
-from a translation key prefix that you pass in.
+from a [translation key](/documentation/components/language/translation) prefix that you pass in.
 
 The command works on the form class, not on the view. Generate the edit view
 first, so the form class exists, and then run the command once to fill the
@@ -20,7 +20,7 @@ form. You can edit the generated fields like any hand-written field.
 
 The command needs two things: a form class and a table. The form class is
 created by `unicorn:view-edit` or `unicorn:mvc-admin`, such as
-`ProductEditForm`. The table is created by a migration. For the migration
+`ProductEditForm`. The table is created by a [migration](/documentation/framework/services/database/migrations). For the migration
 and the module steps, see [Code Generation](/documentation/unicorn/mvc-crud/code-generation).
 
 Pass the class name relative to the module namespace, and the table name as
@@ -207,7 +207,7 @@ class first, and review the diff after you run the command.
 ## Customizing a Field with an Event
 
 The command emits a `BuildFormFieldEvent` for each column before it writes
-the code. A subscriber can change the label, or replace the generated code
+the code. A [subscriber](/documentation/components/event/listeners) can change the label, or replace the generated code
 for one column by setting `$event->code`. The replacement must be one
 complete statement, with the indentation of the generated code:
 

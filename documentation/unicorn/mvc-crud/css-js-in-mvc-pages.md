@@ -6,7 +6,7 @@ description: How module assets, TypeScript entries, and SCSS partials reach Unic
 
 # CSS & JS in MVC Pages
 
-Each MVC module keeps its own TypeScript and SCSS in an `assets` folder, next to its controllers and views. A page-specific script or style stays with the page it belongs to, so you can change one page without touching a shared bundle. Unicorn's hooks handle the common admin behavior, such as grids, forms, and tooltips, so a generated page works before you write any script.
+Each MVC module keeps its own TypeScript and SCSS in an `assets` folder, next to its controllers and views. A page-specific script or style stays with the page it belongs to, so you can change one page without touching a shared bundle. Unicorn's hooks handle the common admin behavior, such as grids, forms, and [tooltips](/documentation/unicorn/javascript-frontend/bootstrap-5/overview#tooltips), so a generated page works before you write any script.
 
 ## How Assets Reach the Page
 
@@ -153,9 +153,9 @@ useCheckboxesMultiSelect(formSelector);
 ```
 
 - `useBs5Tooltip()`: starts Bootstrap 5 tooltips on elements with `data-bs-toggle="tooltip"`.
-- `useGridComponent()`: starts the grid on the form. The grid handles sorting, batch actions, and the filter panel.
+- `useGridComponent()`: starts the [grid](/documentation/unicorn/javascript-frontend/ui/grid) on the form. The grid handles sorting, batch actions, and the filter panel.
 - `useDisableOnSubmit()`: disables the buttons and shows a spinner while the form submits. The grid's `data-dos` button is one of the targets.
-- `useCheckboxesMultiSelect()`: handles row selection for the `input[data-role=grid-checkbox]` checkboxes inside the form.
+- `useCheckboxesMultiSelect()`: handles [row selection](/documentation/unicorn/javascript-frontend/ui/checkbox-multiselect) for the `input[data-role=grid-checkbox]` checkboxes inside the form.
 
 ### Edit Page
 
@@ -185,7 +185,7 @@ useKeepAlive(location.href);
 ```
 
 - `useFormComponent()`: starts the form component on `#admin-form`.
-- `useFormValidation()`: loads the validation module. The generated code calls `useDisableOnSubmit()` only after it loads.
+- `useFormValidation()`: loads the [validation](/documentation/unicorn/javascript-frontend/form-validation/basic-features) module. The generated code calls `useDisableOnSubmit()` only after it loads.
 - `useDisableIfStackNotEmpty()`: disables the `[data-task=save]` buttons while an upload is running. TinyMCE uses the same `uploading` stack.
 - `useKeepAlive()`: requests the current URL every 60 seconds, which keeps the session alive while the user edits. It returns a function that stops the timer.
 
@@ -213,7 +213,7 @@ Windwalker adds the `view-*` class to the body, using the view name without the 
 ## Blocking Save During Uploads
 
 Saving while a file is still uploading can store a record that points to a
-missing file. Unicorn prevents this with a named stack. Each upload pushes an
+missing file. Unicorn prevents this with a [named stack](/documentation/unicorn/javascript-frontend/ui/simple-stack). Each upload pushes an
 item onto the stack when it starts and pops it when it finishes. The generated
 edit script calls `useDisableIfStackNotEmpty()`, which disables every
 `[data-task=save]` button while the `uploading` stack holds an item.

@@ -6,7 +6,7 @@ description: Manage hierarchical records such as categories and departments with
 
 # Nested Set MVC
 
-Some data forms a tree, such as categories, departments, or menu items. A nested set stores the tree in a single table, so Unicorn can read a whole branch with one query and keep the siblings in a fixed order. This page shows how to turn a table into a nested set and how the admin pages handle it. The concept is described in [Nested set model](https://en.wikipedia.org/wiki/Nested_set_model).
+Some data forms a tree, such as categories, departments, or menu items. A [nested set](/documentation/components/orm/nested-set) stores the tree in a single table, so Unicorn can read a whole branch with one query and keep the siblings in a fixed order. This page shows how to turn a table into a nested set and how the admin pages handle it. The concept is described in [Nested set model](https://en.wikipedia.org/wiki/Nested_set_model).
 
 ## Table Columns
 
@@ -54,7 +54,7 @@ $mapper = $orm->mapper(Category::class);
 
 ## Migration
 
-The migration must create the root record, because the tree needs one:
+The [migration](/documentation/framework/services/database/migrations) must create the root record, because the tree needs one:
 
 ```php
 $mig->up(
@@ -192,11 +192,11 @@ class CategoryListField extends SqlListField
 }
 ```
 
-For a large tree, a `ModalField` is easier to use than a long list. For a tree of several levels, a cascade select lets the user choose one level at a time.
+For a large tree, a `ModalField` is easier to use than a long list. For a tree of several levels, a [cascade select](/documentation/unicorn/form-fields/field-types/cascade-select) lets the user choose one level at a time.
 
 ## Saving Nodes
 
-The admin form saves through the repository, and the repository uses `NestedSaveAction`. The action places the record by its `parent_id`:
+The admin form saves through the [repository](/documentation/unicorn/services/repository), and the repository uses `NestedSaveAction`. The action places the record by its `parent_id`:
 
 - A new record becomes the last child of its parent.
 - A saved record whose `parent_id` changes moves to the last child of the new parent.

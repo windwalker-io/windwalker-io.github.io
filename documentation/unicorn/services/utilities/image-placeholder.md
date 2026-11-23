@@ -76,7 +76,7 @@ $placeholder->placeholder99x99();
 ## Overriding a Ratio
 
 Use `setImage()` to replace the image for one ratio. The URI goes through
-`AssetService::handleUri()`, so `@` aliases work. Passing `null` removes
+`AssetService::handleUri()`, so `@` [aliases](/documentation/framework/core-concepts/views/asset-management) work. Passing `null` removes
 the override.
 
 ```php

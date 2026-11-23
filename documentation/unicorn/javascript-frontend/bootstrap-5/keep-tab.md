@@ -101,7 +101,7 @@ markup stays the same. KeepTab only adds the saving and restoring.
 
 ## Using the Attribute
 
-Unicorn registers a `uni-keeptab` directive. Put the attribute on the
+Unicorn registers a `uni-keeptab` [directive](/documentation/unicorn/javascript-frontend/ui/web-directive). Put the attribute on the
 element that contains the tabs. The element's `id` is used as the uid.
 
 ```html

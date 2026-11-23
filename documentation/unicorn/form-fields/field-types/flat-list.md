@@ -60,7 +60,7 @@ Each parent category appears above its children.
 
 ## Selection Mode
 
-The default is radio buttons, which select one item. Call `multiple(true)` to
+The default is [radio buttons](/documentation/components/form/choices), which select one item. Call `multiple(true)` to
 use checkboxes. `inputType()` changes the input type without changing the
 mode.
 
@@ -186,7 +186,7 @@ The links above the list apply to every item.
 If `inputType()` is not set, items use `checkbox` when the field is
 multiple and `radio` when it is not.
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

@@ -18,11 +18,11 @@ Route -> Controller -> Repository -> Entity -> Database
             +-> View (list grid, edit form)
 ```
 
-- Route: maps a URL to a controller action and a view.
-- Controller: runs the action, such as save, delete, filter, or batch.
-- Repository: loads and stores entities, and owns the actions that change them.
-- Entity: maps a PHP object to a database table with ORM attributes.
-- View: renders a list grid or an edit form.
+- [Route](/documentation/framework/core-concepts/http-routing/routing): maps a URL to a controller action and a view.
+- [Controller](/documentation/framework/core-concepts/http-routing/controllers): runs the action, such as save, delete, filter, or batch.
+- [Repository](/documentation/unicorn/services/repository): loads and stores entities, and owns the actions that change them.
+- [Entity](/documentation/components/orm/entities): maps a PHP object to a database table with [ORM attributes](/documentation/components/orm/attributes).
+- [View](/documentation/framework/core-concepts/views/views): renders a list grid or an edit form.
 
 ## Enabling the Layers
 
@@ -156,7 +156,7 @@ message after a save.
 
 ## Forms and Views
 
-The edit view renders a form built from a form class, such as
+The edit view renders a [form](/documentation/components/form/index) built from a form class, such as
 `ProductEditForm`. Unicorn registers two macros on every form field: `showon()`
 for conditional display and `tooltip()` for hover help. For example:
 
@@ -184,7 +184,7 @@ for `showon()` usage.
 
 ## Generator
 
-Each layer has a generator command. Run `php windwalker g` to list them:
+Each layer has a [generator](/documentation/framework/console/commands/code-generator) command. Run `php windwalker g` to list them:
 
 - `unicorn:mvc-admin`: all layers for an admin CRUD.
 - `unicorn:mvc-simple`: list and item views with a simple route.

@@ -239,7 +239,7 @@ both levels and shows when to use each.
 ### Overriding One Field's Layout
 
 Fields that use `LayoutFieldTrait` have a `layout()` method. It replaces the
-template that renders the field's input. Use a template name that the renderer
+template that renders the field's input. Use a template name that the [renderer](/documentation/components/renderer/index)
 can find, such as `fields.switcher-compact`:
 
 ```php
@@ -293,7 +293,7 @@ To create a new field type with its own template, extend `LayoutField`. See
 
 ### Overriding the Layouts of All Fields
 
-Every field goes through three theme layouts, and the form renderer calls each
+Every field goes through three theme layouts, and the [form renderer](/documentation/components/form/rendering) calls each
 one with the field in scope:
 
 - `@theme::form.field-wrapper`: the outer element, with the label and the

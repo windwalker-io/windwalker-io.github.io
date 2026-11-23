@@ -6,7 +6,7 @@ description: Generate a complete admin CRUD for an entity with Unicorn's code ge
 
 # Getting Started
 
-A typical admin feature repeats the same structure for every entity: an ORM entity, a migration, a repository, a controller, a list view, an edit form, and routes. Writing these by hand takes time and invites small inconsistencies. Unicorn's generator creates all of them in a few commands, so you can start from a working list and editor and focus on the business rules.
+A typical admin feature repeats the same structure for every entity: an [ORM entity](/documentation/components/orm/entities), a [migration](/documentation/framework/services/database/migrations), a repository, a controller, a list view, an edit form, and routes. Writing these by hand takes time and invites small inconsistencies. Unicorn's generator creates all of them in a few commands, so you can start from a working list and editor and focus on the business rules.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ Open the list page in your browser:
 http://localhost:8080/admin/product/list
 ```
 
-The list page URL depends on the admin route prefix of your application. The Starter uses `/admin`.
+The list page URL depends on the admin route prefix of your application. The [Starter](/documentation/guides/start/) uses `/admin`.
 
 ::: tip
 The full walkthrough, including the product table, seeders, and grid features, is in the [Rapid Application Development guide](../../guides/rad/).

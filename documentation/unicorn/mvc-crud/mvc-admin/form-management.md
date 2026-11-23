@@ -6,7 +6,7 @@ description: Define, group, validate, and render Unicorn form fields for the edi
 
 # Form Management
 
-Forms describe the fields that a page shows and the values that it accepts. Unicorn builds each form from a form class, where each method adds fields to the form. The same form class supplies the fields for the page, filters the submitted data, and validates it before it is saved. This page covers how to add fields, group them, and render them in the layouts.
+Forms describe the fields that a page shows and the values that it accepts. Unicorn builds each form from a [form class](/documentation/components/form/defining), where each method adds fields to the form. The same form class supplies the fields for the page, filters the submitted data, and validates it before it is saved. This page covers how to add fields, group them, and render them in the layouts.
 
 ## Adding Fields and Filling Values
 
@@ -31,7 +31,7 @@ class ProductEditForm
 }
 ```
 
-Fill the form with data before you render it. The generated edit view fills the `item` namespace from the record, then from the state that holds the last failed input:
+[Fill](/documentation/components/form/data#filling-the-form) the form with data before you render it. The generated edit view fills the `item` namespace from the record, then from the state that holds the last failed input:
 
 ```php
 $form = $this->createForm(ProductEditForm::class)
@@ -46,7 +46,7 @@ $form = $this->createForm(ProductEditForm::class)
 
 ## Fieldsets and Layouts
 
-A fieldset groups fields for the layout. Add `#[Fieldset]` to the method to place its fields in a named group:
+A [fieldset](/documentation/components/form/defining#fieldsets) groups fields for the layout. Add `#[Fieldset]` to the method to place its fields in a named group:
 
 ```php
 use Windwalker\Form\Attributes\Fieldset;
@@ -106,7 +106,7 @@ The command adds one field for each column that the form does not define yet. Se
 
 ## Filters and Validation
 
-Filters change a value before it is validated and saved. Validators check the value and fail the save when a rule is broken. Add both to the field:
+[Filters](/documentation/components/form/data#filtering) change a value before it is validated and saved. Validators check the value and fail the save when a rule is broken. Add both to the field:
 
 ```php
 $form->add('title', TextField::class)
@@ -138,7 +138,7 @@ Without `FILTER_USE_DEFAULT_VALUE`, a missing key is skipped and an empty value 
 
 ## Options from Enums
 
-Fill a list field from an enum with `registerFromEnums()`. The labels go through the language service. The generated grid filter uses this method for the state field:
+Fill a list field from an enum with `registerFromEnums()`. The labels go through the [language service](/documentation/components/language/index). The generated grid filter uses this method for the state field:
 
 ```php
 use Unicorn\Enum\BasicState;
@@ -168,7 +168,7 @@ class ColorSwatchField extends LayoutField
 }
 ```
 
-The template name is a renderer template that your project provides. The template receives `$input`, `$field`, and `$options`:
+The template name is a [renderer](/documentation/components/renderer/index) template that your project provides. The template receives `$input`, `$field`, and `$options`:
 
 ```blade
 {{-- fields/color-swatch.blade.php --}}
@@ -202,7 +202,7 @@ public function category(Form $form): void
 }
 ```
 
-The filter name uses the table column, `product.category_id`. The list selector allows it because it is a column of the query. See [List Management](./list-management) for how filter values reach the query.
+The filter name uses the table column, `product.category_id`. The [list selector](/documentation/unicorn/services/list-selector) allows it because it is a column of the query. See [List Management](./list-management) for how filter values reach the query.
 
 Fields in the `batch` namespace use entity property names, not table aliases. The batch modal shows when the form has batch fields. See [Advanced Grid Features](/documentation/guides/rad/advanced-grid) for batch examples.
 

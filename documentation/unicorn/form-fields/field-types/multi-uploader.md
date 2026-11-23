@@ -105,7 +105,7 @@ $form->add('gallery', MultiUploaderField::class)
     ->maxConcurrent(3);
 ```
 
-Unlike SingleImageDrag, the crop runs on the server. The browser does not
+Unlike SingleImageDrag, the [crop](/documentation/unicorn/services/uploader/image-processing) runs on the server. The browser does not
 crop the images.
 
 ::: info
@@ -181,7 +181,7 @@ handler, not at the start of the script.
 
 ## Blocking Save During Uploads
 
-Each running upload pushes an item onto a stack, and it pops the item when
+Each running upload pushes an item onto a [stack](/documentation/unicorn/javascript-frontend/ui/simple-stack), and it pops the item when
 the upload ends. `stackName()` names the stack, which defaults to
 `uploading`. If a user clicks save during an upload, the form can submit
 before the upload finishes, so the saved list may miss the new file.
@@ -228,7 +228,7 @@ change it.
 | `configureForm()` / `getSubForm()` | Configures the sub-form of each item. | Empty form |
 | `layout()` / `getLayout()` | Replaces the default template. | `@theme::field.multi-uploader` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)

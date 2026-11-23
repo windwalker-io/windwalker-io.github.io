@@ -6,11 +6,11 @@ description: How Unicorn separates its layouts from the CSS framework, and how t
 
 # Theming
 
-Unicorn renders its admin screens, grids, and form fields through Blade layouts, not hard-coded HTML. Those layouts depend on a CSS framework, so Unicorn keeps them in a theme folder and refers to them by logical name. You can restyle one layout or replace the whole CSS framework without changing PHP code.
+Unicorn renders its admin screens, grids, and form fields through [Blade](/documentation/components/renderer/index) layouts, not hard-coded HTML. Those layouts depend on a CSS framework, so Unicorn keeps them in a theme folder and refers to them by logical name. You can restyle one layout or replace the whole CSS framework without changing PHP code.
 
 ## How Unicorn Works with CSS Frameworks
 
-PHP classes never name a CSS framework. A field, a grid column, or a breadcrumb asks for a layout such as `@theme::form.label`, and the renderer finds that layout in the active theme. The `@theme` namespace is the only point where a CSS framework is chosen.
+PHP classes never name a CSS framework. A field, a grid column, or a [breadcrumb](/documentation/unicorn/services/utilities/breadcrumbs) asks for a layout such as `@theme::form.label`, and the [renderer](/documentation/components/renderer/index) finds that layout in the active theme. The `@theme` namespace is the only point where a CSS framework is chosen.
 
 `UnicornPackage` maps Unicorn's UI roles to theme layouts with aliases:
 
@@ -173,7 +173,7 @@ render with Bootstrap 5 classes. Check each screen after you change the theme.
 
 Unicorn's JavaScript is split the same way as its layouts. A UI theme adapter
 is installed with `useUITheme()` from `@windwalker-io/unicorn-next`. The
-default adapter, `UIBootstrap5`, is bundled with Bootstrap's JavaScript.
+default adapter, `UIBootstrap5`, is bundled with [Bootstrap's](/documentation/unicorn/javascript-frontend/bootstrap-5/overview) JavaScript.
 
 The Bootstrap helpers are plain functions, not automatic behaviors. They do
 nothing until your code imports and calls them, for example
@@ -219,10 +219,10 @@ useUITheme(BulmaTheme);
 If you leave Bootstrap behind, each feature below needs your own
 implementation:
 
-- Tooltips: `useBs5Tooltip()` and `data-bs-toggle="tooltip"` markup.
+- [Tooltips](/documentation/unicorn/javascript-frontend/bootstrap-5/overview#tooltips): `useBs5Tooltip()` and `data-bs-toggle="tooltip"` markup.
 - Tabs: `useBs5KeepTab()`, and the tab helpers in `BootstrapScript`.
 - Button radio: `useBs5ButtonRadio()`.
-- Modals: `useBsModalAlert()`, the IFrame modal, and the multi-uploader and single-image-drag modals, which use Bootstrap's `Modal`.
+- Modals: `useBsModalAlert()`, the [IFrame modal](/documentation/unicorn/javascript-frontend/bootstrap-5/iframe-modal), and the multi-uploader and single-image-drag modals, which use Bootstrap's `Modal`.
 - Other `BootstrapScript` helpers: popover, collapse, offcanvas, and scrollspy. These PHP helpers emit code only when they are called.
 
 Bootstrap's JavaScript stays in the bundle. A `data-bs-*` attribute does

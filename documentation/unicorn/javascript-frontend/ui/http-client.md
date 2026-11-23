@@ -6,8 +6,8 @@ description: Call the server with an axios-based client that understands Unicorn
 
 # HttpClient
 
-Pages that call Unicorn PHP controllers repeat the same work. Each
-request needs the CSRF token, each error needs its server message, and
+Pages that call Unicorn PHP [controllers](/documentation/framework/core-concepts/http-routing/controllers) repeat the same work. Each
+request needs the [CSRF](/documentation/framework/core-concepts/security/csrf-protection) token, each error needs its server message, and
 each caller needs the same base URL. `useHttpClient()` wraps an Axios
 instance and handles these steps for every request.
 
@@ -181,7 +181,7 @@ const api = useHttpClient(instance);
 
 Two URL features apply before each request:
 
-- A URL that starts with `@` is resolved with the `route()` service.
+- A URL that starts with `@` is resolved with the `route()` [service](/documentation/unicorn/javascript-frontend/utilities/router).
 - A `vars` option expands `{name}` placeholders in the URL.
 
 ```ts

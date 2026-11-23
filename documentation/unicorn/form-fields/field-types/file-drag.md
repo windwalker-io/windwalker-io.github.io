@@ -198,7 +198,7 @@ Each row lists a setter and its getter.
 | `previewLayout()` / `getPreviewLayout()` | Replaces the stored file bar with a view layout or a closure. | — |
 | `downloadLinkHandler()` / `getDownloadLinkHandler()` | Builds the URL of the stored file link. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)

@@ -138,7 +138,7 @@ when you use a commercial TinyMCE license.
 
 Image uploads are enabled by default. The editor posts each image to the
 `file_upload` route. Its `profile` parameter selects a profile from the
-Unicorn file upload configuration. The `image` profile is used when no
+Unicorn [file upload configuration](/documentation/unicorn/services/uploader/upload-service). The `image` profile is used when no
 profile is given. It resizes images and accepts `image/*`.
 
 Use `uploadProfile()` to pick another profile, or turn uploads off:
@@ -169,7 +169,7 @@ profile. Give each profile an `accept` list. A profile without `accept`
 checks only for dangerous extensions, so it accepts any other file.
 :::
 
-`stackName()` names the stack that the field uses while an upload runs. The
+`stackName()` names the [stack](/documentation/unicorn/javascript-frontend/ui/simple-stack) that the field uses while an upload runs. The
 default is `uploading`. The save button can be disabled while the stack is
 not empty with `u.$ui.disableIfStackNotEmpty()`:
 
@@ -283,7 +283,7 @@ returns the field for chaining.
 | `getPlugins()` | Returns the list of plugin names stored on the field. | `[]` |
 | `configureOptions()` | Sets a callback that changes the final editor options. | `null` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)

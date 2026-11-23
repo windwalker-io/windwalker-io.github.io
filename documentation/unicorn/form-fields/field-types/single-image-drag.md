@@ -32,8 +32,8 @@ the file as soon as the user selects it.
 
 ## Complete Example
 
-This product form crops the image to 800 by 800 pixels and uploads it on
-selection. The built-in upload route returns the URL, and the field stores
+This product form [crops](/documentation/unicorn/services/uploader/image-processing) the image to 800 by 800 pixels and uploads it on
+selection. The [built-in upload route](/documentation/unicorn/services/uploader/upload-service) returns the URL, and the field stores
 that URL.
 
 ```php
@@ -233,7 +233,7 @@ Each row lists a setter and its getter.
 | `uploadProfile()` / `getUploadProfile()` | Sets the upload profile of the built-in upload URL. | `image` |
 | `layout()` / `getLayout()` | Replaces the default template. | `@theme::field.single-image-drag.sid-default` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)

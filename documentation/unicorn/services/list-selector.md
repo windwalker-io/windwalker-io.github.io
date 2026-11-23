@@ -86,7 +86,7 @@ $selector = $selector->pipe(
 
 ### Advanced Features
 
-`ListSelector` wraps the ORM and the query builder. It converts UI parameters, such as search text, filters, ordering, and page numbers, into SQL. The same selector serves server-rendered pages and API endpoints.
+`ListSelector` wraps the [ORM](/documentation/components/orm/index) and the [query builder](/documentation/components/query/index). It converts UI parameters, such as search text, filters, ordering, and page numbers, into SQL. The same selector serves server-rendered pages and [API endpoints](/documentation/framework/core-concepts/api-systems).
 
 The selector takes its parameters from the URL or the request and passes them to filters and ordering. It builds the allow list from the columns of every table the query joins. A filter can only name a column that the query really has, which prevents SQL injection through request keys.
 
@@ -448,7 +448,7 @@ A page beyond the last one shows the last page. With 5 rows and a limit of 2, `p
 `getSimplePagination()` skips the total count. Use it for "previous" and "next" links on large tables, where a full `COUNT` is costly.
 :::
 
-`defaultLimit()` sets the limit when the caller does not call `limit()`. Use `setCountCallback()` to provide a cheaper total, for example from a cache:
+`defaultLimit()` sets the limit when the caller does not call `limit()`. Use `setCountCallback()` to provide a cheaper total, for example from a [cache](/documentation/components/cache/index):
 
 ```php
 use Windwalker\Query\Query;
@@ -477,7 +477,7 @@ $selector = $this->repository->getListSelector()
 $pagination = $selector->getSimplePagination();
 ```
 
-The template renders the pager with `<x-pagination :pagination="$pagination" />`.
+The template renders the [pager](/documentation/unicorn/services/components#pagination) with `<x-pagination :pagination="$pagination" />`.
 
 ## Reading Results
 

@@ -24,7 +24,7 @@ $form->add('content', NuxtEditorField::class)
     ->label('Content');
 ```
 
-The defaults need no extra options. The built-in image upload also needs
+The defaults need no extra options. The built-in [image upload](/documentation/unicorn/services/uploader/upload-service) also needs
 an `image` profile in your configuration.
 
 ## Complete Example
@@ -257,7 +257,7 @@ The table lists the methods specific to the Nuxt editor field.
 | `getFormat()` | Return the content format. | `null` |
 | `configureOptions()` | Set a callback that adjusts the editor options. | `null` |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)

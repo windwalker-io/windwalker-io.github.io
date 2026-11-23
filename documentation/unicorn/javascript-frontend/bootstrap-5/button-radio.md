@@ -200,7 +200,7 @@ The disabled and readonly state is read once, when the group is created. Changin
 
 ## Using Existing Button Markup
 
-If the wrapper already contains a `.btn-group`, ButtonRadio reuses its buttons. The PHP `ButtonRadioField` renders this layout. Each button must have a `data-for` attribute that matches its radio `id`.
+If the wrapper already contains a `.btn-group`, ButtonRadio reuses its buttons. The PHP `ButtonRadioField` [renders this layout](/documentation/unicorn/form-fields/field-types/button-radio). Each button must have a `data-for` attribute that matches its radio `id`.
 
 ```html
 <div id="status-field" data-field-input>

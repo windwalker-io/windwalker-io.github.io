@@ -6,7 +6,7 @@ description: Workflow page for Windwalker Unicorn.
 
 # Workflow
 
-Many business records move through stages. A product is drafted, submitted for review, then approved or rejected. The workflow service models these stages as a finite state machine. States hold the current status, and transitions define which moves are allowed and what they are called. The workflow also drives the status buttons in admin lists and runs your code when a change happens.
+Many business records move through stages. A product is drafted, submitted for review, then approved or rejected. The workflow service models these stages as a finite state machine. States hold the current status, and transitions define which moves are allowed and what they are called. The workflow also drives the status buttons in [admin lists](/documentation/unicorn/mvc-crud/mvc-admin/list-management) and runs your code when a change happens.
 
 ## Core Concepts
 
@@ -35,7 +35,7 @@ A workflow needs three parts: a state enum, a workflow class, and a listener on 
 
 ### Defining the States
 
-Define the states in an enum. Use the `Title`, `Icon`, and `Color` attributes on each case, so the workflow can read them.
+Define the states in an [enum](/documentation/framework/core-concepts/enum). Use the `Title`, `Icon`, and `Color` attributes on each case, so the workflow can read them.
 
 ```php
 use Windwalker\Utilities\Attributes\Enum\Color;
@@ -120,7 +120,7 @@ Strict mode is used in the examples on this page. It limits changes to the defin
 )]
 ```
 
-In strict mode, a change that has no matching transition is rejected when the entity is saved. The message is translated from `unicorn.workflow.error.transition.disallow`.
+In strict mode, a change that has no matching transition is rejected when the entity is saved. The message is [translated](/documentation/framework/services/language) from `unicorn.workflow.error.transition.disallow`.
 
 ```php
 // ERROR: Transition from "Draft" to "Approved" is disallow.
@@ -462,7 +462,7 @@ $workflow->onAfterTo(
 
 ### Muting Events While Seeding or Migrating
 
-Workflow listeners often have external side effects, such as sending mail or calling an API. A seeder or a migration can trigger many transitions in a row, which would send a flood of those side effects. To prevent this, regular listeners are muted automatically while a seeder or a migration runs. You do not need to turn anything off.
+Workflow listeners often have external side effects, such as [sending mail](/documentation/framework/services/mailer) or calling an API. A [seeder](/documentation/framework/services/database/seeders) or a [migration](/documentation/framework/services/database/migrations) can trigger many transitions in a row, which would send a flood of those side effects. To prevent this, regular listeners are muted automatically while a seeder or a migration runs. You do not need to turn anything off.
 
 `SeedService::$running` and `MigrationService::$running` are static flags in `windwalker/core`. They are `true` while a seeder (import or clear) or a migration handler runs. `WorkflowController::isMuted()` returns `true` when either flag is set.
 
@@ -476,7 +476,7 @@ While muted:
 - `Always` listeners still run.
 - Transition validation is not affected. A disallowed change still throws `TransitionDisallowException`.
 
-Put anything with external side effects in a regular listener, and anything that must always run, such as logging or keeping internal data consistent, in an `Always` listener.
+Put anything with external side effects in a regular listener, and anything that must always run, such as [logging](/documentation/framework/core-concepts/logging) or keeping internal data consistent, in an `Always` listener.
 
 ```php
 // Sends mail: skipped while seeding or migrating

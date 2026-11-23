@@ -10,7 +10,7 @@ Grid rows often show a status, such as published or trashed, that users can chan
 
 ## Enabling It
 
-Create a `StateButton` with `create()`, or build one from a backed enum with `fromEnum()`. The options array sets defaults that merge into every state, such as `buttonClass`.
+Create a `StateButton` with `create()`, or build one from a backed [enum](/documentation/framework/core-concepts/enum) with `fromEnum()`. The options array sets defaults that merge into every state, such as `buttonClass`.
 
 ```php
 use Unicorn\Html\State\StateButton;

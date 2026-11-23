@@ -166,7 +166,7 @@ The table lists the write methods. Each method has its own section below.
 | [sync](#syncing-rows) | bring the matching rows in line with a list | no |
 | [increment](#counters) | add to a numeric column | no |
 | [decrement](#counters) | subtract from a numeric column | no |
-| [transaction](#transactions) | run several writes in one transaction | no |
+| [transaction](#ormoptions) | run several writes in one transaction | no |
 
 ## Creating Rows
 

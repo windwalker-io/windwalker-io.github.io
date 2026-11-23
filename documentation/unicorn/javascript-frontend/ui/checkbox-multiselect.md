@@ -180,5 +180,5 @@ click listeners. Bind each container once.
 ## Scope
 
 The module handles row clicks only. It does not toggle all checkboxes.
-Windwalker's generated list pages call this function with the admin form
-selector. The select-all checkbox is handled by the grid component.
+Windwalker's [generated list pages](/documentation/unicorn/mvc-crud/mvc-admin/list-management) call this function with the admin form
+selector. The select-all checkbox is handled by the [grid component](/documentation/unicorn/javascript-frontend/ui/grid).

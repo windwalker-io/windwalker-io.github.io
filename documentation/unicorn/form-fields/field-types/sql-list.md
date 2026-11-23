@@ -12,7 +12,7 @@ changes. `SqlListField` reads the rows of a table and builds one option for
 each row, so the select always shows the current data.
 
 The field is a standard list field. It supports `multiple()`, `size()`, and
-the other options of Windwalker's list fields.
+the other options of Windwalker's [list fields](/documentation/components/form/choices).
 
 ## Enabling the Field
 
@@ -127,7 +127,7 @@ string. The field normalizes all three when it renders the selection.
 
 ## Filtering the Query
 
-`configureQuery()` receives the ORM query and the field. Return the query
+`configureQuery()` receives the [ORM query](/documentation/components/orm/querying) and the field. Return the query
 with your conditions added. Returning `null` keeps the current query:
 
 ```php
@@ -213,7 +213,7 @@ database table. Each setter returns the field for chaining.
 | `getAutoSelections()` | Returns the automatic column selection setting. | `.` |
 | `getItems()` | Returns the query rows used to build the options. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

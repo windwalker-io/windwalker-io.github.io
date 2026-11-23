@@ -9,7 +9,7 @@ description: Generate a public list and item page for a module with unicorn:mvc-
 A public module, such as a product catalog, shows records to visitors. It
 needs a list page and an item page, but no grid, filters, or edit form. The
 simple MVC template gives you that structure with one command. It generates
-the entity, the controller, a list view, an item view, and a front-end route.
+the [entity](/documentation/components/orm/entities), the controller, a list view, an item view, and a front-end route.
 For back-office screens with grids and edit forms, see
 [MVC Admin](./mvc-admin/list-management).
 
@@ -30,7 +30,7 @@ Add `--list` or `--item` to generate only one of the two views.
 
 ## How the Parts Fit Together
 
-The generator creates a route group and two routes. Each route points to
+The generator creates a [route group](/documentation/framework/core-concepts/http-routing/routing) and two routes. Each route points to
 one controller and one view:
 
 ```php
@@ -61,7 +61,7 @@ other HTTP methods call the controller method that the route maps to them.
 ## Showcase: A Product Page
 
 The list view loads a page of products. Each row links to the item route,
-built from the route name:
+built from the [route name](/documentation/framework/core-concepts/http-routing/navigation):
 
 ```blade
 <ul>
@@ -110,7 +110,7 @@ public function getDefaultOrdering(): string
 ```
 
 To show only some records, change the query before it runs. The
-`modifyQuery()` method receives the underlying query:
+`modifyQuery()` method receives the underlying [query](/documentation/components/query/index):
 
 ```php
 // ProductListView.php
@@ -135,7 +135,7 @@ only the records that the page shows.
 
 ## Write Actions
 
-The generated controller also has `save()` and `delete()` methods. The
+The generated [controller](/documentation/framework/core-concepts/http-routing/controllers) also has `save()` and `delete()` methods. The
 routes map them to HTTP methods:
 
 - `POST`, `PUT`, and `PATCH` on the item route call `save()`.

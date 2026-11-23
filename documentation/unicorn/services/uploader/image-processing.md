@@ -10,12 +10,12 @@ Images from users create three problems. They are often much larger than the
 layout needs, they can carry metadata or hidden content, and they need one
 consistent size. The Upload Service solves these in one step. It decodes the
 image, resizes it, re-encodes it, and optionally compresses it, before the
-file reaches the storage.
+file reaches the [storage](/documentation/unicorn/services/storage).
 
 ## Resizing Images
 
 Image processing is controlled by `ResizeConfig`. You can set it on the
-profile, or change it for one service with `setResizeConfig()`. The minimal
+[profile](/documentation/unicorn/services/uploader/upload-service#profiles), or change it for one service with `setResizeConfig()`. The minimal
 form limits an uploaded image to 800 pixels in width and height:
 
 ```php

@@ -290,7 +290,7 @@ The table lists the methods specific to the repeatable field.
 | `getSubForm()` | Return the sub-form that defines the row fields. | Empty `Form` |
 | `configureForm()` | Configure the sub-form with a callback. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

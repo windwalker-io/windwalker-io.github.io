@@ -43,7 +43,7 @@ The routes inside the group inherit the prefix and the middleware. See [Showcase
 
 ## A Simple Scope Middleware
 
-The middleware reads the unit from the route, checks that it exists, and stores it in `AppState` for the rest of the request:
+The [middleware](/documentation/framework/core-concepts/http-routing/middleware) reads the unit from the route, checks that it exists, and stores it in `AppState` for the rest of the request:
 
 ```php
 <?php
@@ -179,7 +179,7 @@ Links in the group keep the type the same way as the organization ID, with `Keep
 
 ## Separating Session Keys for Scopes
 
-A list keeps its filter and search in the session, under keys that start with the state prefix. The generated `prepare()` method reads them from the repository's state, so the same code serves every scope:
+A list keeps its filter and search in the [session](/documentation/framework/core-concepts/state-control/session-and-cookies), under keys that start with the state prefix. The generated `prepare()` method reads them from the repository's state, so the same code serves every scope:
 
 ```php
 // src/Module/Admin/Product/ProductListView.php

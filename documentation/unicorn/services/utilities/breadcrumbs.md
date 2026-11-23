@@ -6,7 +6,7 @@ description: Build and render breadcrumb trails with the Unicorn Breadcrumb clas
 
 # Breadcrumbs
 
-Breadcrumbs show where the current page sits in the site and link back to its parent pages. Writing that trail by hand in every view repeats markup, and the links and the active item drift apart over time. `Unicorn\Html\Breadcrumb` keeps the trail in PHP. A controller or view model builds it once, and the theme renders it.
+Breadcrumbs show where the current page sits in the site and link back to its parent pages. Writing that trail by hand in every view repeats markup, and the links and the active item drift apart over time. `Unicorn\Html\Breadcrumb` keeps the trail in PHP. A controller or view model builds it once, and the [theme](/documentation/unicorn/introduction/theming) renders it.
 
 ## Enabling It
 

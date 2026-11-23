@@ -7,8 +7,8 @@ description: Components page for Windwalker Unicorn.
 # Components
 
 Admin screens in Unicorn repeat the same UI: tabbed forms, page
-navigation, and workflow-driven state controls. Unicorn packages these
-as Edge components. Each one pairs a PHP class, which prepares the data,
+navigation, and [workflow-driven](/documentation/unicorn/services/workflow) state controls. Unicorn packages these
+as [Edge components](/documentation/components/edge/components). Each one pairs a PHP class, which prepares the data,
 with a Blade view, which renders the markup. Your views stay short, and
 every admin screen looks and behaves the same way.
 
@@ -27,7 +27,7 @@ components. They are used inside `<x-pagination>`, as shown below.
 ## Tabs
 
 `<x-tabs>` renders the tab container. Each `<x-tab>` is one pane. The
-Unicorn JavaScript reads the panes and builds the navigation, so you only
+[Unicorn JavaScript](/documentation/unicorn/javascript-frontend/unicorn-js) reads the panes and builds the navigation, so you only
 write the panes.
 
 ```blade
@@ -146,7 +146,7 @@ list reads, or they are dropped when the user changes page.
 <x-pagination :pagination="$pagination" :allow-query="true" />
 ```
 
-Inside a modal, use `in-modal`. It also keeps the modal parameters
+Inside a [modal](/documentation/unicorn/mvc-crud/mvc-admin/modal-list-view), use `in-modal`. It also keeps the modal parameters
 `layout`, `callback`, `multiCheck`, and `selected` in the links.
 
 ```blade

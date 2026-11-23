@@ -159,7 +159,7 @@ protected function configureReorderAction(ReorderAction $action): void
 }
 ```
 
-When a category filter is active, the list view joins the mapping table and orders by its `ordering` column. The join conditions are passed as three-value groups:
+When a category filter is active, the list view [joins](/documentation/components/query/join) the mapping table and orders by its `ordering` column. The join conditions are passed as three-value groups:
 
 ```php
 use Unicorn\Selector\ListSelector;
@@ -235,7 +235,7 @@ $this->createTable(
 );
 ```
 
-The entity maps the table, so the reorder action can read and write its rows:
+The [entity](/documentation/components/orm/entities) maps the table, so the reorder action can read and write its rows:
 
 ```php
 namespace App\Entity;

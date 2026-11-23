@@ -13,7 +13,7 @@ The admin list page is a grid: a table of records with search, filters, sorting,
 The generated grid page provides these features:
 
 - A search box that matches the ID, title, and alias columns.
-- A state filter in the filter bar.
+- A state filter in the [filter bar](/documentation/unicorn/mvc-crud/mvc-admin/filter-bar).
 - Sortable headers for state, title, and ID.
 - Row checkboxes and a batch modal, when the grid form has batch fields.
 - A state dropdown and a delete button for each row.
@@ -24,7 +24,7 @@ The generated toolbar provides these actions:
 
 - **New** links to the edit route with `new=1`.
 - **Duplicate** posts the grid form. The checked IDs are in the form, so the list route runs `copy()` for them.
-- **Change State** opens a dropdown of the transitions from `BasicStateWorkflow`. The workflow defines `publish` and `unpublish`, and the generated `batch()` method maps them to the `state` column.
+- **Change State** opens a dropdown of the [transitions](/documentation/unicorn/services/workflow) from `BasicStateWorkflow`. The workflow defines `publish` and `unpublish`, and the generated `batch()` method maps them to the `state` column.
 - **Batch** opens the batch modal. The button appears only when the grid form has batch fields, and it checks that at least one row is selected first.
 
 ```blade
@@ -41,7 +41,7 @@ The generated toolbar provides these actions:
 
 ## How a Request Reaches the Query
 
-The grid form submits its values as `search[*]`, `filter[...]`, `batch[...]`, and `list_ordering`. The list view passes them to the list selector:
+The grid form submits its values as `search[*]`, `filter[...]`, `batch[...]`, and `list_ordering`. The list view passes them to the [list selector](/documentation/unicorn/services/list-selector):
 
 ```php
 // Simplified from the generated ProductListView::prepare()
@@ -187,7 +187,7 @@ The virtual names `start_date` and `end_date` are not table columns. See [Advanc
 
 ## Manual Ordering
 
-The ordering column can be edited in the list. Set the default order and render the sort header and the row controls:
+The [ordering](/documentation/unicorn/mvc-crud/mvc-admin/ordering) column can be edited in the list. Set the default order and render the sort header and the row controls:
 
 ```php
 // In the list view
@@ -329,7 +329,7 @@ Add `data-must-checked="#admin-form"` to a button that opens a batch modal. When
 
 ## Soft Delete
 
-An entity that implements `SoftDeleteEntityInterface` is not removed from the table. `DeleteAction` sets its `is_deleted` flag instead. The generated list does not filter that flag, so deleted rows still appear. Use `createUndeletedListSelector()` from `SoftDeleteRepositoryTrait`:
+An [entity](/documentation/components/orm/entities) that implements `SoftDeleteEntityInterface` is not removed from the table. `DeleteAction` sets its `is_deleted` flag instead. The generated list does not filter that flag, so deleted rows still appear. Use `createUndeletedListSelector()` from `SoftDeleteRepositoryTrait`:
 
 ```php
 use Unicorn\Model\Traits\SoftDeleteRepositoryTrait;
@@ -419,7 +419,7 @@ The modal view that renders the picker is described in
 
 ## Scoped Routing & Filter State
 
-Because the filter and search state is stored in the session, a controller that serves several scopes or a view with different types, must use a different state prefix for each scope in the repository. This keeps users in different scopes from interfering with each other's filters and searches.
+Because the filter and search state is stored in the [session](/documentation/framework/core-concepts/state-control/session-and-cookies), a controller that serves several scopes or a view with different types, must use a different state prefix for each scope in the repository. This keeps users in different scopes from interfering with each other's filters and searches.
 
 For details, see [Scoped Routing](/documentation/unicorn/mvc-crud/scoped-routing).
 

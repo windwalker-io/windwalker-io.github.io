@@ -237,7 +237,7 @@ and `checkRequired()` to test one value.
 ::: info
 Filters change the value, and validators only report on it. A filter that
 truncates or clamps, such as `maxlength()` or `range()`, never fails a field.
-See the [Fields](./fields#limiting-length) page for details.
+See the [Fields](./fields#textfield) page for details.
 :::
 
 ::: warning

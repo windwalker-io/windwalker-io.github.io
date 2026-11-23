@@ -6,13 +6,13 @@ description: Manage list pages with row selection, sorting, filters, and batch a
 
 # Grid
 
-Admin list pages share a common set of actions. Users select rows, sort by
+Admin [list pages](/documentation/unicorn/mvc-crud/mvc-admin/list-management) share a common set of actions. Users select rows, sort by
 a column, filter the list, and run an action on one row or on every selected
 row. The grid helper wires these actions to a form that contains the table,
 so each action sends the same form data with a different task.
 
 Templates can call the grid through Alpine.js, using the `grid` store and
-directives such as `@click`. See [UI Helpers](./ui-helpers#alpine-js) for the
+directives such as `@click`. See [UI Helpers](./ui-helpers#alpinejs) for the
 Alpine setup, and the [Alpine.js documentation](https://alpinejs.dev) for
 directive syntax.
 
@@ -302,7 +302,7 @@ checked item ids, and optional values. The grid sends the checked rows as
 
 ### Server Handling
 
-The server's grid controller reads these inputs. A task named `publish`
+The server's [grid controller](/documentation/unicorn/mvc-crud/mvc-admin/list-management) reads these inputs. A task named `publish`
 calls a `batchPublish()` method when the controller defines one. Otherwise
 the request goes to `batchUpdate()`, which applies the `batch` values to the
 checked items:

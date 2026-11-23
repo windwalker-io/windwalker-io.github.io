@@ -9,7 +9,7 @@ description: Fill a select list with options that depend on another select.
 A select list often depends on another select. A country choice decides
 which cities appear in the next list. `ListDependent` watches the controlling
 select, loads the matching options, and replaces the options of the dependent
-list. The options come from a URL that returns JSON or from local data.
+list. The options come from a URL that returns [JSON](/documentation/framework/core-concepts/api-systems/json-api) or from local data.
 
 ## Enabling ListDependent
 
@@ -124,7 +124,7 @@ ignored.
 ## Loading from a URL
 
 Set `ajax.url` to load options with a GET request. The URL can be a string or
-a function that returns a string. Use `route()` for a named route:
+a function that returns a string. Use `route()` for a [named route](/documentation/unicorn/javascript-frontend/utilities/router):
 
 ```ts
 import { route } from '@windwalker-io/unicorn-next';

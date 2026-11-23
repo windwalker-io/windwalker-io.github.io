@@ -37,7 +37,7 @@ $form->add('review_state', StateListField::class)
 
 The following form lets an editor change the review state of a product. The
 workflow is the `ProductReviewWorkflow` from the Workflow page, and the
-workflow is injected into the form class:
+workflow is [injected](/documentation/framework/core-concepts/dependency-injection/dependency-injection) into the form class:
 
 ```php
 use App\Workflow\ProductReviewWorkflow;
@@ -117,7 +117,7 @@ text.
 
 ## Enforcing the Workflow
 
-The field only limits what the form offers. The entity must also check the
+The field only limits what the form offers. The [entity](/documentation/components/orm/entities) must also check the
 workflow when it is saved. Register the workflow with `listen()` in an
 `#[EntitySetup]` method, as shown on the Workflow page.
 
@@ -144,7 +144,7 @@ states.
 | `workflow()` | Sets the workflow whose states the field lists. | — |
 | `getWorkflow()` | Returns the workflow, or `null` when none is set. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

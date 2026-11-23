@@ -7,7 +7,7 @@ description: Build URLs from named routes registered by the server.
 # Router
 
 Hard-coded URLs break when a route changes. Unicorn JS keeps a map of named
-routes, so scripts ask for `user_edit` and receive the current URL. The
+[routes](/documentation/framework/core-concepts/http-routing/routing), so scripts ask for `user_edit` and receive the current URL. The
 server registers the map, and the browser resolves names when it needs them.
 
 ## Enabling Routes
@@ -23,7 +23,7 @@ $unicornScript->addRoute(
 );
 ```
 
-Omit the URL to let the server build it with its navigation service:
+Omit the URL to let the server build it with its [navigation service](/documentation/framework/core-concepts/http-routing/navigation):
 
 ```php
 $unicornScript->addRoute('@post_ajax');

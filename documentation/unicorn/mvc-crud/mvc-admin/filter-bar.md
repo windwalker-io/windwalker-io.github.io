@@ -216,7 +216,7 @@ for a product sees results but a closed filter panel.
 
 ## Styling the Filter Bar
 
-Unicorn does not ship CSS for the filter bar. It uses Bootstrap 5 utility
+Unicorn does not ship CSS for the filter bar. It uses [Bootstrap 5](/documentation/unicorn/javascript-frontend/bootstrap-5/overview) utility
 classes, so you style it with your own CSS or with a theme.
 
 Pass extra classes or attributes to the component. They are added to the

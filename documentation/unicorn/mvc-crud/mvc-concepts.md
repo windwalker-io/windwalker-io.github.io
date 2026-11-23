@@ -10,7 +10,7 @@ description: Learn the Subject, Stage, Module, and list and item groups that org
 
 ## Subject
 
-A subject is an entity or domain object that the application manages, such as `Product`. Each subject maps to one database table, one entity class, and one repository. The generator creates the pair with `unicorn:model`:
+A subject is an entity or domain object that the application manages, such as `Product`. Each subject maps to one database table, one [entity](/documentation/components/orm/entities) class, and one [repository](/documentation/unicorn/services/repository). The generator creates the pair with `unicorn:model`:
 
 ```text
 src/Entity/Product.php
@@ -51,7 +51,7 @@ Each module contains its controllers, views, forms, and assets. The module is th
 
 Every module has two MVC groups. The list group handles many records at once, and the item group handles one record. Each group has its own view and its own controller methods.
 
-- List group: a page that shows many records. Its controller handles filtering, ordering, batch actions, and copying.
+- List group: a page that shows many records. Its controller handles filtering, [ordering](/documentation/unicorn/mvc-crud/mvc-admin/ordering), batch actions, and copying.
 - Item group: a page that shows or edits one record. Its controller handles saving and deleting one record.
 
 The two groups have different names in the back end and the front end. The concept is the same in both, and the documentation sometimes uses "list" and "item" for both.
@@ -63,11 +63,11 @@ The two groups have different names in the back end and the front end. The conce
 
 ## Grid Page and Edit Page
 
-In the back end, the list group is a grid page. A grid is a table with search, filters, sorting, pagination, and bulk actions. The generator creates it with `unicorn:view-grid`, and the view class ends with `ListView`.
+In the back end, the list group is a grid page. A [grid](/documentation/unicorn/mvc-crud/mvc-admin/list-management) is a table with search, filters, sorting, pagination, and bulk actions. The generator creates it with `unicorn:view-grid`, and the view class ends with `ListView`.
 
-The item group is an edit page. It renders a form for one record, and the generator creates it with `unicorn:view-edit`. The view class ends with `EditView`.
+The item group is an [edit page](/documentation/unicorn/mvc-crud/mvc-admin/edit-management). It renders a form for one record, and the generator creates it with `unicorn:view-edit`. The view class ends with `EditView`.
 
-Both pages are served by the routes that the generator writes to `routes/admin/`. The list route is `product_list` and the edit route is `product_edit`:
+Both pages are served by the [routes](/documentation/framework/core-concepts/http-routing/routing) that the generator writes to `routes/admin/`. The list route is `product_list` and the edit route is `product_edit`:
 
 ```php
 $router->group('product')

@@ -6,7 +6,7 @@ description: Add validation rules, messages, and checks to Unicorn form fields.
 
 # Basic Features
 
-Unicorn form fields come with validation built in. A PHP field can carry a
+[Unicorn form fields](/documentation/unicorn/form-fields/field-generation) come with validation built in. A PHP field can carry a
 rule, a custom message, or a required flag, and the browser shows the
 result next to the input. This page shows how to use the features with
 Unicorn fields. For forms written by hand, see
@@ -165,7 +165,7 @@ The `data-custom-error-message` attribute takes precedence over `notice`.
 :::
 
 A handler can return a Promise to check a server. See
-[Async Validation](./standalone#async-validation) in Standalone Usage.
+[Async Validation](./standalone#async-validators) in Standalone Usage.
 
 ### Forcing a Failure
 

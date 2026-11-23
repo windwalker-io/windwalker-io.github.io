@@ -15,7 +15,7 @@ Each form element keeps one instance, so repeated calls share its state.
 
 Markup can call the form through Alpine.js, the lightweight framework that
 runs inline directives such as `@click`. The form module is also exposed to
-Alpine as the `form` store. See [UI Helpers](./ui-helpers#alpine-js) for the
+Alpine as the `form` store. See [UI Helpers](./ui-helpers#alpinejs) for the
 Alpine setup, and the [Alpine.js documentation](https://alpinejs.dev) for
 directive syntax.
 
@@ -32,7 +32,7 @@ anything by itself.
 
 ## Complete example
 
-The module does not add a CSRF field to forms that already exist in the
+The module does not add a [CSRF](/documentation/framework/core-concepts/security/csrf-protection) field to forms that already exist in the
 page. Render the `anticsrf` token in your markup.
 
 ```html
@@ -183,7 +183,7 @@ stay until another call changes them.
 
 ## Running a Task from an Edit Page
 
-An edit page has no grid, so its toolbar buttons send a task with the form.
+An [edit page](/documentation/unicorn/mvc-crud/mvc-admin/edit-management) has no grid, so its toolbar buttons send a task with the form.
 The task applies to the current item. Pass the URL of the controller that
 handles the task. The default URL is the current page, which is the edit
 route:
@@ -199,7 +199,7 @@ document.querySelector('#btn-feature')?.addEventListener('click', () => {
 ```
 
 The `id` value is injected into the request, and the handler reads it as
-`id`. Use the same handler rules as the grid's batch tasks.
+`id`. Use the same handler rules as the [grid's](/documentation/unicorn/javascript-frontend/ui/grid) batch tasks.
 
 ::: warning
 The request is a full form submit. Every field in the form is sent with the
@@ -286,7 +286,7 @@ await form.initComponent('userForm', {
 
 ## Validation hooks
 
-Validation has its own module. A form with the `uni-form-validate`
+[Validation](/documentation/unicorn/javascript-frontend/form-validation/basic-features) has its own module. A form with the `uni-form-validate`
 attribute gets a validation instance. The form module does not run
 validation.
 

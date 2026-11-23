@@ -111,7 +111,7 @@ a birthday. The field then saves the text as typed.
 
 On read, the field converts the stored value to the user timezone and shows
 it in the input. The field timezone from `timezone()` is used when set, and
-the Chronos timezone otherwise. On save, `prepareStore()` converts the typed
+the [Chronos](/documentation/framework/services/datetime/chronos) timezone otherwise. On save, `prepareStore()` converts the typed
 value to the server timezone.
 
 Do not write a value that is already in the user timezone into the field by
@@ -216,7 +216,7 @@ load. Read it in an event handler, not at the start of the script.
 | `convertTimezone()` | Set to `false` to skip timezone conversion of the value. | — |
 | `getConvertTimezone()` | Returns whether timezone conversion is enabled. | — |
 
-Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+[Common form field methods](/documentation/components/form/fields) such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 
