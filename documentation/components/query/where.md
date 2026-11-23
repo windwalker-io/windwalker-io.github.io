@@ -200,6 +200,21 @@ $query->where('state', 1)
     ]);
 ```
 
+Windwalker does not support a flat mix of `AND` and `OR` at the same level,
+such as `foo = 1 AND bar = 2 OR baz = 3`. Its precedence is unclear, and
+readers and SQL engines may group it differently. Every `OR` must sit inside
+a group that you create with `orWhereGroup()`, so the grouping is always
+explicit and predictable:
+
+```php
+$query->where('foo', 1)
+    ->orWhereGroup(function (Query $q) {
+        $q->where('bar', 2)
+            ->where('baz', 3);
+    });
+// WHERE `foo` = 1 AND (`bar` = 2 OR `baz` = 3)
+```
+
 ::: warning
 The parenthesized group is always joined to the preceding conditions with
 `AND`, even when it was added with `orWhereGroup()`. The method name controls
