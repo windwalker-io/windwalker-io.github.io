@@ -179,7 +179,7 @@ public function index(string $view, AppContext $app): mixed
 }
 ```
 
-See [Conditional Display](../form-fields/form-utilities/conditional-display)
+See [Conditional Display](../form-fields/form-utilities#conditional-display)
 for `showon()` usage.
 
 ## Generator

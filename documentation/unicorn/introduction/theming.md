@@ -80,8 +80,8 @@ Review these pages for the parts that a theme touches:
 - [Layout Rendering](../../framework/core-concepts/views/renderer): paths, priorities, and namespaces.
 - [Edge Templates](../../framework/core-concepts/views/edge-templates): layout inheritance and partials.
 - [View Components](../../framework/core-concepts/views/view-components): component layouts.
-- [Form Fields Layout](../form-fields/form-utilities/form-fields-layout): how field layouts are composed.
-- [Conditional Display](../form-fields/form-utilities/conditional-display): `showon` markup.
+- [Form Fields Layout](../form-fields/form-utilities#form-fields-layout): how field layouts are composed.
+- [Conditional Display](../form-fields/form-utilities#conditional-display): `showon` markup.
 - [Modal Alert](../javascript-frontend/bootstrap-5/modal-alert), [Keep Tab](../javascript-frontend/bootstrap-5/keep-tab), and [IFrame Modal](../javascript-frontend/bootstrap-5/iframe-modal): Bootstrap-based JavaScript.
 
 ## Example: Overriding One Layout

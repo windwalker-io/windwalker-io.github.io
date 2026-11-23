@@ -210,6 +210,81 @@ The generator writes a SCSS partial for each grid and edit page. The root select
 
 Windwalker adds the `view-*` class to the body, using the view name without the `View` suffix. Keep the page styles under this root selector so they do not affect other pages.
 
+## Blocking Save During Uploads
+
+Saving while a file is still uploading can store a record that points to a
+missing file. Unicorn prevents this with a named stack. Each upload pushes an
+item onto the stack when it starts and pops it when it finishes. The generated
+edit script calls `useDisableIfStackNotEmpty()`, which disables every
+`[data-task=save]` button while the `uploading` stack holds an item.
+
+The built-in fields use the stack as follows:
+
+- `TinymceEditorField`: pushes to `uploading` by default.
+- `NuxtEditorField`: pushes to `uploading` by default.
+- `MultiUploaderField`: has no default stack name, so set it explicitly.
+
+```php
+$form->add('content', TinymceEditorField::class);
+
+$form->add('images', MultiUploaderField::class)
+    ->stackName('uploading');
+```
+
+::: warning
+Without `stackName()`, `MultiUploaderField` pushes onto the `default` stack.
+The save buttons do not wait for those uploads. Set the same name that the
+save script watches.
+:::
+
+To block saving for your own uploader, push to the same stack and pop in a
+`finally` block, so the pop runs after a failed request too:
+
+```ts
+import { useStack } from '@windwalker-io/unicorn-next';
+
+const stack = useStack('uploading');
+
+async function upload(file: File) {
+  stack.push(file.name);
+
+  try {
+    return await sendFile(file);
+  } finally {
+    stack.pop();
+  }
+}
+```
+
+::: warning
+Every `push()` needs a matching `pop()`. A missed pop keeps the save buttons
+disabled until the page reloads.
+:::
+
+To react to changes in the stack, register an observer. It receives the stack
+and its current length after every push and pop. The example below warns the
+user before they leave the page while an upload runs:
+
+```ts
+import { useStack } from '@windwalker-io/unicorn-next';
+
+const stack = useStack('uploading');
+
+function onBeforeUnload(e: BeforeUnloadEvent) {
+  e.preventDefault();
+}
+
+stack.observe((_stack, length) => {
+  if (length > 0) {
+    window.addEventListener('beforeunload', onBeforeUnload);
+  } else {
+    window.removeEventListener('beforeunload', onBeforeUnload);
+  }
+});
+```
+
+For the full stack API, see [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack).
+
 ## Related
 
 - [MVC Concepts](./mvc-concepts)

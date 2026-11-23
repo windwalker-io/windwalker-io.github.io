@@ -152,24 +152,13 @@ Commit your changes before you regenerate a module.
 
 ## Generating Form Fields from a Table
 
-A generated edit form has no fields yet. The `build:form` command reads the columns of a database table and writes the fields into an existing form class. Generate the edit view first, so that the form class exists.
+A generated edit form has no fields for the table columns yet. Run `build:form` to add them:
 
 ```bash
 php windwalker build:form Admin/Product/ProductEditForm product
 ```
 
-To translate the labels, pass a language key prefix to `--use-lang`:
-
-```bash
-php windwalker build:form Admin/Product/ProductEditForm product \
-    --use-lang jojo.product.field
-```
-
-::: warning
-`build:form` rewrites the form class file in place. Run it with
-`--dry-run` first to test the command without writing the file, and
-keep the file under version control.
-:::
+See [Field Generation](/documentation/unicorn/form-fields/field-generation) for the field types, the label translation, and the warnings about rewriting the file.
 
 ## Front-End MVC
 

@@ -96,35 +96,13 @@ The fields in this method submit their values under `item`, then `params`. The l
 
 ## Generating Fields from a Table
 
-The `build:form` command adds fields for the columns of a table to an existing form class. Create the edit form first, so that the class exists:
+Create the edit form first with `unicorn:view-edit`, and then fill it from the columns of a table with `build:form`:
 
 ```bash
 php windwalker build:form Admin/Product/ProductEditForm product
 ```
 
-The command reads the class in `App\Module`, and then adds one field for each column that the class does not define yet. Existing fields are kept. The field type follows the column type:
-
-- Auto-increment columns use `HiddenField`.
-- `state` and `tinyint(1)` columns use `SwitcherField`.
-- `datetime` and `timestamp` columns use `CalendarField`.
-- Integer, float, and decimal columns use `NumberField`.
-- `text`, `mediumtext`, and `longtext` columns use `TextareaField`.
-- Other columns use `TextField`, with the `trim` filter.
-
-Pass a language key prefix with `--use-lang` to translate the labels:
-
-```bash
-php windwalker build:form Admin/Product/ProductEditForm product \
-    --use-lang jojo.product.field
-```
-
-Columns with a shared Unicorn key, such as `state` and `created_by`, use that key. Other columns use `jojo.product.field.{column}`.
-
-::: warning
-The command writes the form class in place. Run it with `--dry-run` to check the result without writing the file, and keep the file under version control before you run it.
-:::
-
-To change the generated code for one column, listen to `Unicorn\Form\Event\BuildFormFieldEvent` and set its `code` property.
+The command adds one field for each column that the form does not define yet. See [Field Generation](/documentation/unicorn/form-fields/field-generation) for the field types, the translation prefix, and the rewrite behavior.
 
 ## Filters and Validation
 

@@ -307,6 +307,6 @@ your script calls `form.submit()`, call `validateAll()` before it.
 
 ## Related
 
-- [Validation & Error Display](../../form-fields/form-utilities/validation-error-display)
+- [Validation & Error Display](../../form-fields/form-utilities#validation-and-error-display)
 - [Standalone Usage](./standalone)
 - [Unicorn JS](../unicorn-js)

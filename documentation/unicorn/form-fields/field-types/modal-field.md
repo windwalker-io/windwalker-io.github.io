@@ -90,7 +90,7 @@ The list also renders a hidden input under the field name. Its value is
 `__EMPTY_ARRAY__`, which keeps an empty selection in the request. Unicorn
 converts that sentinel to an empty array when it reads the request, so your
 controller receives `[]`. See
-[Empty Array Utilities](/documentation/unicorn/form-fields/form-utilities/empty-array-utilities).
+[Empty Array Utilities](/documentation/unicorn/form-fields/form-utilities#empty-array-utilities).
 
 ::: info
 The stored value can be a JSON array, a comma-separated string, or an array.
@@ -324,4 +324,4 @@ ignores it, although the field still adds `multiCheck=1` to the URL.
 
 - [Modal List View](/documentation/unicorn/mvc-crud/mvc-admin/modal-list-view)
 - [Iframe Modal](/documentation/unicorn/javascript-frontend/bootstrap-5/iframe-modal)
-- [Empty Array Utilities](/documentation/unicorn/form-fields/form-utilities/empty-array-utilities)
+- [Empty Array Utilities](/documentation/unicorn/form-fields/form-utilities#empty-array-utilities)

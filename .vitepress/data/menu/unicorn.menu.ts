@@ -112,6 +112,10 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
               text: 'S3 Service',
               link: `/${unicornRoutePrefix}/services/s3-service`
             },
+            {
+              text: 'Frontend S3 Upload',
+              link: `/${unicornRoutePrefix}/services/frontend-s3-upload`
+            },
           ],
         },
         {
@@ -168,26 +172,7 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
         },
         {
           text: 'Form Utilities',
-          link: `/${unicornRoutePrefix}/form-fields/form-utilities/form-fields-layout`,
-          collapsed: true,
-          items: [
-            {
-              text: 'Form Fields Layout',
-              link: `/${unicornRoutePrefix}/form-fields/form-utilities/form-fields-layout`
-            },
-            {
-              text: 'Empty Array Utilities',
-              link: `/${unicornRoutePrefix}/form-fields/form-utilities/empty-array-utilities`
-            },
-            {
-              text: 'Conditional Display',
-              link: `/${unicornRoutePrefix}/form-fields/form-utilities/conditional-display`
-            },
-            {
-              text: 'Validation & Error Display',
-              link: `/${unicornRoutePrefix}/form-fields/form-utilities/validation-error-display`
-            },
-          ],
+          link: `/${unicornRoutePrefix}/form-fields/form-utilities`
         },
         {
           text: 'Field Types',
@@ -386,6 +371,10 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
             {
               text: 'WebDirective',
               link: `/${unicornRoutePrefix}/javascript-frontend/ui/web-directive`
+            },
+            {
+              text: 'Editors',
+              link: `/${unicornRoutePrefix}/javascript-frontend/ui/editors`
             },
           ],
         },
