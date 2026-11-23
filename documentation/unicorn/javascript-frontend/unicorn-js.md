@@ -215,9 +215,10 @@ await useCssImport('@swiper/swiper.css');
 ```
 
 ::: warning
-Do not load the same library with both `import` and `useImport()`. The page
-then contains two copies, and the second copy can break the first. Pick one
-method for each library.
+**Never load the same package with both an ES `import` and `useImport()` in
+one project.** The package then loads twice, and the two copies have separate
+state. Event listeners, global objects, and singletons conflict. Pick one
+method for each package.
 :::
 
 ## Service Overview

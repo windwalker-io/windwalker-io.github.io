@@ -11,7 +11,7 @@ Unicorn is a RAD (Rapid Application Development) toolkit, the official RAD packa
 
 - Code Generation: Generate code for entities, migrations, controllers, views, and routes.
 - MVC Admin: Provides a basic structure for admin CRUD operations, including list management, edit management, and form management.
-- Simple MVC Basics: Offers a simplified MVC structure for quick development.
+- Simple MVC: Offers a simplified MVC structure for quick development.
 - CSS & JS in MVC Pages: Integrates CSS and JavaScript into MVC pages for enhanced functionality and styling.
 - Nested Set MVC: Supports nested set structures for hierarchical data management.
 - Services: Includes various services such as storage, uploader, repository, list selector, components, utilities, script loading, and workflow management.

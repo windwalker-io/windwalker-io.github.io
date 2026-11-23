@@ -76,8 +76,8 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           ],
         },
         {
-          text: 'Simple MVC Basics',
-          link: `/${unicornRoutePrefix}/mvc-crud/simple-mvc-basics`
+          text: 'MVC Simple',
+          link: `/${unicornRoutePrefix}/mvc-crud/mvc-simple`
         },
         {
           text: 'CSS & JS in MVC Pages',

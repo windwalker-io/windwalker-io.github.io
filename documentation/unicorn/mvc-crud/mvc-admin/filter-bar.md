@@ -61,7 +61,7 @@ described in [Custom Filter Rules](./list-management#custom-filter-rules).
 The bar has two rows. The top row holds the toggle, clear, and search
 controls. The panel below holds the filter fields:
 
-![Filter Bar Layout](https://github.com/user-attachments/assets/be3844a3-c83b-4207-b0ec-7688232762df)
+![Filter Bar Layout](https://github.com/user-attachments/assets/f1883b44-95ca-4cc1-b1e9-31d143e1b49e)
 
 Fields without a fieldset print in the first group. A field in a fieldset
 prints under the fieldset's title, and its label floats inside the input.

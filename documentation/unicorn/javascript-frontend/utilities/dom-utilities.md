@@ -327,11 +327,7 @@ domready(() => {
 
 `injectCssToDocument()` adds styles to the document as constructable
 stylesheets. It accepts one or more sources. Each source is a CSS string,
-a `CSSStyleSheet`, or a function that imports CSS text:
-
-> !review
-> 提供一個示範，這個功能實用的情境是 import css / scss with ?inline or ?raw 時，
-> 可以直接 inject 到 document，避免在 vite build 時，css/scss 被打包成 js，導致無法被瀏覽器解析的問題。
+a `CSSStyleSheet`, or a function that imports CSS text.
 
 ```ts
 import { injectCssToDocument } from '@windwalker-io/unicorn-next';
@@ -356,6 +352,30 @@ await injectCssToDocument(
 
 The `?inline` query is a Vite feature. Other bundlers need their own raw
 CSS import setup.
+
+A plain `import` of a CSS or SCSS file makes Vite package the file into the
+JavaScript bundle. The browser then receives JavaScript instead of CSS. Use
+a `?inline` or `?raw` import to get the file as a string, and inject it at
+runtime:
+
+```ts
+import { injectCssToDocument } from '@windwalker-io/unicorn-next';
+
+// Compiled CSS text from a SCSS file.
+await injectCssToDocument(
+  () => import('./styles/grid.scss?inline')
+);
+
+// Source text of a plain CSS file.
+await injectCssToDocument(
+  () => import('./styles/badge.css?raw')
+);
+```
+
+::: info
+Use `?inline` for SCSS. `?raw` returns the file as written, so SCSS stays
+uncompiled and the browser cannot read it.
+:::
 
 ::: tip
 Call `injectCssToDocument()` once when the script loads. Each call adds new

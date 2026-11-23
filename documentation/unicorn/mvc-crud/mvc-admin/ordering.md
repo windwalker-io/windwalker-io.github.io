@@ -295,12 +295,10 @@ $items = $this->repository->getListSelector()
             ->leftJoin(
                 'product_category_map',
                 'product_category_map',
-                'product_category_map.product_id',
-                '=',
-                'product.id',
-                'product_category_map.category_id',
-                '=',
-                val($categoryId),
+                [
+                    ['product_category_map.product_id', '=', 'product.id'],
+                    ['product_category_map.category_id', '=', val($categoryId)]
+                ]
             )
             ->select(
                 'product_category_map.id AS map_id',

@@ -11,11 +11,12 @@ form or a chart on one report. The loader functions fetch modules, scripts,
 and stylesheets at runtime. The bundler then leaves that code out of the
 pages that do not use it.
 
-> !review
-> 這個頁面說明一下，大多數時候，只要用 ES 原生的 `import` 與 `import()` 就可以了，
-> 只要 Vite 能追蹤到的城市都會被自動打包與 tree shake
-> 這個 loader 提供的 import 主要是用在不得已要從 HTML runtime 使用 HTTP 載入的傳統 js or CSS
-> 檔案，或者因為語法問題造成無法打包的套件，這時候可以使用 loader 來載入，他等同於傳統的 `<script>` 與 `<link>` 標籤，並且提供了 import map 的功能，讓你可以在 HTML 上定義一個 prefix 來對應到實際的路徑。
+Most code needs no loader. Use the native `import` and `import()` syntax, and
+Vite bundles and tree-shakes every module it can trace. The loader is for the
+cases where a file must load over HTTP at runtime, from the HTML. Examples are
+legacy JavaScript or CSS files, and packages that the bundler cannot handle.
+The loader functions behave like the classic `<script>` and `<link>` tags,
+and they resolve paths through the page's import map.
 
 The loader covers four kinds of resources:
 
@@ -32,7 +33,11 @@ start with `/`:
 ```ts
 import { useImport } from '@windwalker-io/unicorn-next';
 
-const chart = await useImport('/assets/charts/chart.js');
+const chart = await useImport('＠js/charts/chart.js');
+const swiper = await useImport('＠vendor/swiper/swiper-bundle.min.js');
+
+// Use URL imports
+const swiper = await useImport('https://unpkg.com/swiper/swiper-bundle.min.js');
 ```
 
 Prefixes such as `@vendor/` need an import map on the page. See
@@ -267,10 +272,11 @@ and the browser resolves bare module names through the page's import map
 on its own.
 :::
 
-::: tip
-Load a library with `useImport()` or with a normal `import`, never both.
-A library loaded at runtime and the same library bundled by the build can
-create two separate module instances.
+::: warning
+**Never load the same package with both an ES `import` and a loader import
+in one project.** The package then loads twice: once through the bundle and
+once at runtime. The two copies have separate state, so event listeners,
+global objects, and singletons conflict. Choose one method for each package.
 :::
 
 ## Related

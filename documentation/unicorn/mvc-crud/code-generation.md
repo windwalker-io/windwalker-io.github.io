@@ -33,6 +33,17 @@ For the full walkthrough, see [Entities, Migrations and Seeders](/documentation/
 
 Run `unicorn:mvc-admin` with a stage and a name to generate a complete admin module in one command. The `g` command is the alias of `generate:make`.
 
+`unicorn:mvc-admin` does not require a particular stage. You can generate
+into `Front`, `Admin`, or any custom stage name. Admin modules run many
+database operations, so place them under `Admin/` and protect them with
+permission control.
+
+::: warning
+Windwalker does not include a user or permission system. The `/admin`
+directory is not protected by default. Set up authentication and permission
+control before you generate an admin module.
+:::
+
 ```bash
 php windwalker g unicorn:mvc-admin Admin/Product
 ```
@@ -227,7 +238,22 @@ php windwalker build:entity Product
 
 The generated grid searches `product.id`, `product.title`, and `product.alias`, and it sorts by `product.id DESC`. Change `getSearchFields()` and `getDefaultOrdering()` in the list view to match your columns, or the search fails.
 
-The generated `.ts` and `.scss` files under `assets/` are compiled by the host app's Yarn build. The list and edit pages need the compiled scripts to work.
+The generated `.ts` and `.scss` files under `assets/` are compiled by the host app's Yarn build. The list and edit pages need the compiled scripts to work. Run one of these commands in the host app after you generate a module:
+
+```bash
+# Compile once after generating
+yarn build
+
+# Or keep the dev server running while you work
+yarn dev
+```
+
+::: warning
+The page renders its HTML before the scripts are compiled, so the layout looks
+complete. The buttons, filters, and other dynamic features do nothing until the
+build runs. If a generated page looks correct but does not respond, run the
+build first.
+:::
 
 The generated controller contains empty `prepareSave` and `afterSave` callbacks in `save()`. Put custom save logic there. See [Edit Forms and Saving](/documentation/guides/rad/edit-forms).
 

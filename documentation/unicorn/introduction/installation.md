@@ -27,6 +27,30 @@ composer require windwalker/unicorn:^1.2
 
 Unicorn registers its service provider through the `extra.windwalker.packages` entry in its `composer.json`. You do not need to register it by hand.
 
+## Install the Frontend Package
+
+Unicorn's grids, forms, and messages run in the browser. Install the matching
+JavaScript package with Yarn in your application root:
+
+```bash
+yarn add @windwalker-io/unicorn-next
+```
+
+Then build the frontend assets:
+
+```bash
+yarn install
+yarn build
+```
+
+About Frontend package, please see [Unicorn JS](../javascript-frontend/unicorn-js) for more details.
+
+::: tip
+If `package.json` already lists the package, run `yarn install` instead of
+adding it again. Use `yarn build:prod` for a production build when your
+project defines it.
+:::
+
 ## Install the Supporting Packages
 
 Unicorn's code uses the ORM, Database, and Form packages, but its `composer.json` does not declare them. Install them alongside the package:
@@ -64,8 +88,11 @@ php windwalker pkg:install windwalker/unicorn --tag routes
 
 ::: warning
 The package routes include `POST /file/upload`, which handles file uploads.
-Keep an authentication middleware on this route. Do not expose it without one,
-and remove the route if your application does not need uploads.
+Windwalker does not provide a user or permission system on its own, and the
+`/admin` scope is not protected by default. Set up authentication and
+permission control before you install Unicorn. Keep an authentication
+middleware on this route, or remove the route if your application does not
+need uploads. Without one, anyone who can reach your site can upload files.
 :::
 
 ## Verify the Installation
