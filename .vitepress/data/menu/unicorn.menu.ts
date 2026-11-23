@@ -93,14 +93,13 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
       text: 'Services',
       items: [
         {
-          text: 'Storage',
-          link: `/${unicornRoutePrefix}/services/storage`
-        },
-        {
-          text: 'Uploader',
-          link: `/${unicornRoutePrefix}/services/uploader/upload-service`,
+          text: 'Upload & Storage',
           collapsed: true,
           items: [
+            {
+              text: 'Storage',
+              link: `/${unicornRoutePrefix}/services/storage`
+            },
             {
               text: 'Upload Service',
               link: `/${unicornRoutePrefix}/services/uploader/upload-service`
@@ -108,6 +107,10 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
             {
               text: 'Image Processing',
               link: `/${unicornRoutePrefix}/services/uploader/image-processing`
+            },
+            {
+              text: 'S3 Service',
+              link: `/${unicornRoutePrefix}/services/s3-service`
             },
           ],
         },
@@ -321,6 +324,21 @@ export const unicornSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
             {
               text: 'System URI',
               link: `/${unicornRoutePrefix}/javascript-frontend/utilities/system-uri`
+            },
+          ],
+        },
+        {
+          text: 'Form Validation',
+          link: `/${unicornRoutePrefix}/javascript-frontend/form-validation/basic-features`,
+          collapsed: true,
+          items: [
+            {
+              text: 'Basic Features',
+              link: `/${unicornRoutePrefix}/javascript-frontend/form-validation/basic-features`
+            },
+            {
+              text: 'Standalone Usage',
+              link: `/${unicornRoutePrefix}/javascript-frontend/form-validation/standalone`
             },
           ],
         },

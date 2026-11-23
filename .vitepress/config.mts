@@ -35,8 +35,9 @@ const markdownOptions: MarkdownExportOptions = {
     'index.md',
   ],
   // Every route's sidebar tree; used to link chapter siblings in the Sitemap block
-  sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...componentsSidebar],
+  sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...unicornSidebar.value, ...componentsSidebar],
   frameworkSidebar: frameworkSidebar.value,
+  unicornSidebar: unicornSidebar.value,
 };
 
 // Built before VitePress renders pages so the checksum can be shown on the download page

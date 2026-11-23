@@ -22,6 +22,8 @@ export type MarkdownExportOptions = {
   sidebar: SidebarNode[];
   // Framework sidebar; its nesting becomes the Framework section of llms.txt
   frameworkSidebar: SidebarNode[];
+  // Unicorn sidebar; its nesting becomes the Unicorn RAD section of llms.txt
+  unicornSidebar: SidebarNode[];
 };
 
 const globToRegExp = (glob: string) => new RegExp(
@@ -114,7 +116,11 @@ const sectionNames: [prefix: string, name: string][] = [
   ['documentation/guides', 'Guides'],
   ['documentation/components', 'Components'],
   ['documentation/framework', 'Framework'],
+  ['documentation/unicorn', 'Unicorn RAD'],
 ];
+
+// Sections whose order and nesting follow a sidebar tree instead of the file system
+const sidebarSectionNames = ['Framework', 'Unicorn RAD'];
 
 // Files listed in llms.txt: only those inside a sub-directory, minus excluded prefixes
 export function llmsMarkdownFiles(options: MarkdownExportOptions): string[] {
@@ -123,7 +129,7 @@ export function llmsMarkdownFiles(options: MarkdownExportOptions): string[] {
   );
 }
 
-// H2 section per area; sub-directories become nested lists, linked through their index.md
+// H2 section per area; Framework and Unicorn RAD follow their sidebar, other sub-directories become nested lists
 export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = siteUrl): string {
   const files = llmsMarkdownFiles(options);
   const infos = new Map(files.map(readMdInfo).map((i) => [i.file, i]));
@@ -185,11 +191,12 @@ export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = s
 
     const prefix = sectionNames.find(([, n]) => n === name)?.[0] ?? '';
 
-    if (name === 'Framework') {
+    if (sidebarSectionNames.includes(name)) {
       const listed = new Set<string>();
+      const sidebar = name === 'Framework' ? options.frameworkSidebar : options.unicornSidebar;
 
       lines.push(`## ${name}`, '');
-      lines.push(...sidebarBullets(options.frameworkSidebar, '', listed));
+      lines.push(...sidebarBullets(sidebar, '', listed));
 
       // Framework pages missing from the sidebar are appended as a flat list
       for (const file of sectionFiles.filter((f) => !listed.has(f)).sort()) {
