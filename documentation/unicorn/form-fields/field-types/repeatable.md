@@ -260,6 +260,38 @@ When the list has no rows, the browser submits the
 reads the request, so the controller receives `[]`. See
 [Empty Array Utilities](/documentation/unicorn/form-fields/form-utilities#empty-array-utilities).
 
+## Options Reference
+
+The table lists the methods specific to the repeatable field.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `useTableLayout()` | Use the table layout. | Table layout |
+| `useFlexLayout()` | Use the flex layout. | — |
+| `useGridLayout()` | Use the grid layout. | — |
+| `layout()` | Set a custom layout path. | `null` |
+| `getLayout()` | Return the layout path in use. | Table layout |
+| `colWidths()` | Set the column widths. | `[]` |
+| `colClasses()` | Set the CSS classes for each column. | `[]` |
+| `sortable()` | Enable or disable row sorting. | `false` |
+| `isSortable()` | Return whether row sorting is enabled. | `false` |
+| `ensureFirstRow()` | Keep at least one row in the list. | `false` |
+| `isEnsureFirstRow()` | Return whether one row is always kept. | `false` |
+| `showControls()` | Show or hide the add and remove buttons. | `true` |
+| `isShowControls()` | Return whether the controls are shown. | `true` |
+| `singleArray()` | Store values as a flat array instead of rows. | `false` |
+| `isSingleArray()` | Return whether single-array mode is enabled. | `false` |
+| `placeholder()` | Set the placeholder text. | `''` |
+| `getPlaceholder()` | Return the placeholder text. | `''` |
+| `max()` | Set the maximum number of rows. | `0` |
+| `getMax()` | Return the maximum number of rows. | `0` |
+| `gap()` | Set the gap between items. | `3` |
+| `rwdBreakpoint()` | Set the responsive breakpoint. | `'xl'` |
+| `getSubForm()` | Return the sub-form that defines the row fields. | Empty `Form` |
+| `configureForm()` | Configure the sub-form with a callback. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Form Utilities](/documentation/unicorn/form-fields/form-utilities)

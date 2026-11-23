@@ -204,6 +204,32 @@ useDisableIfStackNotEmpty('[data-task=save]', 'uploading');
 Use the same name in `stackName()` and in the second argument when you
 change it.
 
+## Options Reference
+
+`MultiUploaderField` adds the following methods to the Windwalker
+`AbstractField`. Each row lists a setter and its getter.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `placeholder()` / `getPlaceholder()` | Sets the text shown in the empty drop area. | Language string |
+| `url()` / `getUrl()` | Sets the upload URL. | Built-in `file_upload` route |
+| `resize()` / `getResize()` | Resizes uploaded images on the server. | — |
+| `crop()` / `getCrop()` | Crops uploaded images on the server. | — |
+| `width()` / `getWidth()` | Sets the width used for resize or crop. | — |
+| `height()` / `getHeight()` | Sets the height used for resize or crop. | — |
+| `quality()` / `getQuality()` | Sets the image quality of the built-in upload URL. | — |
+| `maxFiles()` / `getMaxFiles()` | Limits the number of files in the list. | — |
+| `thumbSize()` / `getThumbSize()` | Sets the thumbnail size. | `150` |
+| `accept()` / `getAccept()` | Sets the allowed file types. | — |
+| `canReplace()` / `isCanReplace()` | Allows replacing an uploaded file. | `false` |
+| `maxConcurrent()` / `getMaxConcurrent()` | Sets how many uploads run at the same time. | `2` |
+| `stackName()` / `getStackName()` | Sets the name of the upload stack. | `uploading` |
+| `uploadProfile()` / `getUploadProfile()` | Sets the upload profile of the built-in upload URL. | `image` |
+| `configureForm()` / `getSubForm()` | Configures the sub-form of each item. | Empty form |
+| `layout()` / `getLayout()` | Replaces the default template. | `@theme::field.multi-uploader` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 See:
 - [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)
 - [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack)

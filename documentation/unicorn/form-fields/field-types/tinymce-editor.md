@@ -259,6 +259,36 @@ $form->add('content', TinymceEditorField::class)
     ]);
 ```
 
+## Options Reference
+
+`TinymceEditorField` provides the following methods for the editor
+content styles, the image upload, and the final editor options. Each setter
+returns the field for chaining.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `contentCss()` | Sets the CSS files loaded inside the editor. | `@unicorn/editor.css` |
+| `getContentCss()` | Returns the CSS files loaded inside the editor. | — |
+| `langFolder()` | Sets the language folder value stored on the field. | — |
+| `getLangFolder()` | Returns the language folder value. | — |
+| `enableImageUpload()` | Enables or disables image upload, or sets the upload profile. | `true` |
+| `getEnableImageUpload()` | Returns the image upload setting. | — |
+| `imageUploadUrl()` | Sets a custom URL for image uploads. | Built-in file upload route |
+| `getImageUploadUrl()` | Returns the image upload URL for a profile. | — |
+| `stackName()` | Sets the name of the upload stack that blocks saving. | `uploading` |
+| `getStackName()` | Returns the name of the upload stack. | — |
+| `uploadProfile()` | Sets the upload profile used for image uploads. | `null` |
+| `getUploadProfile()` | Returns the upload profile. | `null` |
+| `plugins()` | Sets a list of plugin names stored on the field. | `[]` |
+| `getPlugins()` | Returns the list of plugin names stored on the field. | `[]` |
+| `configureOptions()` | Sets a callback that changes the final editor options. | `null` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
+See:
+- [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)
+- [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack)
+
 ## Related
 
 - [NuxtEditor](./nuxt-editor)

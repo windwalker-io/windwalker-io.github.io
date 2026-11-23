@@ -211,6 +211,38 @@ upload. Check the type and the size on the server, and use a profile with
 an `accept` list for uploads from the browser.
 :::
 
+## Options Reference
+
+`SingleImageDragField` adds the following methods to the Windwalker `TextField`.
+Each row lists a setter and its getter.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `accept()` / `getAccept()` | Sets the allowed types as MIME types, wildcards, or extensions. | `image/jpeg`, `image/png`, `image/webp`, `image/avif`, `image/gif` |
+| `width()` / `getWidth()` | Sets the crop width, in pixels. | `800` |
+| `height()` / `getHeight()` | Sets the crop height, in pixels. | `800` |
+| `maxWidth()` / `getMaxWidth()` | Sets the maximum image width, in pixels. | — |
+| `minWidth()` / `getMinWidth()` | Sets the minimum image width, in pixels. | — |
+| `maxHeight()` / `getMaxHeight()` | Sets the maximum image height, in pixels. | — |
+| `minHeight()` / `getMinHeight()` | Sets the minimum image height, in pixels. | — |
+| `crop()` / `isCrop()` | Enables the crop dialog. | `false` |
+| `showSizeNotice()` / `isShowSizeNotice()` | Shows the crop size under the drop area. | — |
+| `defaultImage()` / `getDefaultImage()` | Sets the picture shown when the field is empty. | — |
+| `ajax()` / `getAjax()` | `true` uploads to the built-in route, a string sets a custom URL. | — |
+| `previewHandler()` / `getPreviewHandler()` | Receives the image URL and returns the URL to show. | — |
+| `uploadProfile()` / `getUploadProfile()` | Sets the upload profile of the built-in upload URL. | `image` |
+| `layout()` / `getLayout()` | Replaces the default template. | `@theme::field.single-image-drag.sid-default` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
+See:
+- [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)
+- [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack)
+
+::: info
+The AJAX upload (`ajax(true)`) does not push onto the upload stack, so the save lock does not wait for it.
+:::
+
 ## Related
 
 - [FileDrag](./file-drag)

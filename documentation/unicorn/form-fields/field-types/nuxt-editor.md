@@ -241,6 +241,28 @@ in `NuxtEditorField::$defaultOptions`, or as array keys of `editorOptions()`:
 Other keys, such as `toolbars`, pass to the JavaScript editor unchanged. See
 [Toolbars](#toolbars).
 
+## Options Reference
+
+The table lists the methods specific to the Nuxt editor field.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `enableImageUpload()` | Enable image upload, or pass a profile name. | `true` |
+| `getEnableImageUpload()` | Return the image upload setting. | `null` |
+| `imageUploadUrl()` | Set a custom image upload URL. | Built-in `image` URL |
+| `getImageUploadUrl()` | Return the upload URL for a profile. | Built-in `image` URL |
+| `stackName()` | Set the loading stack name used during uploads. | `uploading` |
+| `getStackName()` | Return the loading stack name. | `null` |
+| `format()` | Set the content format, such as `html`. | `html` |
+| `getFormat()` | Return the content format. | `null` |
+| `configureOptions()` | Set a callback that adjusts the editor options. | `null` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
+See:
+- [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)
+- [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack)
+
 ## Related
 
 - [TinyMCE Editor](./tinymce-editor)

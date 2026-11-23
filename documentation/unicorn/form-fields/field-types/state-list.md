@@ -134,6 +134,18 @@ $product->reviewState = ReviewState::APPROVED; // From "draft".
 $orm->mapper(Product::class)->saveOne($product);
 ```
 
+## Options Reference
+
+The state list adds one method to attach the workflow that provides the
+states.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `workflow()` | Sets the workflow whose states the field lists. | — |
+| `getWorkflow()` | Returns the workflow, or `null` when none is set. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Workflow](/documentation/unicorn/services/workflow)

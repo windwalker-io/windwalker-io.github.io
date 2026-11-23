@@ -189,6 +189,32 @@ $form->add('category_id', SqlListField::class)
     ->optionAttrs(['data-type' => 'article']);
 ```
 
+## Options Reference
+
+`SqlListField` adds the following methods to build its option list from a
+database table. Each setter returns the field for chaining.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `textField()` | Sets the column used as the option text. | `title` |
+| `getTextField()` | Returns the column used as the option text. | `title` |
+| `valueField()` | Sets the column used as the option value. | `id` |
+| `getValueField()` | Returns the column used as the option value. | `id` |
+| `optionAttrs()` | Sets extra HTML attributes applied to each option. | — |
+| `getOptionAttrs()` | Returns the extra HTML attributes for each option. | — |
+| `table()` | Sets the database table to query. | `null` |
+| `getTable()` | Returns the database table to query. | `null` |
+| `indentByField()` | Sets the column used to calculate tree indentation. | `level` |
+| `getIndentByField()` | Returns the column used to calculate tree indentation. | `level` |
+| `setGroupBy()` | Sets a closure that returns the option group of each item. | `null` |
+| `getGroupBy()` | Returns the closure that returns the option group. | `null` |
+| `configureQuery()` | Sets a callback that modifies the query. | — |
+| `autoSelection()` | Sets how columns are selected automatically in the query. | `.` |
+| `getAutoSelections()` | Returns the automatic column selection setting. | `.` |
+| `getItems()` | Returns the query rows used to build the options. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [FlatList](./flat-list)

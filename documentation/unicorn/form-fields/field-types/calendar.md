@@ -178,7 +178,9 @@ the picker or set a date with the Flatpickr API:
 
 ```js
 // Select the element of your field, for example by its id.
-const picker = document.querySelector('uni-flatpickr#input-article-publish_up');
+const picker = document.querySelector(
+    'uni-flatpickr#input-article-publish_up'
+);
 
 picker.instance.open();
 picker.instance.setDate('2026-12-01', true);
@@ -188,6 +190,33 @@ picker.instance.setDate('2026-12-01', true);
 The `instance` property is set after the element connects and its options
 load. Read it in an event handler, not at the start of the script.
 :::
+
+## Options Reference
+
+`CalendarField` provides the following methods for configuring the picker.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `calendarOptions()` | Sets extra options merged into the picker configuration. | — |
+| `getCalendarOptions()` | Returns the extra picker options. | — |
+| `from()` | Sets the earliest selectable date. | — |
+| `getFrom()` | Returns the earliest selectable date. | — |
+| `to()` | Sets the latest selectable date. | — |
+| `getTo()` | Returns the latest selectable date. | — |
+| `format()` | Sets the date format of the picker and the value. | `Y-m-d H:i:S` |
+| `getFormat()` | Returns the date format. | — |
+| `enableTime()` | Shows or hides the time selection. | `true` |
+| `getEnableTime()` | Returns whether time selection is enabled. | — |
+| `monthSelect()` | Enables month-only selection. | — |
+| `getMonthSelect()` | Returns whether month selection is enabled. | — |
+| `timezone()` | Sets the timezone used for display and conversion. | — |
+| `getTimezone()` | Returns the timezone set on the field. | — |
+| `noCalendar()` | Hides the calendar and shows only the time picker. | — |
+| `getNoCalendar()` | Returns whether the calendar is hidden. | — |
+| `convertTimezone()` | Set to `false` to skip timezone conversion of the value. | — |
+| `getConvertTimezone()` | Returns whether timezone conversion is enabled. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
 
 ## Related
 

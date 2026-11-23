@@ -206,6 +206,24 @@ $form->add('size', InlineField::class)
     });
 ```
 
+## Options Reference
+
+`InlineField` provides the following methods for the sub-fields and layout.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `widths()` | Sets the width of each sub-field. | `[]` |
+| `getWidths()` | Returns the sub-field widths. | — |
+| `gap()` | Sets the column gap between sub-fields. | `3` |
+| `getGap()` | Returns the column gap. | — |
+| `asGroup()` | Saves sub-field values under a group key. `true` uses the field name. | — |
+| `getGroup()` | Returns the group key, or `null` when not grouped. | — |
+| `showLabel()` | Shows or hides the labels of the sub-fields. | — |
+| `getShowLabel()` | Returns whether sub-field labels are shown. | — |
+| `rwdBreakpoint()` | Sets the breakpoint where sub-fields wrap to new lines. | `'lg'` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Field Generation](../field-generation)

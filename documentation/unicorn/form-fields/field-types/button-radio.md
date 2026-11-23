@@ -139,6 +139,22 @@ on fields that must always have a value, and check the stored value against
 the option values when you change them.
 :::
 
+## Options Reference
+
+The button radio adds option methods and a layout setter on top of the radio
+field.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `option()` | Adds an option with its text, value, attributes, and group. | — |
+| `registerFromEnums()` | Adds options from an enum, skipping hidden cases. | — |
+| `setOptions()` | Replaces all options, optionally under a group. | — |
+| `getOptions()` | Returns all options as an array. | — |
+| `layout()` | Sets a custom layout template for the field. | — |
+| `getLayout()` | Returns the layout template in use. | `@theme::field.button-radio` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Switcher](/documentation/unicorn/form-fields/field-types/switcher)

@@ -171,6 +171,23 @@ $form->add('regions', FlatListField::class)
 A branch with children shows links to check or uncheck all of its items.
 The links above the list apply to every item.
 
+## Options Reference
+
+`FlatListField` provides the following methods for the list and its tree.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `treeBuilder()` | Sets a closure that builds the tree from the items. | — |
+| `getTreeBuilder()` | Returns the tree builder closure. | `TreeBuilder::create()` |
+| `getTree()` | Builds and returns the tree from the items. | — |
+| `inputType()` | Sets the input type of each item, such as `checkbox`. | — |
+| `getInputType()` | Returns the input type set on the field. | — |
+
+If `inputType()` is not set, items use `checkbox` when the field is
+multiple and `radio` when it is not.
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Cascade Select](./cascade-select)

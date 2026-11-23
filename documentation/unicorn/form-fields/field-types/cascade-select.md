@@ -331,6 +331,50 @@ cascade.getFinalValue(); // Last selected id, or '' when none.
 cascade.getLevel();      // Number of levels currently shown.
 ```
 
+## Options Reference
+
+`CascadeSelectField` provides the following methods for the level selects,
+the data source, and the value path. Each setter returns the field for
+chaining.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `placeholder()` | Sets the text of the empty first option in every level. | — |
+| `getPlaceholder()` | Returns the placeholder text. | — |
+| `placeholders()` | Sets a placeholder text for each level, by index. | `[]` |
+| `getPlaceholders()` | Returns the per-level placeholder texts. | `[]` |
+| `ajaxUrl()` | Sets the endpoint that loads the items of each level. | — |
+| `getAjaxUrl()` | Returns the endpoint that loads the items. | — |
+| `ajaxValueField()` | Sets the field name used as the value in AJAX responses. | — |
+| `getAjaxValueField()` | Returns the field name used as the value in AJAX responses. | — |
+| `labels()` | Sets the name of each level. | — |
+| `getLabels()` | Returns the names of each level. | — |
+| `labelWidth()` | Sets the label width in the horizontal layout. | — |
+| `getLabelWidth()` | Returns the label width. | — |
+| `fieldWidth()` | Sets the field width. | — |
+| `getFieldWidth()` | Returns the field width. | — |
+| `horizontal()` | Enables the horizontal layout. | — |
+| `getHorizontal()` | Returns whether the horizontal layout is enabled. | — |
+| `horizontalColWidth()` | Sets the column width in the horizontal layout. | — |
+| `getHorizontalColWidth()` | Returns the column width in the horizontal layout. | — |
+| `source()` | Sets the static data source, as an array or a tree node. | — |
+| `getSource()` | Returns the static data source. | — |
+| `getSourceValues()` | Returns the source as an array of nested items. | — |
+| `cascadeSelectOptions()` | Sets extra options passed to the cascade select. | — |
+| `getCascadeSelectOptions()` | Returns the extra options passed to the cascade select. | — |
+| `pathHandler()` | Sets a callback that returns the path of the stored value. | `getValuePath()` |
+| `getPathHandler()` | Returns the callback that returns the path of the stored value. | `getValuePath()` |
+| `valueField()` | Sets the item field used as the value. | `id` |
+| `getValueField()` | Returns the item field used as the value. | `id` |
+| `textField()` | Sets the item field used as the text. | `title` |
+| `getTextField()` | Returns the item field used as the text. | `title` |
+| `ignoreSelfWith()` | Sets the value of the item to exclude from the options. | `false` |
+| `getIgnoreSelfValue()` | Returns the value of the item to exclude. | `false` |
+| `layout()` | Sets the layout that renders the field. | `null` |
+| `getLayout()` | Returns the layout that renders the field. | `@theme::field.cascade-select` |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Modal Field](./modal-field)

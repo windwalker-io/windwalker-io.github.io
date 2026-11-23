@@ -126,6 +126,32 @@ $form->add('state', SwitcherField::class)
     ->color('primary');    // Bootstrap color name, without "btn-".
 ```
 
+## Options Reference
+
+The switcher adds slider, color, and value methods on top of the checkbox
+field.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `shape()` | Sets the slider shape: `square`, `round`, or `circle`. | `square` |
+| `getShape()` | Returns the slider shape, or `null` when unset. | — |
+| `round()` | Sets the shape to `round` when `true`, or `square` when `false`. | `true` |
+| `circle()` | Sets the shape to `circle` when `true`, or `square` when `false`. | `true` |
+| `size()` | Sets the slider size, `sm` or `lg`. | — |
+| `getSize()` | Returns the slider size, or `null` when unset. | — |
+| `color()` | Sets the `btn-*` color of the slider, without the `btn-` prefix. | `secondary` |
+| `getColor()` | Returns the slider color, or `null` when unset. | — |
+| `checkedValue()` | Sets the value submitted when the switch is on. | — |
+| `getCheckedValue()` | Returns the checked value, or `null` when unset. | — |
+| `uncheckedValue()` | Sets the value submitted when the switch is off. | — |
+| `getUncheckedValue()` | Returns the unchecked value, or `null` when unset. | — |
+| `help()` | Sets the help text of the field. | — |
+| `getHelp()` | Returns the help text of the field. | — |
+| `description()` | Sets the description of the field. | — |
+| `getDescription()` | Returns the description of the field. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [ButtonRadio](/documentation/unicorn/form-fields/field-types/button-radio)

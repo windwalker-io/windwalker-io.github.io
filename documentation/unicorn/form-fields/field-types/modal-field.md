@@ -320,6 +320,61 @@ the check.
 `multiCheck()` affects the list template only. The single-mode template
 ignores it, although the field still adds `multiCheck=1` to the URL.
 
+## Options Reference
+
+`ModalField` provides the following methods for the picker, the selection,
+and the stored records. Each setter returns the field for chaining.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `route()` | Sets the route name or URI of the picker list view. | `null` |
+| `getRoute()` | Returns the route name or URI of the picker list view. | `null` |
+| `setRoute()` | Sets the route name or URI of the picker list view. | `null` |
+| `url()` | Sets the picker URL directly. | `null` |
+| `getUrl()` | Returns the picker URL. Throws if no route or URL is set. | — |
+| `configureUrl()` | Sets a callback that changes the picker URL. | `null` |
+| `getUrlHandler()` | Returns the callback that changes the picker URL. | `null` |
+| `layout()` | Sets the layout that renders the field. | `null` |
+| `getLayout()` | Returns the layout that renders the field. | Single or list layout |
+| `callback()` | Sets the JavaScript callback name used by the picker. | — |
+| `getCallback()` | Returns the callback name, generated from the field ID if unset. | Generated |
+| `buttonText()` | Sets the text of the picker button. | Translated text |
+| `getButtonText()` | Returns the text of the picker button. | — |
+| `titleClass()` | Sets the CSS class of the title element. | — |
+| `getTitleClass()` | Returns the CSS class of the title element. | — |
+| `multiple()` | Enables selecting multiple records. | `false` |
+| `isMultiple()` | Returns whether multiple records can be selected. | `false` |
+| `multiCheck()` | Enables checkbox selection in the picker. | `false` |
+| `isMultiCheck()` | Returns whether checkbox selection is enabled. | `false` |
+| `max()` | Sets the maximum number of records a multiple field accepts. | — |
+| `getMax()` | Returns the maximum number of records. | — |
+| `sortable()` | Keeps the selected records in the saved order. | `false` |
+| `isSortable()` | Returns whether the selected records keep their order. | `false` |
+| `hasImage()` | Shows the image of the selected record in single mode. | `false` |
+| `isHasImage()` | Returns whether the image is shown. | `false` |
+| `itemTemplate()` | Stores a custom template for each item. | — |
+| `getItemTemplate()` | Returns the custom template for each item. | — |
+| `placeholder()` | Stores the placeholder text of the field. | — |
+| `getPlaceholder()` | Returns the placeholder text of the field. | — |
+| `height()` | Stores the height of the field. | — |
+| `getHeight()` | Returns the height of the field. | — |
+| `modalHeight()` | Sets the height of the picker modal. | — |
+| `getModalHeight()` | Returns the height of the picker modal. | — |
+| `table()` | Sets the database table to query. | `null` |
+| `getTable()` | Returns the database table to query. | `null` |
+| `configureQuery()` | Sets a callback that modifies the query. | — |
+| `autoSelection()` | Sets how columns are selected automatically in the query. | `.` |
+| `getAutoSelections()` | Returns the automatic column selection setting. | `.` |
+| `titleField()` | Sets the column used as the record title. | `title` |
+| `getTitleField()` | Returns the column used as the record title. | `title` |
+| `keyField()` | Sets the column used as the record key. | `id` |
+| `getKeyField()` | Returns the column used as the record key. | `id` |
+| `imageField()` | Sets the column used as the record image. | `image` |
+| `getImageField()` | Returns the column used as the record image. | `image` |
+| `getItems()` | Returns the selected records with title, value, and image. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Modal List View](/documentation/unicorn/mvc-crud/mvc-admin/modal-list-view)

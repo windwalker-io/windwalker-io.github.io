@@ -84,6 +84,17 @@ The field saves the text of the input. It does not convert or check the
 value. A user can type any text, so validate the format in your controller or
 form validator when the value must be a color.
 
+## Options Reference
+
+`ColorPickerField` provides the following methods for the picker.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `pickerOptions()` | Sets the options passed to the color picker. | `[]` |
+| `getPickerOptions()` | Returns the picker options. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Calendar](./calendar)

@@ -132,6 +132,17 @@ When your field must extend another base class, use `LayoutFieldTrait`.
 It provides `layout()`, `getLayout()`, and `renderLayout()`, and requires
 you to implement `getDefaultLayout()`.
 
+## Options Reference
+
+The table lists the methods specific to the layout field.
+
+| Method | Description | Default |
+|--------|-------------|---------|
+| `layout()` | Set the layout path for this field. | `null` |
+| `getLayout()` | Return the layout path in use. | Throws if not set |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
 ## Related
 
 - [Form Utilities](/documentation/unicorn/form-fields/form-utilities#form-fields-layout)

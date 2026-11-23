@@ -183,6 +183,31 @@ $form->add('manual', FileDragField::class)
 
 `layout()` replaces the default template, `@theme::field.file-drag`.
 
+## Options Reference
+
+`FileDragField` adds the following methods to the Windwalker `FileField`.
+Each row lists a setter and its getter.
+
+| Method | Description | Default |
+| --- | --- | --- |
+| `maxFiles()` / `getMaxFiles()` | Limits the number of selected files. Used with `multiple(true)`. | — |
+| `maxSize()` / `getMaxSize()` | Limits the total size of the selected files, in megabytes. | — |
+| `height()` / `getHeight()` | Sets the height of the drop area, in pixels. | `125` |
+| `layout()` / `getLayout()` | Replaces the default template. | `@theme::field.file-drag` |
+| `showUploaded()` / `isShowUploaded()` | Shows the stored file bar: `true`, `'bottom'`, or `'top'`. | `false` |
+| `previewLayout()` / `getPreviewLayout()` | Replaces the stored file bar with a view layout or a closure. | — |
+| `downloadLinkHandler()` / `getDownloadLinkHandler()` | Builds the URL of the stored file link. | — |
+
+Common form field methods such as `label()`, `required()`, and `disabled()` also work.
+
+See:
+- [Blocking Save During Uploads](/documentation/unicorn/mvc-crud/css-js-in-mvc-pages#blocking-save-during-uploads)
+- [SimpleStack](/documentation/unicorn/javascript-frontend/ui/simple-stack)
+
+::: info
+The file is sent with the form, so saving is the upload. The save lock does not apply.
+:::
+
 ## Related
 
 - [SingleImageDrag](./single-image-drag)
