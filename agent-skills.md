@@ -41,6 +41,125 @@ The checksum step prints `skills.zip: OK` when the archive matches. Then the fil
 The checksum and the archive come from the same site, so this check detects a corrupted or incomplete download. It does not prove that the archive was not replaced on the server.
 :::
 
+## Documentation APIs
+
+Besides the archive, the same documentation is searchable over three HTTP APIs. Use them when an agent or tool needs the current Windwalker docs without downloading the whole archive.
+
+<ul class="vp-raw">
+  <li><code>https://docs-search.windwalker.io/search</code>: returns the matching documentation chunks</li>
+  <li><code>https://docs-search.windwalker.io/chat/completions</code>: answers a question with an OpenAI-compatible chat API</li>
+  <li><code>https://docs-search.windwalker.io/mcp</code>: an MCP server with a <code>search</code> tool</li>
+</ul>
+
+### Search API
+
+Send a `POST` request with a JSON body that contains `query`. The response lists the matching chunks in `result.chunks`, and each chunk has its text, score, and source URL in `item.key`.
+
+```bash
+curl -sS -X POST https://docs-search.windwalker.io/search \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "router"}'
+```
+
+```json
+{
+  "success": true,
+  "result": {
+    "query_kind": "text",
+    "search_query": "router",
+    "chunks": [
+      {
+        "score": 1,
+        "text": "...",
+        "item": { "key": "https://windwalker.io/documentation/..." }
+      }
+    ]
+  }
+}
+```
+
+Use `ai_search_options.retrieval` to tune the search, for example `retrieval_type` (`vector`, `keyword`, or `hybrid`) and `max_num_results` (1 to 50).
+
+```bash
+curl -sS -X POST https://docs-search.windwalker.io/search \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "dependency injection",
+    "ai_search_options": {
+      "retrieval": {
+        "retrieval_type": "hybrid",
+        "max_num_results": 5
+      }
+    }
+  }'
+```
+
+### Chat API
+
+The chat endpoint follows the OpenAI `chat/completions` format. Send the conversation in `messages`, and read the answer from `choices[0].message.content`. The server chooses the model.
+
+```bash
+curl -sS -X POST https://docs-search.windwalker.io/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "messages": [
+      { "role": "user", "content": "How do I define a route?" }
+    ]
+  }'
+```
+
+```json
+{
+  "object": "chat.completion",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "### Defining a Route\n..."
+      }
+    }
+  ]
+}
+```
+
+::: tip
+Use the Search API when you need the source text, and the Chat API when you need a ready-made answer. Answers from the Chat API are generated, so check them against the linked documentation.
+:::
+
+### MCP Server
+
+The MCP endpoint uses the streamable HTTP transport. It exposes one tool, `search`, which takes the same `query` argument as the Search API. Any MCP client can connect to it by URL.
+
+### Configure MCP in a Project
+
+Add the server to the MCP configuration file of your tool. For Claude Code and other clients that read `.mcp.json` in the project root:
+
+```json
+{
+  "mcpServers": {
+    "windwalker-docs": {
+      "type": "http",
+      "url": "https://docs-search.windwalker.io/mcp"
+    }
+  }
+}
+```
+
+For VS Code, put the same server under `servers` in `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "windwalker-docs": {
+      "type": "http",
+      "url": "https://docs-search.windwalker.io/mcp"
+    }
+  }
+}
+```
+
+Restart the client or reload its MCP servers after you save the file. Then ask the agent to search the Windwalker docs, and it calls the `search` tool.
+
 <script setup>
 const sha256 = __SKILLS_SHA256__
 const version = __SKILLS_VERSION__
