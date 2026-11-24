@@ -92,6 +92,126 @@ class ArticleItemHtml
 }
 ```
 
+## Site-wide Defaults
+
+The frame is shared by the whole request, and the view renders after
+the route middleware runs. Values set in a middleware therefore become
+the defaults for every page, and a view can replace them.
+
+A site-wide middleware sets the defaults once for a route group. The
+host app's `FrontMiddleware` does this for the front site. It extends
+`AbstractLifecycleMiddleware` and sets the frame in `preprocess()`,
+which runs before the view renders:
+
+```php
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Windwalker\Core\Html\HtmlFrame;
+use Windwalker\Core\Middleware\AbstractLifecycleMiddleware;
+
+class FrontMiddleware extends AbstractLifecycleMiddleware
+{
+    public function __construct(
+        protected HtmlFrame $htmlFrame,
+    ) {
+    }
+
+    protected function preprocess(ServerRequestInterface $request): void
+    {
+        // ...
+    
+        $this->htmlFrame->setFavicon('@vite/images/favicon.png');
+        $this->htmlFrame->setSiteName('Windwalker');
+        $this->htmlFrame->setDescription('Windwalker Site Description.');
+    }
+
+    protected function postProcess(ResponseInterface $response): void
+    {
+    }
+}
+```
+
+Register it on the route group. Every page in the group inherits these
+values, and a view can still replace them:
+
+```php
+$router->group('front')
+    ->namespace('front')
+    ->middleware(FrontMiddleware::class)
+    ->register(function (RouteCreator $router) {
+        // Routes in this group
+    });
+```
+
+::: info
+`MetadataMiddleware` with `meta` and `og` arguments can also set static
+tags, but a dedicated middleware like `FrontMiddleware` is clearer for
+site-wide defaults.
+:::
+
+## Overriding Defaults in a View
+
+A `#[ViewMetadata]` method runs after the middleware, so its calls
+override the defaults. How a call replaces a default depends on the
+method:
+
+- `setTitle()`, `setSiteName()`, and `setFavicon()` replace the value.
+- `setDescription()` replaces the `description` and `og:description`
+  tags.
+- `setCoverImages()` removes the existing `og:image` tags, then adds
+  the new ones.
+- `addMetadata()` and `addOpenGraph()` add a tag without removing
+  others, unless you pass `replace: true`.
+
+Use the `IfNotEmpty` methods when a page may have no value. They keep
+the default instead of replacing it:
+
+```php
+use Windwalker\Core\Attributes\ViewMetadata;
+use Windwalker\Core\Html\HtmlFrame;
+
+class ProductItemHtml
+{
+    #[ViewMetadata]
+    public function prepareMetadata(
+        HtmlFrame $htmlFrame,
+        array $item,
+    ): void {
+        // Replaces the site-wide title
+        $htmlFrame->setTitle($item['title']);
+
+        // Keeps the site-wide description when summary is empty
+        $htmlFrame->setDescriptionIfNotEmpty(
+            $item['summary'],
+            truncate: 160,
+        );
+
+        // Keeps the site-wide cover when image is empty
+        $htmlFrame->setCoverImagesIfNotEmpty($item['image']);
+    }
+}
+```
+
+::: warning
+`setDescription('')` replaces the default with an empty `description`
+tag, and no error is raised. Use `setDescriptionIfNotEmpty()` when the
+text can be empty.
+:::
+
+::: warning
+`addOpenGraph()` without `replace: true` adds a second tag next to the
+default. For example, a view that calls
+`addOpenGraph('og:image', ...)` leaves the site-wide image in place,
+and the page gets two `og:image` tags. Use `setCoverImages()` or pass
+`replace: true` instead.
+:::
+
+::: info
+`#[ViewMetadata]` methods run only for the main view. Child views skip
+them, so set their metadata on the main view or through
+`configureHtmlFrame()`.
+:::
+
 ## Title and Site Name
 
 `setTitle()` sets the page title, and `getTitle()` returns it. Calling

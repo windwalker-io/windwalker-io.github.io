@@ -91,14 +91,10 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           text: 'ACL',
           collapsed: true,
           items: [
-            {
-              text: 'Static Policies',
-              link: `/${lunaRoutePrefix}/systems/acl/static-policies`
-            },
-            {
-              text: 'Database Policies',
-              link: `/${lunaRoutePrefix}/systems/acl/database-policies`
-            },
+            { text: 'Overview', link: `/${lunaRoutePrefix}/systems/acl/overview` },
+            { text: 'Roles and Actions', link: `/${lunaRoutePrefix}/systems/acl/roles-and-actions` },
+            { text: 'AccessService', link: `/${lunaRoutePrefix}/systems/acl/access-service` },
+            { text: 'Database Roles and Rules', link: `/${lunaRoutePrefix}/systems/acl/database-rules` },
           ],
         },
         {
@@ -135,6 +131,14 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
               text: 'Database Menus',
               link: `/${lunaRoutePrefix}/systems/menu/database-menus`
             },
+            {
+              text: 'Menu Views',
+              link: `/${lunaRoutePrefix}/systems/menu/menu-views`
+            },
+            {
+              text: 'Menu Rendering',
+              link: `/${lunaRoutePrefix}/systems/menu/menu-rendering`
+            },
           ],
         },
         {
@@ -149,6 +153,14 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
               text: 'Content Translation',
               link: `/${lunaRoutePrefix}/systems/multilingual/content-translation`
             },
+                          {
+                            text: 'LocaleService',
+                            link: `/${lunaRoutePrefix}/systems/multilingual/locale-service`
+                          },
+                          {
+                            text: 'AssociationService',
+                            link: `/${lunaRoutePrefix}/systems/multilingual/association-service`
+                          },
           ],
         },
       ],

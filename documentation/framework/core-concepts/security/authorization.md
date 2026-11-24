@@ -38,19 +38,20 @@ is `etc/conf/auth.config.php`. Two forms are supported:
 ```php
 // etc/conf/auth.config.php
 return [
-    'auth' => [
-        'authorization' => [
-            'policies' => [
-                // Named: one policy, the key is its name.
-                'article.edit' => ArticleEditPolicy::class,
+    'authorization' => [
+        'policies' => [
+            // Named: one policy, the key is its name.
+            'article.edit' => ArticleEditPolicy::class,
 
-                // Unnamed: a provider that registers many policies.
-                PostPolicyProvider::class,
-            ],
+            // Unnamed: a provider that registers many policies.
+            PostPolicyProvider::class,
         ],
     ],
 ];
 ```
+
+The file name is the config namespace, so `authorization.policies` in
+`auth.config.php` becomes the `auth.authorization.policies` parameter.
 
 Unnamed entries should be providers. A non-provider entry without a
 name is passed to `addPolicy()` with its integer index as the name, and

@@ -1,13 +1,17 @@
 ---
 layout: doc
-description: Pages in Luna CMF, their fields, and how to extend or override them.
+description: Pages in Luna CMF, their fields, PageBuilder pages, and static pages.
 ---
 
 # Page
 
-Pages are standalone content built with the page builder, such as landing pages
-or campaign pages. Unlike articles, a page's layout is stored as JSON, not as
-HTML text.
+A page is standalone content for landing pages, campaigns, and similar
+pages. Luna serves a page in one of two ways:
+
+- PageBuilder: pages edited in the admin. The layout is stored as JSON in
+  `content`, made of addons and templates.
+- Static page: pages whose layout is a Blade file in your app or in the
+  framework, served by path with no database row.
 
 ## Fields
 
@@ -15,7 +19,8 @@ The `Page` entity (`Lyrasoft\Luna\Entity\Page`) stores these fields:
 
 - `id`, `title`, `alias`: identity and URL slug.
 - `categoryId`: the owning category.
-- `extends`: the base template the page inherits from.
+- `extends`: the Blade layout the page body is placed into. See
+  [Page Extends](#page-extends).
 - `image`: the cover image.
 - `content`: the page-builder layout, stored as JSON.
 - `css`: custom CSS for the page.
@@ -25,9 +30,81 @@ The `Page` entity (`Lyrasoft\Luna\Entity\Page`) stores these fields:
 - `language`: the language code. `*` means all languages.
 - `params`: JSON settings.
 
-## Page Templates
+## Overriding with pkg:install
 
-A `PageTemplate` (`Lyrasoft\Luna\Entity\PageTemplate`) stores a reusable page
+The page module installs its admin, front, and model parts. Each part
+has its own tag, so you can copy one part and leave the rest alone:
+
+```shell
+php windwalker pkg:install lyrasoft/luna --tag page_admin
+php windwalker pkg:install lyrasoft/luna --tag page_front
+php windwalker pkg:install lyrasoft/luna --tag page_model
+```
+
+To change the addon list or templates, copy the config first:
+
+```shell
+php windwalker pkg:install lyrasoft/luna --tag config
+```
+
+To change the front route, such as removing the `/page` prefix, copy the
+routes with `--tag routes`. See [URL Prefix](#url-prefix).
+
+## PageBuilder
+
+The PageBuilder edits a page's `content` as a list of rows, columns, and
+addons. The admin editor saves the layout as JSON, and the front end renders
+it through `PageBuilder::renderFrontend()`. Use this section when you add
+addons, change how they render, or ship starter templates.
+
+### Page Extends
+
+Every page has an `extends` column. It names the Blade layout that
+the page body is placed into. The front page view renders:
+
+```blade
+{{-- Module/Front/Page/views/page.blade.php --}}
+@extends($page->extends)
+
+@section('content')
+    {!! $builder->renderFrontend($page) !!}
+@endsection
+```
+
+The default value is `global.body`, set in the admin edit form.
+Luna's layouts are in the front module and admin module views.
+To add a choice to the admin dropdown, extend `page_extends` in
+`etc/pages.config.php`. The key is the layout name, and the value is
+a language key:
+
+```php
+// etc/pages.config.php (your copy)
+'page_extends' => [
+    'global.body' => 'luna.page.extends.global.body',
+    'landing.body' => 'app.page.extends.landing',
+],
+```
+
+A numeric key means the value is the layout name itself:
+
+```php
+'page_extends' => [
+    0 => 'landing.body',
+],
+```
+
+Values are translated with `trans()`, so `app.page.extends.landing`
+must exist in your language file. Layouts from the database
+(distinct `extends` values already saved) are merged into the list.
+
+::: info
+`page_extends` only fills the dropdown. Any layout name stored in the
+database is still rendered, so the layout file must exist.
+:::
+
+### Page Templates
+
+A `PageTemplate` (`Lyrasoft\Luna\Entity\PageTemplate`) stores a reusable
 layout with `title`, `type`, `description`, `image`, `content`, and `params`.
 
 Starter templates are listed under `templates` in `etc/pages.config.php`.
@@ -62,16 +139,16 @@ The keys are:
 - `content`: the layout content, used as-is when set. It takes priority
   over `file`.
 
-Templates from the database have a `can_delete` flag set to `true`.
-Templates from `pages.templates` do not have this flag, so they cannot be
-deleted from the admin list.
-
 The editor sends a `type` request parameter. Separate several types with
 commas, and `PageController::getTemplates()` returns the templates whose
-`type` matches one of them. For example, `type=page,section` returns
-templates with type `page` or `section`.
+`type` matches one of them. For example, `type=page,row` returns
+templates with type `page` or `row`.
 
-## Addons
+Templates saved by users are stored in the `PageTemplate` table with
+`can_delete = true`. Templates from `pages.templates` do not have this
+flag, so the admin cannot delete them.
+
+### Addons
 
 A page's `content` is a list of addons. Each addon has a type and renders
 with its own template. Luna registers five addon types under `addons` in
@@ -84,7 +161,7 @@ with its own template. Luna registers five addon types under `addons` in
 - `emptyspace`: vertical spacing, `EmptyspaceAddon`.
 
 Each addon class extends `Lyrasoft\Luna\PageBuilder\AbstractAddon`. It
-defines three static methods and one `prepareData()` method.
+defines two static methods and one `prepareData()` method.
 
 ```php
 namespace App\PageBuilder\Addon\Quote;
@@ -146,7 +223,7 @@ Use `prepareData()` to set defaults or to build values the template needs.
 Keep rendering logic in the template.
 :::
 
-### Labels and Icons
+#### Labels and Icons
 
 `getName()` and `getDescription()` take a `LanguageInterface`, so the
 label can be translated. If the class does not set `$name` or
@@ -168,44 +245,7 @@ public static function getDescription(LanguageInterface $lang): string
 }
 ```
 
-### Editor Component
-
-An addon can replace the default editor in the admin page builder by
-implementing `AdminVueComponentInterface`. The interface has three
-methods:
-
-- `getVueComponentName(): string`: the name of the Vue component.
-- `loadVueComponent(AppContext $app): ?string`: the URL of the component
-  module, or `null` to keep the default editor.
-- `getVueComponentTemplate(CompositeRenderer $renderer, array $data): string`:
-  the template that mounts the component.
-
-All built-in addons (`text`, `image`, `button`, `feature`, `emptyspace`)
-return `null` from `loadVueComponent()`.
-
-```php
-use Lyrasoft\Luna\PageBuilder\AdminVueComponentInterface;
-use Windwalker\Core\Application\AppContext;
-
-class QuoteAddon extends AbstractAddon implements
-    AdminVueComponentInterface
-{
-    public static function getVueComponentName(): string
-    {
-        return 'quote-editor';
-    }
-
-    public static function loadVueComponent(AppContext $app): ?string
-    {
-        // Return the URL of your compiled Vue component module.
-        return null;
-    }
-
-    // getVueComponentTemplate() renders the mount point for the editor.
-}
-```
-
-### Styles and Element Attributes
+#### Styles and Element Attributes
 
 An addon that outputs styles or classes implements `HasOwnStyleInterface`.
 The page renderer calls both methods, which receive the addon's options:
@@ -243,7 +283,7 @@ class QuoteAddon extends AbstractAddon implements HasOwnStyleInterface
 The built-in `TextAddon` uses both methods. The other built-in addons
 leave `prepareElement()` empty.
 
-## Overriding Addon Templates
+#### Overriding Addon Templates
 
 Luna looks for an addon template in four places, in this order:
 
@@ -261,7 +301,79 @@ views/addons/text/text.blade.php
 The first match wins, so the file in your app replaces the built-in one
 without editing the package.
 
-## Template Path Lookup
+#### Editor Component
+
+An addon can replace the default editor in the admin page builder by
+implementing `AdminVueComponentInterface`. The interface has three
+methods:
+
+- `getVueComponentName(): string`: the name of the Vue component.
+- `loadVueComponent(AppContext $app): ?string`: the URL of the component
+  module, or `null` to keep the default editor.
+- `getVueComponentTemplate(CompositeRenderer $renderer, array $data): string`:
+  the template that mounts the component.
+
+`TextAddon`, `ButtonAddon`, `ImageAddon`, `EmptyspaceAddon`, and
+`FeatureAddon` all return `null` from `loadVueComponent()`, so they use
+Luna's built-in editor.
+
+```php
+use Lyrasoft\Luna\PageBuilder\AdminVueComponentInterface;
+use Windwalker\Core\Application\AppContext;
+
+class QuoteAddon extends AbstractAddon implements
+    AdminVueComponentInterface
+{
+    public static function getVueComponentName(): string
+    {
+        return 'quote-editor';
+    }
+
+    public static function loadVueComponent(AppContext $app): ?string
+    {
+        // Return the URL of your compiled Vue component module.
+        return null;
+    }
+
+    // getVueComponentTemplate() renders the mount point for the editor.
+}
+```
+
+The module default-exports a function that receives the Vue `app` and
+returns the component. The component receives `modelValue` and uses
+`defineModel`, the same as Luna's `addon-text.vue`:
+
+```vue
+<script lang="ts" setup>
+import { type AddonProps, useAddonDefaults } from '~luna/composables';
+
+defineProps<AddonProps>();
+
+const options = defineModel<Record<string, any>>({ required: true });
+
+useAddonDefaults(options, {
+  content: 'Quote text',
+});
+</script>
+
+<template>
+  <blockquote>{{ options.content }}</blockquote>
+</template>
+```
+
+::: info
+The Vue component URL in the example is a placeholder. Use the path of
+the module your own build emits.
+:::
+
+## Static Page
+
+A static page is a Blade layout file that Luna serves by path, without a
+database row. Use it for pages whose markup is fixed in code, such as a
+theme landing page. For pages edited in the admin, see
+[PageBuilder](#pagebuilder).
+
+### Template Path Lookup
 
 When a visitor opens a page, `PageView` finds its layout by the page path.
 The path comes from the `path` input or the matched route. For a path such
@@ -271,10 +383,22 @@ as `campaign/spring`, the lookup order is:
 2. `Module/Front/Page/views/campaign/spring.blade.php` in the framework.
 3. `views/campaign/spring.blade.php` beside the `PageView` class.
 
-Put a custom layout at step 1 to override a page without editing Luna.
+The first file found is rendered. Put a custom layout at step 1 to override
+a page without editing Luna:
 
+```blade
+{{-- views/front/page/campaign/spring.blade.php --}}
+@extends('global.body')
 
-## URL Prefix
+@section('content')
+    <h1>Spring Campaign</h1>
+@endsection
+```
+
+If none of the files exist, `PageView` falls back to the database page
+with the same alias.
+
+### URL Prefix
 
 The front page route is defined in `routes/front/page.route.php`:
 
@@ -288,9 +412,10 @@ $router->group('page')
     );
 ```
 
-So a page with the path `campaign/spring` is served at `/page/campaign/spring`.
-The route name is `page`. Menus and `$nav->to('page', ...)` build their URLs
-from that name, so they follow any change to the path.
+So a page with the path `campaign/spring` is served at
+`/page/campaign/spring`. The route name is `page`. Menus and
+`$nav->to('page', ...)` build their URLs from that name, so they follow
+any change to the path.
 
 To remove the `/page` prefix, copy the route file to your app with
 `pkg:install` and edit the copy in `routes/packages/`:
@@ -315,19 +440,53 @@ $router->group('page')
 those routes will never run.
 :::
 
-## Overriding with pkg:install
+### Per-Page Routes
 
-The page module installs its admin, front, and model parts. Each part
-has its own tag, so you can copy one part and leave the rest alone:
+The default route `/page/{path:.+}` serves every page. To serve one page
+at a different URL, add a route and set the `path` extra. `PageView`
+reads that extra value to find the layout file:
 
-```shell
-php windwalker pkg:install lyrasoft/luna --tag page_admin
-php windwalker pkg:install lyrasoft/luna --tag page_front
-php windwalker pkg:install lyrasoft/luna --tag page_model
+```php
+// routes/front/page.route.php (your copy)
+$router->get('about-us', '/about-us')
+    ->view(PageView::class)
+    ->extra('path', 'about');
 ```
 
-To change the addon list or templates, copy the config first:
+Use `extra()`, not `var()`. `var()` sets a route variable, and
+`PageView` reads the extra value from `getExtraValue('path')`.
 
-```shell
-php windwalker pkg:install lyrasoft/luna --tag config
+### Protecting Pages
+
+`PageView` refuses to render any layout that matches an entry in
+`pages.protects`. Protection only applies when the app is not in debug
+mode. The default config is:
+
+```php
+// etc/pages.config.php
+'protects' => [
+    '/page/theme/**/*',
+],
 ```
+
+Two rules are used:
+
+- A leading `/` is a route. It matches exactly, or as a glob when it
+  contains `*`. A match throws `RouteNotFoundException` (404).
+- Any other value is a layout prefix, for example `theme/`. It is
+  compared with the layout name, not the URL.
+
+```php
+// etc/pages.config.php (your copy)
+'protects' => [
+    '/page/theme/**/*',
+    '/page/internal',
+    'admin/',
+],
+```
+
+::: warning
+Protection checks the request route and the layout name, not the database
+row. A static layout is blocked only if it matches a `protects` entry, so
+list every internal layout there.
+:::
