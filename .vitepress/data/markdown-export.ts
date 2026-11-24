@@ -117,6 +117,7 @@ const sectionNames: [prefix: string, name: string][] = [
   ['documentation/components', 'Components'],
   ['documentation/framework', 'Framework'],
   ['documentation/unicorn', 'Unicorn RAD'],
+  ['documentation/luna', 'Luna CMF'],
 ];
 
 // Sections whose order and nesting follow a sidebar tree instead of the file system

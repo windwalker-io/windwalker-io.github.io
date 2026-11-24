@@ -15,12 +15,13 @@ import {
 import { flatComponents, getComponentsSidebar } from './data/menu/components.menu';
 import { findFrameworkParentText, frameworkSidebar } from './data/menu/framework.menu';
 import { guidesSidebar } from './data/menu/guides.menu';
+import { lunaSidebar } from './data/menu/luna.menu';
 import { unicornSidebar } from './data/menu/unicorn.menu';
 import { buildSkillsPackage } from './data/skills-package';
 import {
   componentRoutePrefix,
   frameworkRoutePrefix,
-  guideRoutePrefix, unicornRoutePrefix,
+  guideRoutePrefix, lunaRoutePrefix, unicornRoutePrefix,
 } from './store/routing-store';
 
 const componentsSidebar = await getComponentsSidebar();
@@ -35,7 +36,7 @@ const markdownOptions: MarkdownExportOptions = {
     'index.md',
   ],
   // Every route's sidebar tree; used to link chapter siblings in the Sitemap block
-  sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...unicornSidebar.value, ...componentsSidebar],
+  sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...unicornSidebar.value, ...lunaSidebar.value, ...componentsSidebar],
   frameworkSidebar: frameworkSidebar.value,
   unicornSidebar: unicornSidebar.value,
 };
@@ -127,6 +128,7 @@ export default withMermaid(defineConfig({
           { text: 'Components', link: `/${componentRoutePrefix}/` },
           { component: 'separator' },
           { text: 'Unicorn RAD', link: `/${unicornRoutePrefix}/` },
+          { text: 'Luna CMF', link: `/${lunaRoutePrefix}/` },
         ],
       },
       { text: 'Skills', link: '/agent-skills' },
@@ -139,6 +141,7 @@ export default withMermaid(defineConfig({
       [`/${frameworkRoutePrefix}`]: frameworkSidebar.value,
       [`/${componentRoutePrefix}`]: componentsSidebar,
       [`/${unicornRoutePrefix}`]: unicornSidebar.value,
+      [`/${lunaRoutePrefix}`]: lunaSidebar.value,
     },
 
     // sidebar: [
