@@ -65,6 +65,12 @@ enum Status: string implements EnumRichInterface
 
     #[Hidden, Title('Archived'), Color('red')]
     case Archived = 'archived';
+    
+    // Optional translation key for getTitle($lang) and getTransItems($lang)
+    protected function translateKey(string $name) : string
+    {
+        return 'app.enum.status.' . $name;
+    }
 }
 
 Status::getTitles();
