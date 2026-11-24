@@ -151,6 +151,20 @@
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
 
+/**
+ * Component: Cloudflare AI Search
+ * The active result background comes from --search-snippet-focus-ring,
+ * which the plugin sets to 25% alpha. Lower it so result text stays readable.
+ * -------------------------------------------------------------------------- */
+
+search-modal-snippet {
+  --search-snippet-focus-ring: #0066cc1a;
+}
+
+html.dark search-modal-snippet {
+  --search-snippet-focus-ring: #4dabf71a;
+}
+
 .VPHome .image-bg {
   opacity: .7;
 }
