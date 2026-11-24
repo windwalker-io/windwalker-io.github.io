@@ -48,7 +48,7 @@ return [
 
 The array key is the role ID, for example `manager`. It is what Luna stores in `user_role_maps.role_id` and what you pass to methods such as `userIsRole()`. The names have no built-in meaning. What a role may do is decided only by the rules you write.
 
-To translate role titles or use other services, type-hint them on the closure. Luna calls it through the container:
+To [translate](/documentation/framework/services/language) role titles or use other services, type-hint them on the closure. Luna calls it through the container:
 
 ```php
 use Windwalker\Core\Language\LangService;

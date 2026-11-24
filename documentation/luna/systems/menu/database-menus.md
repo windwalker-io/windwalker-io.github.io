@@ -55,7 +55,7 @@ class NavProvider
 
 ## Printing a Database Menu
 
-Pass the type name to `<x-menu-root>` with `menu`. The component loads the
+Pass the type name to [`<x-menu-root>`](./menu-rendering) with `menu`. The component loads the
 tree with `getMenusTree()` for you:
 
 ```blade

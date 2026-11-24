@@ -377,6 +377,9 @@ protected function configureUploader(S3MultipartUploader $uploader): void
 }
 ```
 
+When the browser sends `ContentDisposition`, the uploader keeps that value. It
+only builds a download header from the filename when the value is empty.
+
 ::: warning
 Only allow the keys the browser needs. Every allowed key is passed to
 `CreateMultipartUpload`, so each one must be a valid argument of that

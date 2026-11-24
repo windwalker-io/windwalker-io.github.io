@@ -121,3 +121,6 @@ class ArticleMenuForm
 
 - [Captcha Fields](captcha-fields.md)
 - [Localization Fields](localization-fields.md)
+- [Category](../../content-management/category)
+- [Tag](../../content-management/tag)
+- [Articles](../../content-management/articles)

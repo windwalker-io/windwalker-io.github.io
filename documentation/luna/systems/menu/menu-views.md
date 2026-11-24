@@ -132,7 +132,7 @@ public function prepareVariablesStore(array &$variables): void
 ```
 
 `PageMenuView` does the same for `alias`, and throws
-`ValidateFailException` when both `id` and `path` are empty.
+[`ValidateFailException`](/documentation/framework/core-concepts/error-handling) when both `id` and `path` are empty.
 
 ## Menu Params
 

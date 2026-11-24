@@ -164,7 +164,7 @@ you use `activeFor()` or `activeHandler()`.
 
 ## Combining with Database Menus
 
-To mix both kinds, attach the database items under a static item:
+To mix both kinds, attach the [database items](./database-menus) under a static item:
 
 ```php
 $tree = $menuService->getMenusTree('mainmenu');

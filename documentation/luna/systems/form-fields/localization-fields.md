@@ -43,7 +43,7 @@ $form->add('language', LocaleSwitchField::class)
     ->allowCreateEmpty(true);
 ```
 
-The field loads the translations of the record through `AssociationService`. If your language column has another name, set it with `languageField()`.
+The field loads the translations of the record through [AssociationService](../multilingual/association-service). If your language column has another name, set it with `languageField()`.
 
 ## Complete Example
 
@@ -103,3 +103,5 @@ The fallback only applies when the value is empty. An existing record keeps its 
 
 - [Captcha Fields](captcha-fields.md)
 - [Content Selection Fields](content-selection-fields.md)
+- [Enabling Multilingual](../multilingual/enabling-multilingual)
+- [Content Translation](../multilingual/content-translation)

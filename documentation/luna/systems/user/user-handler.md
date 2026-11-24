@@ -33,7 +33,7 @@ interface UserHandlerInterface
 `UserService` calls these methods through `getUserHandler()`. Its `getUser()`, `load()`, `login()`, `logout()` and `createUserEntity()` methods all delegate here.
 
 ::: warning
-Do not implement `UserHandlerInterface` from scratch unless you need a completely different storage. The default `UserHandler` also holds the remember-me and session-sync logic. Copying it is easy to get wrong.
+Do not implement `UserHandlerInterface` from scratch unless you need a completely different storage. The default `UserHandler` also holds the [remember-me](./remember-me) and session-sync logic. Copying it is easy to get wrong.
 :::
 
 ## Extending the Default Handler
@@ -124,7 +124,7 @@ Do not map `$conditions` directly to a SQL `WHERE` clause in a custom `load()`. 
 
 ## Custom Login and Logout
 
-`UserService::login()` emits `BeforeLoginSessionEvent`, then calls the handler's `login()`, then emits `AfterLoginSessionEvent`. The default `UserHandler::login()` stores the user ID in the session, resets the user cache, and syncs the database session. It does not use `$options`.
+[`UserService::login()`](./login-and-logout#session-events) emits `BeforeLoginSessionEvent`, then calls the handler's `login()`, then emits `AfterLoginSessionEvent`. The default `UserHandler::login()` stores the user ID in the session, resets the user cache, and syncs the database session. It does not use `$options`.
 
 ```php
 namespace App\User;
@@ -163,7 +163,7 @@ class TokenUserHandler extends UserHandler
 
 ## Custom Authorization
 
-`UserService::can()` asks the handler first when it implements `UserAuthorizationHandlerInterface`. If the handler returns `true`, access is granted. If it returns `false`, `UserService` falls back to `AuthService`. So the handler can only grant extra access, not deny it.
+`UserService::can()` asks the handler first when it implements `UserAuthorizationHandlerInterface`. If the handler returns `true`, access is granted. If it returns `false`, `UserService` falls back to [`AuthService`](/documentation/framework/core-concepts/security/authorization). So the handler can only grant extra access, not deny it.
 
 ```php
 namespace App\User;
@@ -198,7 +198,7 @@ For how `can()`, `canAny()` and `canAll()` are called, see [Users](./users).
 
 ## Custom Authentication
 
-When the handler implements `UserAuthenticationHandlerInterface`, `UserService::authenticate()` calls it before the `AuthService`. It must return a `ResultSet`.
+When the handler implements `UserAuthenticationHandlerInterface`, [`UserService::authenticate()`](./authentication#the-login-flow) calls it before the `AuthService`. It must return a `ResultSet`.
 
 ```php
 namespace App\User;

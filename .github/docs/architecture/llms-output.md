@@ -16,7 +16,7 @@ The site publishes LLM-friendly plain text next to the HTML pages. All of it is 
   - `exportMarkdownAndLlmsTxt()` writes the `.md` copies and `llms.txt` into the build output. It is called from `buildEnd` in `.vitepress/config.mts`.
   - `markdownExportPlugin()` is a dev middleware. It serves `/llms.txt` and raw `.md` files during `yarn dev`. Requests that look like Vite module loads (`?` in the URL, or a non-document `sec-fetch-dest`) are passed through, so pages still render.
   - It also exports `siteUrl`, which is read from the repository root `CNAME` file (`https://<CNAME>`). Do not hard-code the domain elsewhere.
-- `.vitepress/data/skills-package.ts`: builds the zip and its checksum. It runs before rendering, because the checksum is injected into `agent-skills.md` through `__SKILLS_*` defines and `markdown.codeTransformers` in `.vitepress/config.mts`.
+- `.vitepress/data/skills-package.ts`: builds the zip and its checksum. It runs before rendering, because the checksum is injected into `ai-development.md` through `__SKILLS_*` defines and `markdown.codeTransformers` in `.vitepress/config.mts`.
 
 ## How to change common things
 

@@ -269,7 +269,7 @@ returns the field for chaining.
 |--------|-------------|---------|
 | `contentCss()` | Sets the CSS files loaded inside the editor. | `@unicorn/editor.css` |
 | `getContentCss()` | Returns the CSS files loaded inside the editor. | — |
-| `langFolder()` | Sets the language folder value stored on the field. | — |
+| `langFolder()` | Sets the folder, under the public asset path, that holds the TinyMCE language files. | `vendor/tinymce-i18n/langs5` |
 | `getLangFolder()` | Returns the language folder value. | — |
 | `enableImageUpload()` | Enables or disables image upload, or sets the upload profile. | `true` |
 | `getEnableImageUpload()` | Returns the image upload setting. | — |

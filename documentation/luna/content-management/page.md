@@ -24,7 +24,7 @@ The `Page` entity (`Lyrasoft\Luna\Entity\Page`) stores these fields:
 - `image`: the cover image.
 - `content`: the page-builder layout, stored as JSON.
 - `css`: custom CSS for the page.
-- `meta`: SEO meta data.
+- `meta`: SEO meta data, see [MetaData](../utilities/metadata).
 - `state`: the publish state.
 - `ordering`: the sort order.
 - `language`: the language code. `*` means all languages.

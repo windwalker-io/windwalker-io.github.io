@@ -5,10 +5,10 @@ description: Install Luna into a Windwalker application with Composer, then publ
 
 # Installation
 
-Luna is a CMF layer built on Windwalker Core and Unicorn. It adds the
+Luna is a CMF layer built on [Windwalker Core](/documentation/framework/index) and [Unicorn](/documentation/unicorn/index). It adds the
 admin and front-end modules, the content entities, and the auth system to
 your application. Luna does not run on its own, so install it into an
-existing Windwalker application.
+existing [Windwalker application](/documentation/framework/getting-started/installation).
 
 ## Requirements
 
@@ -24,7 +24,7 @@ Require the package with Composer:
 composer require lyrasoft/luna
 ```
 
-Composer installs Luna's dependencies. Luna's `LunaPackage` class registers
+Composer installs Luna's dependencies, including [Unicorn](/documentation/unicorn/introduction/installation). Luna's `LunaPackage` class registers
 itself with Windwalker through its package manifest, so no provider entry
 is needed in your config.
 

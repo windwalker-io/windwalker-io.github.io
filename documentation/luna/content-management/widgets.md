@@ -138,7 +138,8 @@ Extend `AbstractWidget` and implement these methods:
 Two more methods complete the type:
 
 - `define(Form $form)`: adds fields to the admin edit form. It comes from
-  `FieldDefinitionInterface`.
+  `FieldDefinitionInterface`. For rich text, use
+  [TinymceEditorField](/documentation/unicorn/form-fields/field-types/tinymce-editor).
 - `prepare(AppContext $app, View $view)`: returns the variables passed to
   the layout. Windwalker calls it because the widget is the view model.
   Without it, rendering throws a `LogicException`.
@@ -205,7 +206,8 @@ any user-supplied text that you do not intend to be raw HTML.
 
 `define()` receives the admin edit form. Put the type-specific settings in
 a `params` group, so `getParam()` returns them as an array. Use
-`fieldset()` to split the fields into tabs.
+`fieldset()` to split the fields into tabs. The form API is described in
+the [Form service](/documentation/framework/services/form).
 
 ```php
 namespace App\Widget;

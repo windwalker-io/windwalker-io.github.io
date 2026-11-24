@@ -21,7 +21,7 @@ $form->add('captcha', CaptchaField::class)
     ->label('Captcha');
 ```
 
-`CaptchaField` extends `TextField`, so the name, label, and other text field options work as usual.
+`CaptchaField` extends [`TextField`](/documentation/framework/services/form), so the name, label, and other text field options work as usual.
 
 ## Complete Example
 
@@ -51,7 +51,7 @@ class ContactForm
 }
 ```
 
-When the visitor submits the form, the field calls the driver's `verify()` with the submitted value. If the check fails, validation stops with the message from the `luna.field.captcha.message.verify.fail` translation key.
+When the visitor submits the form, the field calls the driver's `verify()` with the submitted value. If the check fails, validation stops with the message from the `luna.field.captcha.message.verify.fail` [translation key](/documentation/framework/services/language).
 
 ::: info
 `CaptchaField` always removes the `required` rule. The driver decides whether an answer is present, so a required check on the field would reject valid submissions.

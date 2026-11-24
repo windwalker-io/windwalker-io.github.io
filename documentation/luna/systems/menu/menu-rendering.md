@@ -10,7 +10,7 @@ Static and database menus print the same way. Pass a tree to
 
 ## Menu Component
 
-Luna registers the `<x-menu-root>` Edge component. It renders a whole menu
+Luna registers the `<x-menu-root>` [Edge](/documentation/framework/core-concepts/views/edge-templates) component. It renders a whole menu
 tree as a `<ul>` with the `c-luna-menu nav` classes. It works for both
 static and database menus. The `menu` prop accepts a type name or a tree:
 
@@ -39,7 +39,7 @@ The component reads these props:
   `data-level="1"`. Do not rely on it to change the starting level.
 - `start` and `end`: HTML to print before and after the items.
 
-A string `menu` is loaded with `MenuService::getMenusTree()`. The
+A string `menu` is loaded with [`MenuService::getMenusTree()`](./database-menus). The
 component renders `@menu::menu-items` unless you pass a slot, so a slot
 replaces the default items.
 

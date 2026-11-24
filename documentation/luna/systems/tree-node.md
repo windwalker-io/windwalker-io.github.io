@@ -8,7 +8,7 @@ description: Build and walk in-memory trees from flat parent/child rows with Lun
 
 Hierarchical data is stored flat. A category table, a role table, or a menu table keeps one row per item with a `parent_id` column, but a template needs a nested structure to render a breadcrumb, a sidebar, or an indented `<select>`. Luna's tree package turns those flat rows into a tree of `Node` objects that you can walk, filter, and inspect without writing recursive loops by hand.
 
-Luna uses the same tree internally. The ACL role tree and the database menu tree are both built with `TreeBuilder`.
+Luna uses the same tree internally. The [ACL role tree](./acl/roles-and-actions) and the [database menu tree](./menu/database-menus) are both built with `TreeBuilder`.
 
 ## Building a Tree
 

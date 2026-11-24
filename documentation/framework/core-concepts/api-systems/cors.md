@@ -49,7 +49,7 @@ middleware(
 );
 ```
 
-```env
+```dotenv
 CORS_ALLOW_ORIGINS=https://app.example.com,https://admin.example.com
 ```
 

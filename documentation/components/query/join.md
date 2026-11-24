@@ -281,9 +281,9 @@ $query->leftJoin(
 The clause offers three methods:
 
 - `on()` adds a condition. The conditions are joined by `AND`.
-- `orOn()` adds a group, written as a closure or an array. The conditions
+- `orOnGroup()` adds a group, written as a closure or an array. The conditions
   inside the group are joined by `OR`, and the group is joined to the rest of
-  the `ON` clause by `AND`.
+  the `ON` clause by `AND`. The older `orOn()` is deprecated; use `orOnGroup()`.
 - `onRaw()` adds SQL text. Its template tokens and named bindings work as they
   do in [`whereRaw()`](/documentation/components/query/expressions#raw-methods), see
   [Raw SQL and Bindings](/documentation/components/query/expressions).
@@ -298,7 +298,7 @@ $query->leftJoin(
     function (JoinClause $join) {
         $join->on('c.id', 'p.category_id');
 
-        $join->orOn(
+        $join->orOnGroup(
             fn(JoinClause $or) => $or->on('c.title', 'p.title')
                 ->on('c.state', val(0)),
         );
@@ -319,7 +319,7 @@ $query->leftJoin(
 ```
 
 ::: warning
-As in `where()`, the group added by `orOn()` is always joined with `AND`.
+As in `where()`, the group added by `orOnGroup()` is always joined with `AND`.
 The method name controls the join inside the group only. To express
 `a OR (b AND c)` in an `ON` clause, write that part with [`onRaw()`](/documentation/components/query/expressions#raw-methods) and bound
 values.

@@ -2,53 +2,6 @@ import { DefaultTheme } from 'vitepress';
 import { computed } from 'vue';
 import { frameworkRoutePrefix } from '../../store/routing-store';
 
-function normalizeUrl(url: string): string {
-  return url.replace(/\/+$/, '');
-}
-
-function findParentMatch(
-  items: DefaultTheme.SidebarItem[],
-  url: string,
-  parentText?: string,
-  depth = 0,
-): { text: string; depth: number } | undefined {
-  let best: { text: string; depth: number } | undefined;
-
-  for (const item of items) {
-    if (item.link && normalizeUrl(item.link) === url && parentText) {
-      best = { text: parentText, depth };
-    }
-
-    if (item.items) {
-      const child = findParentMatch(item.items, url, item.text, depth + 1);
-
-      if (child && (!best || child.depth > best.depth)) {
-        best = child;
-      }
-    }
-  }
-
-  return best;
-}
-
-/**
- * Returns the sidebar parent text (group or parent item) of a framework page.
- * The deepest matching entry wins when the same link appears at several levels.
- */
-export function findFrameworkParentText(relativePath: string): string | undefined {
-  const url = '/' + relativePath
-    .replace(/\.md$/, '')
-    .replace(/(^|\/)index$/, '');
-
-  if (normalizeUrl(url) === `/${frameworkRoutePrefix}`) {
-    return undefined;
-  }
-
-  const match = findParentMatch(frameworkSidebar.value, normalizeUrl(url));
-
-  return match?.text;
-}
-
 export const frameworkSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
   return [
     {

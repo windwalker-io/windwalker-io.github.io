@@ -25,7 +25,7 @@ The `Article` entity (`Lyrasoft\Luna\Entity\Article`) stores these fields:
 
 ## Admin Edit Form
 
-The article edit form is built in `Module\Admin\Article\Form\EditForm`. It edits the title, alias, category, state, and body fields listed above.
+The article edit form is built in `Module\Admin\Article\Form\EditForm`. It edits the title, alias, category, state, and body fields listed above. For the admin edit screen pattern, see [Edit Management](/documentation/unicorn/mvc-crud/mvc-admin/edit-management).
 
 ## Extending Articles
 

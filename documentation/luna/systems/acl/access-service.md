@@ -6,7 +6,7 @@ description: Inject AccessService and use it to check permissions, manage user r
 
 # AccessService
 
-`AccessService` is the engine behind every `can()` call. A user is connected to a role through the `user_role_maps` table. The registration form and the user admin already write it. In your own code, use `AccessService` to check permissions, assign roles, find users and compare privileges. It is registered as a shared object, so every consumer gets the same instance and its caches.
+`AccessService` is the engine behind every `can()` call. A user is connected to a role through the `user_role_maps` table. The registration form and the [user admin](../user/users) already write it. In your own code, use `AccessService` to check permissions, assign roles, find users and compare privileges. It is registered as a shared object, so every consumer gets the same instance and its caches.
 
 ## Getting the Service
 

@@ -253,6 +253,8 @@ The table lists the methods specific to the Nuxt editor field.
 | `getImageUploadUrl()` | Return the upload URL for a profile. | Built-in `image` URL |
 | `stackName()` | Set the loading stack name used during uploads. | `uploading` |
 | `getStackName()` | Return the loading stack name. | `null` |
+| `toolbar()` | Set the toolbars of the editor. Passed to `toolbars`. | — |
+| `getToolbar()` | Return the toolbar setting. | `null` |
 | `format()` | Set the content format, such as `html`. | `html` |
 | `getFormat()` | Return the content format. | `null` |
 | `configureOptions()` | Set a callback that adjusts the editor options. | `null` |

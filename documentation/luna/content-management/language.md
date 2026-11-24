@@ -18,7 +18,7 @@ The `Language` entity (`Lyrasoft\Luna\Entity\Language`) stores these fields:
 - `image`: a flag or icon.
 - `description`: a short note for admins.
 - `sitename`: the site name shown for this language.
-- `meta`: SEO meta data.
+- `meta`: SEO meta data, see [MetaData](../utilities/metadata).
 - `state`: the publish state.
 - `ordering`: the sort order in language menus.
 

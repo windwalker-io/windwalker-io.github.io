@@ -15,7 +15,7 @@ In production, a visitor who hits a missing page or a server error should see a 
 - The application is not in debug mode.
 - The client is a web request, not the CLI.
 
-In debug mode, the framework's own error handler runs, so detailed error output stays available while developing.
+In debug mode, the framework's own error handler runs, so detailed error output stays available while developing. For the framework's error handling model, see [Error Handling](/documentation/framework/core-concepts/error-handling).
 
 When an exception reaches the handler, it runs these steps:
 

@@ -5,7 +5,7 @@ description: Log users in and out in code, and use the session-level login event
 
 # Login and Logout
 
-`attemptToLogin()` checks credentials and then logs the user in. Use `login()` and `logout()` directly when Luna has already verified the user. Typical cases are a new account after registration, an administrator switching to another user, or a console command.
+[`attemptToLogin()`](./authentication#basic-usage) checks credentials and then logs the user in. Use `login()` and `logout()` directly when Luna has already verified the user. Typical cases are a new account after registration, an administrator switching to another user, or a console command.
 
 ## Logging In
 
@@ -73,11 +73,11 @@ class LogoutController
 }
 ```
 
-`logout()` destroys and regenerates the session, forgets the remember-me token, and clears the handler's user cache. The `$user` argument is accepted, but the default `UserHandler` ignores it.
+`logout()` destroys and regenerates the session, forgets the remember-me token, and clears the handler's user cache. The `$user` argument is accepted, but the default [`UserHandler`](./user-handler) ignores it.
 
 ## Session Events
 
-Two events wrap `login()`. They run for every login, including `attemptToLogin()`:
+Two [events](/documentation/framework/core-concepts/events) wrap `login()`. They run for every login, including `attemptToLogin()`:
 
 - `BeforeLoginSessionEvent` runs before the user is loaded. It has `$user`, which can be an entity, an array of conditions or a scalar. It also has `$options`.
 - `AfterLoginSessionEvent` runs after the handler's `login()`. It has `$user`, `$result` and `$options`.
@@ -117,7 +117,7 @@ The session is already changed when `AfterLoginSessionEvent` runs. Setting `$eve
 
 ## Other UserService Methods
 
-These methods cover roles, multiple actions, identity and password hashing:
+These methods cover roles, [multiple actions](/documentation/framework/core-concepts/security/authorization), identity and password hashing:
 
 ```php
 use Lyrasoft\Luna\Entity\User;

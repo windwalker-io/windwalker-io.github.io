@@ -397,6 +397,32 @@ users to any site.
 it returns the app root. The header comes from the client, so do not use
 it for security decisions.
 
+## Absolute Links for Emails
+
+Emails and background jobs have no request to take the host from.
+`toNotifyLink()` builds an absolute URL for a named route:
+
+```php
+<?php
+
+/** @var Navigator $nav */
+
+$uri = $nav->toNotifyLink('front::post_show', ['id' => 42]);
+
+echo $uri;
+// https://example.com/post/42
+```
+
+The base comes from the `APP_URL` environment variable, which must be the
+origin only, such as `https://example.com`. A forged `Host` header then
+cannot send mail links to another domain.
+
+::: warning
+When `APP_URL` is not set, `toNotifyLink()` uses the request `Host`
+header and logs a warning. Set `APP_URL` in every environment that sends
+mail.
+:::
+
 ## Current Page and Active State
 
 ### Current Route

@@ -136,7 +136,8 @@ The front-end must produce the same prefix, see the next section.
 
 `TagListField` (`Lyrasoft\Luna\Field\TagListField`) is a select field that
 loads `Tag` rows ordered by title, with `id` as the value and `title` as the
-label. It extends Unicorn's `SqlListField`.
+label. It extends Unicorn's `SqlListField`. For the other content selection
+fields, see [Content Selection Fields](../systems/form-fields/content-selection-fields).
 
 ```php
 use Lyrasoft\Luna\Field\TagListField;

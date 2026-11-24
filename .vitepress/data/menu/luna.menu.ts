@@ -2,22 +2,34 @@ import { DefaultTheme } from 'vitepress';
 import { computed } from 'vue';
 import { lunaRoutePrefix } from '../../store/routing-store';
 
+function firstLink(items: DefaultTheme.SidebarItem[]): string | undefined {
+  for (const item of items) {
+    const link = item.link ?? (item.items ? firstLink(item.items) : undefined);
+
+    if (link) {
+      return link;
+    }
+  }
+
+  return undefined;
+}
+
 export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
-  return [
+  const groups: DefaultTheme.SidebarItem[] = [
     {
       text: 'Introduction',
       items: [
         {
           text: 'About',
-          link: `/${lunaRoutePrefix}/`
+          link: `/${lunaRoutePrefix}/`,
         },
         {
           text: 'Installation',
-          link: `/${lunaRoutePrefix}/introduction/installation`
+          link: `/${lunaRoutePrefix}/introduction/installation`,
         },
         {
           text: 'Getting Started',
-          link: `/${lunaRoutePrefix}/introduction/getting-started`
+          link: `/${lunaRoutePrefix}/introduction/getting-started`,
         },
       ],
     },
@@ -26,31 +38,31 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
       items: [
         {
           text: 'Articles',
-          link: `/${lunaRoutePrefix}/content-management/articles`
+          link: `/${lunaRoutePrefix}/content-management/articles`,
         },
         {
           text: 'Category',
-          link: `/${lunaRoutePrefix}/content-management/category`
+          link: `/${lunaRoutePrefix}/content-management/category`,
         },
         {
           text: 'Language',
-          link: `/${lunaRoutePrefix}/content-management/language`
+          link: `/${lunaRoutePrefix}/content-management/language`,
         },
         {
           text: 'Menu',
-          link: `/${lunaRoutePrefix}/content-management/menu`
+          link: `/${lunaRoutePrefix}/content-management/menu`,
         },
         {
           text: 'Page',
-          link: `/${lunaRoutePrefix}/content-management/page`
+          link: `/${lunaRoutePrefix}/content-management/page`,
         },
         {
           text: 'Tag',
-          link: `/${lunaRoutePrefix}/content-management/tag`
+          link: `/${lunaRoutePrefix}/content-management/tag`,
         },
         {
           text: 'Widgets',
-          link: `/${lunaRoutePrefix}/content-management/widgets`
+          link: `/${lunaRoutePrefix}/content-management/widgets`,
         },
       ],
     },
@@ -63,27 +75,27 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           items: [
             {
               text: 'Users',
-              link: `/${lunaRoutePrefix}/systems/user/users`
+              link: `/${lunaRoutePrefix}/systems/user/users`,
             },
             {
               text: 'Authentication',
-              link: `/${lunaRoutePrefix}/systems/user/authentication`
+              link: `/${lunaRoutePrefix}/systems/user/authentication`,
             },
             {
               text: 'Login and Logout',
-              link: `/${lunaRoutePrefix}/systems/user/login-and-logout`
+              link: `/${lunaRoutePrefix}/systems/user/login-and-logout`,
             },
             {
               text: 'User Handler',
-              link: `/${lunaRoutePrefix}/systems/user/user-handler`
+              link: `/${lunaRoutePrefix}/systems/user/user-handler`,
             },
             {
               text: 'Remember Me',
-              link: `/${lunaRoutePrefix}/systems/user/remember-me`
+              link: `/${lunaRoutePrefix}/systems/user/remember-me`,
             },
             {
               text: 'Social Sign-in',
-              link: `/${lunaRoutePrefix}/systems/user/social-sign-in`
+              link: `/${lunaRoutePrefix}/systems/user/social-sign-in`,
             },
           ],
         },
@@ -92,9 +104,15 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           collapsed: true,
           items: [
             { text: 'Overview', link: `/${lunaRoutePrefix}/systems/acl/overview` },
-            { text: 'Roles and Actions', link: `/${lunaRoutePrefix}/systems/acl/roles-and-actions` },
+            {
+              text: 'Roles and Actions',
+              link: `/${lunaRoutePrefix}/systems/acl/roles-and-actions`,
+            },
             { text: 'AccessService', link: `/${lunaRoutePrefix}/systems/acl/access-service` },
-            { text: 'Database Roles and Rules', link: `/${lunaRoutePrefix}/systems/acl/database-rules` },
+            {
+              text: 'Database Roles and Rules',
+              link: `/${lunaRoutePrefix}/systems/acl/database-rules`,
+            },
           ],
         },
         {
@@ -103,21 +121,21 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           items: [
             {
               text: 'Content Selection Fields',
-              link: `/${lunaRoutePrefix}/systems/form-fields/content-selection-fields`
+              link: `/${lunaRoutePrefix}/systems/form-fields/content-selection-fields`,
             },
             {
               text: 'Localization Fields',
-              link: `/${lunaRoutePrefix}/systems/form-fields/localization-fields`
+              link: `/${lunaRoutePrefix}/systems/form-fields/localization-fields`,
             },
             {
               text: 'Captcha Fields',
-              link: `/${lunaRoutePrefix}/systems/form-fields/captcha-fields`
+              link: `/${lunaRoutePrefix}/systems/form-fields/captcha-fields`,
             },
           ],
         },
         {
           text: 'Tree Node',
-          link: `/${lunaRoutePrefix}/systems/tree-node`
+          link: `/${lunaRoutePrefix}/systems/tree-node`,
         },
         {
           text: 'Menu',
@@ -125,19 +143,19 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           items: [
             {
               text: 'Static Menus',
-              link: `/${lunaRoutePrefix}/systems/menu/static-menus`
+              link: `/${lunaRoutePrefix}/systems/menu/static-menus`,
             },
             {
               text: 'Database Menus',
-              link: `/${lunaRoutePrefix}/systems/menu/database-menus`
+              link: `/${lunaRoutePrefix}/systems/menu/database-menus`,
             },
             {
               text: 'Menu Views',
-              link: `/${lunaRoutePrefix}/systems/menu/menu-views`
+              link: `/${lunaRoutePrefix}/systems/menu/menu-views`,
             },
             {
               text: 'Menu Rendering',
-              link: `/${lunaRoutePrefix}/systems/menu/menu-rendering`
+              link: `/${lunaRoutePrefix}/systems/menu/menu-rendering`,
             },
           ],
         },
@@ -147,20 +165,20 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           items: [
             {
               text: 'Enabling Multilingual',
-              link: `/${lunaRoutePrefix}/systems/multilingual/enabling-multilingual`
+              link: `/${lunaRoutePrefix}/systems/multilingual/enabling-multilingual`,
             },
             {
               text: 'Content Translation',
-              link: `/${lunaRoutePrefix}/systems/multilingual/content-translation`
+              link: `/${lunaRoutePrefix}/systems/multilingual/content-translation`,
             },
-                          {
-                            text: 'LocaleService',
-                            link: `/${lunaRoutePrefix}/systems/multilingual/locale-service`
-                          },
-                          {
-                            text: 'AssociationService',
-                            link: `/${lunaRoutePrefix}/systems/multilingual/association-service`
-                          },
+            {
+              text: 'LocaleService',
+              link: `/${lunaRoutePrefix}/systems/multilingual/locale-service`,
+            },
+            {
+              text: 'AssociationService',
+              link: `/${lunaRoutePrefix}/systems/multilingual/association-service`,
+            },
           ],
         },
       ],
@@ -170,29 +188,38 @@ export const lunaSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
       items: [
         {
           text: 'Captcha',
-          link: `/${lunaRoutePrefix}/utilities/captcha`
+          link: `/${lunaRoutePrefix}/utilities/captcha`,
         },
         {
           text: 'Faker',
-          link: `/${lunaRoutePrefix}/utilities/faker`
+          link: `/${lunaRoutePrefix}/utilities/faker`,
         },
         {
           text: 'Error Pages',
-          link: `/${lunaRoutePrefix}/utilities/error-pages`
+          link: `/${lunaRoutePrefix}/utilities/error-pages`,
         },
         {
           text: 'MetaData',
-          link: `/${lunaRoutePrefix}/utilities/metadata`
+          link: `/${lunaRoutePrefix}/utilities/metadata`,
         },
         {
           text: 'Entity Casting',
-          link: `/${lunaRoutePrefix}/utilities/entity-casting`
+          link: `/${lunaRoutePrefix}/utilities/entity-casting`,
         },
         {
           text: 'Data Importer',
-          link: `/${lunaRoutePrefix}/utilities/data-importer`
+          link: `/${lunaRoutePrefix}/utilities/data-importer`,
         },
       ],
     },
   ];
+
+  // Like Unicorn's MVC Admin: a node with children links to its first page
+  const withFirstLink = (item: DefaultTheme.SidebarItem): DefaultTheme.SidebarItem => {
+    const items = item.items?.map(withFirstLink);
+
+    return { ...item, items, link: item.link ?? (items ? firstLink(items) : undefined) };
+  };
+
+  return groups.map(withFirstLink);
 });

@@ -129,6 +129,32 @@ $query->whereIn('id', $ids)
     ->whereNotLike('title', '%draft%');
 ```
 
+`whereLike()` escapes the search string for you. A leading or trailing `%`
+stays a wildcard, and every `%` or `_` in the middle matches itself. The
+escape character defaults to `\`:
+
+```php
+$keyword = '50%_off';
+
+$query->whereLike('title', '%' . $keyword . '%');
+// `title` LIKE ? ESCAPE '\'
+// bound value: '%50\%\_off%'
+```
+
+Pass a third argument to use another escape character. It must be a single
+character other than `%` or `_`:
+
+```php
+$query->whereLike('title', '%' . $keyword . '%', '!');
+// `title` LIKE ? ESCAPE '!'
+// bound value: '%50!%!_off%'
+```
+
+::: info
+Use `whereLike()` for user input. Build the pattern yourself only when you
+need an unescaped wildcard in the middle of the string.
+:::
+
 ::: warning
 `where()` with the `in` operator and `whereIn()` do not check the list. An
 empty array renders `IN ()`, which MySQL rejects with a syntax error, so the

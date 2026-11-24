@@ -60,12 +60,12 @@ The default password check is `LunaAuthMethod`. It looks up the user by `login_n
 To replace the password check, implement `UserAuthenticationHandlerInterface` in your handler. `UserService::authenticate()` then delegates to your `authenticate(array $credential): ResultSet` method instead of `LunaAuthMethod`.
 
 ::: warning
-Only the handler that `UserService` resolves is used. Bind your class to `UserHandlerInterface` in `bindings`, or the default `UserHandler` is used.
+Only the handler that `UserService` resolves is used. Bind your class to `UserHandlerInterface` in [`bindings`](./users#changing-how-users-are-loaded), or the default `UserHandler` is used.
 :::
 
 ## Login Events
 
-Listen to login events to add rules around the flow. Each event is in `Lyrasoft\Luna\User\Event`:
+Listen to [login events](/documentation/framework/core-concepts/events) to add rules around the flow. Each event is in `Lyrasoft\Luna\User\Event`:
 
 - `BeforeLoginEvent`: receives `$credential` and `$options`.
 - `LoginAuthEvent`: receives `$user`. Use it to block accounts.
@@ -112,7 +112,7 @@ class LoginLogSubscriber
 }
 ```
 
-To block a login and show a message, throw `AuthenticateFailException` from `LoginAuthEvent`, as `UserAuthSubscriber` does. `verifyLoginAccess()` catches it only there. An exception thrown from `BeforeLoginEvent` is not caught and reaches your caller.
+To block a login and show a message, throw `AuthenticateFailException` from `LoginAuthEvent`, as `UserAuthSubscriber` does. `verifyLoginAccess()` catches it only there. An exception thrown from `BeforeLoginEvent` is not caught and [reaches your caller](/documentation/framework/core-concepts/error-handling).
 
 ## Blocking Unverified or Disabled Users
 
@@ -130,10 +130,10 @@ The subscriber also accepts an optional `\Closure` in its constructor, which run
 
 ## Remember Me
 
-Remember-me is off by default. Enable it with `remember.enabled` in `etc/user.config.php`. Luna then sets the cookie named by `remember.cookie_name` (default `WINDWALKER_REMEMBER`) for `remember.expires` (default `+100days`). `RememberTokenStartEvent` and `RememberTokenRenewEvent` run when the token is created or renewed.
+[Remember-me](./remember-me) is off by default. Enable it with `remember.enabled` in `etc/user.config.php`. Luna then sets the cookie named by `remember.cookie_name` (default `WINDWALKER_REMEMBER`) for `remember.expires` (default `+100days`). `RememberTokenStartEvent` and `RememberTokenRenewEvent` run when the token is created or renewed.
 
 ::: info
-`UserService::logout()` is the method that ends the session. Use it instead of clearing the session by hand.
+[`UserService::logout()`](./login-and-logout#logging-out) is the method that ends the session. Use it instead of clearing the session by hand.
 :::
 
 ## Related Topics

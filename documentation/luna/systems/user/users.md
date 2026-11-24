@@ -5,7 +5,7 @@ description: How Luna stores users and how UserService exposes them.
 
 # Users
 
-Luna needs one place to load the current user, check permissions and log users in or out. `UserService` is that place. It delegates the storage details to a user handler, so you can change how users are loaded without touching the code that calls it.
+Luna needs one place to load the current user, check permissions and log users in or out. `UserService` is that place. It delegates the storage details to a [user handler](./user-handler), so you can change how users are loaded without touching the code that calls it.
 
 ## Basic Usage
 
@@ -64,7 +64,7 @@ The login field is set by `login_name`. The default is `email`, so login account
 
 ## Changing How Users Are Loaded
 
-`UserService` uses `UserHandlerInterface` for every user lookup, login and logout. The default implementation is `UserHandler`, which reads the logged-in user ID from the session. It falls back to a remember-me token when the session has no user.
+`UserService` uses `UserHandlerInterface` for every user lookup, login and logout. The default implementation is `UserHandler`, which reads the logged-in user ID from the session. It falls back to a [remember-me](./remember-me) token when the session has no user.
 
 Bind your own handler in the module config. The binding is set under `bindings`:
 
@@ -92,7 +92,7 @@ Extend `UserHandler` and override only the method you need. The session and reme
 
 - The user-switch mask stored in the session.
 - Your handler, if it implements `UserAuthorizationHandlerInterface`.
-- Windwalker Core's `AuthService`.
+- Windwalker Core's [`AuthService`](/documentation/framework/core-concepts/security/authorization).
 
 ```php
 if ($userService->can('post.edit', $post)) {

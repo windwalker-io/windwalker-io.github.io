@@ -148,10 +148,15 @@ $enqueuer->channel('feeds', function (EnqueuerController $c) use ($feeds) {
 });
 ```
 
-When the enqueuer runs on its own or with `enqueue()`, a returned job object,
-closure, or `QueueMessage` is pushed to the queue, once per call. A
-`QueueMessage` goes to its own channel when it has one, and to the handler's
-channel otherwise. Arrays of these values are pushed one by one.
+`Enqueuer::enqueue()` runs the handler and pushes the returned job object,
+closure, or `QueueMessage` to the queue. A `QueueMessage` goes to its own
+channel when it has one, and to the handler's channel otherwise. Arrays of
+these values are pushed one by one.
+
+`Enqueuer::fetch()` runs the handler and returns its result without pushing
+anything. Use it when you want to inspect or change the result first. A
+`Worker` attached to an enqueuer calls `fetch()`, and then pushes the
+result itself.
 
 When the enqueuer is attached to a worker, the worker then takes the pushed
 job from the queue in the same cycle. Older jobs in that channel are popped

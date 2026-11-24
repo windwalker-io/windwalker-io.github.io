@@ -13,7 +13,8 @@ import {
   srcDir,
 } from './data/markdown-export';
 import { flatComponents, getComponentsSidebar } from './data/menu/components.menu';
-import { findFrameworkParentText, frameworkSidebar } from './data/menu/framework.menu';
+import { frameworkSidebar } from './data/menu/framework.menu';
+import { findSidebarParentText } from './data/menu/sidebar-parent';
 import { guidesSidebar } from './data/menu/guides.menu';
 import { lunaSidebar } from './data/menu/luna.menu';
 import { unicornSidebar } from './data/menu/unicorn.menu';
@@ -39,6 +40,8 @@ const markdownOptions: MarkdownExportOptions = {
   sidebar: [...guidesSidebar.value, ...frameworkSidebar.value, ...unicornSidebar.value, ...lunaSidebar.value, ...componentsSidebar],
   frameworkSidebar: frameworkSidebar.value,
   unicornSidebar: unicornSidebar.value,
+  // Top-level group links only serve the HTML sidebar; keep llms.txt group labels as plain headings
+  lunaSidebar: lunaSidebar.value.map(({ link, ...group }) => group),
 };
 
 // Built before VitePress renders pages so the checksum can be shown on the download page
@@ -131,7 +134,7 @@ export default withMermaid(defineConfig({
           { text: 'Luna CMF', link: `/${lunaRoutePrefix}/` },
         ],
       },
-      { text: 'Skills', link: '/agent-skills' },
+      { text: 'AI Development', link: '/ai-development' },
       { text: 'Status', link: 'status' },
       { text: 'Others', link: '#' },
     ],
@@ -182,10 +185,31 @@ export default withMermaid(defineConfig({
 
       pageData.titleTemplate = `:title | ${component?.title} Component | ${siteConfig.site.title}`;
     } else if (pageData.relativePath.startsWith(`${frameworkRoutePrefix}/`)) {
-      const parent = findFrameworkParentText(pageData.relativePath);
+      const parent = findSidebarParentText(
+        frameworkSidebar.value,
+        pageData.relativePath,
+        `/${frameworkRoutePrefix}`,
+      );
 
       if (parent) {
         pageData.titleTemplate = `:title | ${parent} | ${siteConfig.site.title}`;
+      }
+    } else {
+      const sections = [
+        { prefix: unicornRoutePrefix, name: 'Unicorn RAD', sidebar: unicornSidebar.value },
+        { prefix: lunaRoutePrefix, name: 'Luna CMF', sidebar: lunaSidebar.value },
+      ];
+      const section = sections.find((s) => pageData.relativePath.startsWith(`${s.prefix}/`));
+
+      if (section) {
+        const parent = findSidebarParentText(
+          section.sidebar,
+          pageData.relativePath,
+          `/${section.prefix}`,
+        );
+        const crumbs = parent ? [parent, section.name] : [section.name];
+
+        pageData.titleTemplate = `:title | ${crumbs.join(' | ')} | ${siteConfig.site.title}`;
       }
     }
   },

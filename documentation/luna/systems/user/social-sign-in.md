@@ -121,7 +121,7 @@ If you prefer a form, use a `POST` form with the same action. The `social_auth` 
 - If no row exists, it looks for a user with the same email.
 - If no user exists, it creates one. The new user is enabled and verified.
 
-After that, the controller calls `UserService::login()`, updates `last_login`, and redirects to the home page.
+After that, the controller calls [`UserService::login()`](./login-and-logout), updates `last_login`, and redirects to the home page.
 
 ::: info
 If the provider's email matches an existing user, Luna links the social account to that user. It does not ask for confirmation.
@@ -233,7 +233,7 @@ class MySocialAuthService extends SocialAuthService
 }
 ```
 
-Bind your subclass in your application's container so Luna uses it. The exact binding depends on your app setup; follow your framework's DI documentation.
+Bind your subclass in your application's container so Luna uses it. The exact binding depends on your app setup; follow your [framework's DI documentation](/documentation/framework/index).
 
 ::: info
 `prepareUserData()` is not called when an existing user is found. It only affects new accounts.

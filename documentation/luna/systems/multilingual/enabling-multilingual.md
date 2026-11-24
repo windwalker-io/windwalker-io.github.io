@@ -6,7 +6,7 @@ description: Turn on Luna i18n, configure languages, resolve the locale, and pre
 
 # Enabling Multilingual
 
-Windwalker's `language` package translates static strings (`@lang()`, `$this->trans()`). That is not a multilingual website: visitors also need to switch languages at runtime and see different **database content** for each language. Luna's i18n layer adds that. It detects the current locale from the URL, session, or browser, and lets content be filtered per language.
+Windwalker's [`language` package](/documentation/framework/services/language) translates static strings (`@lang()`, `$this->trans()`). That is not a multilingual website: visitors also need to switch languages at runtime and see different **database content** for each language. Luna's i18n layer adds that. It detects the current locale from the URL, session, or browser, and lets content be filtered per language.
 
 This page covers the site-wide setup. Making a specific entity multilingual is covered in [Content Translation](./content-translation).
 

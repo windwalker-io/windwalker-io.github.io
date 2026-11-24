@@ -169,8 +169,9 @@ The rendered markup contains a hidden field before the select. Its value is
 
 `EmptyArrayFieldSubscriber` replaces the marker in the request values with an
 empty array. It runs for web requests, on body and query values, and walks
-nested arrays. A field that is not on the page is not in the request, so the
-subscriber does not touch it.
+nested arrays. A marker that sits inside a list is removed from the list. A
+field that is not on the page is not in the request, so the subscriber does not
+touch it.
 
 The controller can check whether the key exists before it writes the value. The
 right reaction depends on the field. The three cases below cover the common

@@ -1,10 +1,14 @@
 ---
 layout: doc
-title: Download Agent Skills
-description: Download the Windwalker agent skills as a zip archive and verify its SHA-256 checksum.
+title: AI Development
+description: Download the Windwalker agent skills and use the Windwalker documentation APIs from AI tools.
 ---
 
-# Download Agent Skills
+# AI Development
+
+Windwalker publishes its documentation for AI agents in two ways. The agent skills are a zip archive you can copy into a project. The documentation APIs let an agent or tool search and ask questions without downloading anything.
+
+## Agent Skills
 
 The Windwalker documentation, in the same scope as `llms.txt`, is published with every site build as a zip archive. The archive contains flat Markdown files, and every link inside them is relative, so the directory can be copied into any project as it is.
 
@@ -15,7 +19,7 @@ The Windwalker documentation, in the same scope as `llms.txt`, is published with
   <li><a href="/skills/README.md">skills/README.md</a>: the index, same structure as <code>llms.txt</code> with relative links</li>
 </ul>
 
-## Checksum
+### Checksum
 
 The archive built with this site has the following SHA-256 checksum:
 
@@ -45,13 +49,13 @@ The checksum and the archive come from the same site, so this check detects a co
 
 Besides the archive, the same documentation is searchable over three HTTP APIs. Use them when an agent or tool needs the current Windwalker docs without downloading the whole archive.
 
-<ul class="vp-raw">
-  <li><code>https://docs-search.windwalker.io/search</code>: returns the matching documentation chunks</li>
-  <li><code>https://docs-search.windwalker.io/chat/completions</code>: answers a question with an OpenAI-compatible chat API</li>
-  <li><code>https://docs-search.windwalker.io/mcp</code>: an MCP server with a <code>search</code> tool</li>
-</ul>
-
 ### Search API
+
+The endpoint is:
+
+```text
+POST https://docs-search.windwalker.io/search
+```
 
 Send a `POST` request with a JSON body that contains `query`. The response lists the matching chunks in `result.chunks`, and each chunk has its text, score, and source URL in `item.key`.
 
@@ -96,7 +100,13 @@ curl -sS -X POST https://docs-search.windwalker.io/search \
 
 ### Chat API
 
-The chat endpoint follows the OpenAI `chat/completions` format. Send the conversation in `messages`, and read the answer from `choices[0].message.content`. The server chooses the model.
+The endpoint is:
+
+```text
+POST https://docs-search.windwalker.io/chat/completions
+```
+
+It follows the OpenAI `chat/completions` format. Send the conversation in `messages`, and read the answer from `choices[0].message.content`. The server chooses the model.
 
 ```bash
 curl -sS -X POST https://docs-search.windwalker.io/chat/completions \
@@ -128,9 +138,15 @@ Use the Search API when you need the source text, and the Chat API when you need
 
 ### MCP Server
 
-The MCP endpoint uses the streamable HTTP transport. It exposes one tool, `search`, which takes the same `query` argument as the Search API. Any MCP client can connect to it by URL.
+The endpoint is:
 
-### Configure MCP in a Project
+```text
+https://docs-search.windwalker.io/mcp
+```
+
+It uses the streamable HTTP transport. It exposes one tool, `search`, which takes the same `query` argument as the Search API. Any MCP client can connect to it by URL.
+
+#### Configure MCP in a Project
 
 Add the server to the MCP configuration file of your tool. For Claude Code and other clients that read `.mcp.json` in the project root:
 

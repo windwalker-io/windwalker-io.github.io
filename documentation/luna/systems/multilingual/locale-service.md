@@ -6,7 +6,7 @@ description: Read and change the current locale, look up languages, detect the b
 
 # LocaleService
 
-`Lyrasoft\Luna\Services\LocaleService` is the entry point for Luna i18n at runtime. It answers which languages are available, which one is current, and whether i18n is enabled. It wraps Windwalker's `LangService`, so changing the locale here also affects `@lang()` and `$this->trans()`.
+`Lyrasoft\Luna\Services\LocaleService` is the entry point for Luna i18n at runtime. It answers which languages are available, which one is current, and whether i18n is enabled. It wraps Windwalker's [`LangService`](/documentation/framework/services/language), so changing the locale here also affects `@lang()` and `$this->trans()`.
 
 Inject it directly, or use `Lyrasoft\Luna\Locale\LocaleAwareTrait`, which provides `$this->localeService`, `isLocaleEnabled()`, `getLocale()`, and `getFallbackLocale()`.
 

@@ -83,6 +83,26 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/vendor/autoload.php';
 ```
 
+When the tests use an application, register it once here. Core's
+database and service helpers resolve the app from `TestAppRegistry`:
+
+```php
+<?php
+
+use Windwalker\Core\Testing\TestAppRegistry;
+
+// After creating the test app, e.g. TestApp::createInstance().
+TestAppRegistry::use($app);
+
+// Call reset() to clear the registered app.
+TestAppRegistry::reset();
+```
+
+::: info
+The helpers use whichever app is registered, so a package's own test app
+works without changes. Call `TestAppRegistry::instance()` to read it.
+:::
+
 ### A Complete Test
 
 This test uses only PHPUnit. It runs without a database or a web application:

@@ -24,6 +24,8 @@ export type MarkdownExportOptions = {
   frameworkSidebar: SidebarNode[];
   // Unicorn sidebar; its nesting becomes the Unicorn RAD section of llms.txt
   unicornSidebar: SidebarNode[];
+  // Luna sidebar; its nesting becomes the Luna CMF section of llms.txt
+  lunaSidebar: SidebarNode[];
 };
 
 const globToRegExp = (glob: string) => new RegExp(
@@ -121,7 +123,7 @@ const sectionNames: [prefix: string, name: string][] = [
 ];
 
 // Sections whose order and nesting follow a sidebar tree instead of the file system
-const sidebarSectionNames = ['Framework', 'Unicorn RAD'];
+const sidebarSectionNames = ['Framework', 'Unicorn RAD', 'Luna CMF'];
 
 // Files listed in llms.txt: only those inside a sub-directory, minus excluded prefixes
 export function llmsMarkdownFiles(options: MarkdownExportOptions): string[] {
@@ -194,7 +196,12 @@ export function buildLlmsTxt(options: MarkdownExportOptions, baseUrl: string = s
 
     if (sidebarSectionNames.includes(name)) {
       const listed = new Set<string>();
-      const sidebar = name === 'Framework' ? options.frameworkSidebar : options.unicornSidebar;
+      const sidebarByName: Record<string, SidebarNode[]> = {
+        'Framework': options.frameworkSidebar,
+        'Unicorn RAD': options.unicornSidebar,
+        'Luna CMF': options.lunaSidebar,
+      };
+      const sidebar = sidebarByName[name];
 
       lines.push(`## ${name}`, '');
       lines.push(...sidebarBullets(sidebar, '', listed));

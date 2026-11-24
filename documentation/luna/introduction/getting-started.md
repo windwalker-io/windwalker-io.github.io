@@ -120,3 +120,9 @@ tag is copied. Each one returns a `ConfigModule` array you can override:
 
 Review the [Installation](./installation) steps if any command failed, then
 continue with the rest of the Luna documentation.
+
+To see how the admin list and edit pages are built, read Unicorn's
+[List Management](/documentation/unicorn/mvc-crud/mvc-admin/list-management)
+and [Edit Management](/documentation/unicorn/mvc-crud/mvc-admin/edit-management)
+pages. For the underlying framework, see the
+[Framework installation](/documentation/framework/getting-started/installation).

@@ -109,7 +109,7 @@ For a busy site, run a scheduled `delete` on `remember_tokens` where
 
 ## Reacting to Token Events
 
-`RememberMeService` emits two events. Both carry the `RememberToken` entity
+`RememberMeService` emits two [events](/documentation/framework/core-concepts/events). Both carry the `RememberToken` entity
 and the service.
 
 - `RememberTokenStartEvent`: a new token was created at login. It also
@@ -211,7 +211,7 @@ handler.
 
 Remember tokens are revoked in these cases:
 
-- **Logout**: `UserHandler::logout()` calls `RememberMeService::forget()`,
+- **Logout**: [`UserHandler::logout()`](./login-and-logout#logging-out) calls `RememberMeService::forget()`,
   which deletes the current row and the cookie.
 - **Password reset**: the front password reset revokes all remember tokens of
   the user.

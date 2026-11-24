@@ -199,10 +199,10 @@ load. Read it in an event handler, not at the start of the script.
 | --- | --- | --- |
 | `calendarOptions()` | Sets extra options merged into the picker configuration. | — |
 | `getCalendarOptions()` | Returns the extra picker options. | — |
-| `from()` | Sets the earliest selectable date. | — |
-| `getFrom()` | Returns the earliest selectable date. | — |
-| `to()` | Sets the latest selectable date. | — |
-| `getTo()` | Returns the latest selectable date. | — |
+| `minDate()` | Sets the earliest selectable date. | — |
+| `getMinDate()` | Returns the earliest selectable date. | — |
+| `maxDate()` | Sets the latest selectable date. | — |
+| `getMaxDate()` | Returns the latest selectable date. | — |
 | `format()` | Sets the date format of the picker and the value. | `Y-m-d H:i:S` |
 | `getFormat()` | Returns the date format. | — |
 | `enableTime()` | Shows or hides the time selection. | `true` |
