@@ -167,6 +167,29 @@ The placeholders are:
 - Any name set with `setPathVar()`
 
 ::: warning
+When `{ext}` takes the extension from the input, the file keeps any extension
+that is not blocked. Set `accept` in the profile or in the `FileUploadOptions`
+of the call.
+
+```php
+use Unicorn\Upload\FileUploadOptions;
+
+$uploader->handleFile(
+    $file,
+    'docs/' . uid() . '.{ext}',
+    new FileUploadOptions(
+        accept: ['pdf', 'docx', 'image/*'],
+    ),
+);
+```
+:::
+
+::: tip
+Always set `accept` explicitly on each call, even when the profile already
+has one. The allowed extensions then appear next to the destination.
+:::
+
+::: warning
 A fixed name such as `{basename}.{ext}` replaces an existing file with the
 same path. Add `uid()` to the name when files must not overwrite each other.
 `{basename}` comes from the client, so it is not a safe identifier.
@@ -180,21 +203,23 @@ The stored result then holds a path without the host or root, so
 
 ## Per-Call Options
 
-A call can change the profile options for one file. Pass an array with the
-same keys as the profile options. This example stores a document privately,
-even when the profile is public:
+A call can change the profile options for one file. Pass a `FileUploadOptions`
+object with the same settings as the profile. This example stores a document
+privately, even when the profile is public:
 
 ```php
 use Unicorn\Aws\S3Service;
+use Unicorn\Upload\FileUploadOptions;
 
 $uploader->handleFile(
     $file,
     'docs/' . uid() . '.{ext}',
-    [
-        'storageOptions' => [
+    new FileUploadOptions(
+        accept: ['pdf', 'docx'],
+        storageOptions: [
             'ACL' => S3Service::ACL_PRIVATE,
         ],
-    ],
+    ),
 );
 ```
 
@@ -275,10 +300,29 @@ browser. The MIME check maps that extension to its type. Both checks must
 pass when both kinds of entries are set.
 
 ::: warning
-Without an extension list, the service blocks executable and active-content
-extensions such as `php`, `html`, `js`, and `exe`. This includes names such
-as `shell.php.jpg`. It is a block list, not an allow list. Set `accept` on
-every profile that takes files from users.
+An `image/*` entry allows `.svg` files. An SVG can contain scripts, so it
+can cause XSS when a browser opens it directly. When `image/*` is allowed,
+keep `sanitizeSvg` enabled (the default, `true`). It removes scripts, event
+handlers, and unsafe URLs.
+
+```php
+new FileUploadOptions(
+    accept: ['image/*'],
+    sanitizeSvg: true, // Default, shown for clarity.
+);
+```
+
+If you disable `sanitizeSvg`, serve SVG files only through an `<img>` tag.
+Scripts in an SVG do not run inside `<img>`. Do not open the file URL
+directly, and do not embed it with `<object>`, `<embed>`, or `<iframe>`.
+:::
+
+::: warning
+Without an `accept` list, the service still blocks a fixed set of executable
+and active-content extensions, such as `php`, `html`, `js`, and `exe`. This
+includes names such as `shell.php.jpg`. This is a block list, not an allow
+list, so other extensions are stored. Set `accept` on every profile and call
+that takes files from users.
 :::
 
 Destinations are also checked. A destination with a `..` segment or a NUL
