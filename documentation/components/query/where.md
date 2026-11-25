@@ -119,6 +119,63 @@ Some operators take a value of a particular shape:
   $query->where('is_featured', true);
   ```
 
+- Enums are unwrapped before they are bound. A backed enum binds its
+  `value`:
+
+  ```php
+  enum Status: int {
+      case Active = 1;
+      case Off = 0;
+  }
+
+  $query->where('state', Status::Active);
+  // `state` = 1 (bound value: 1)
+  ```
+
+  ::: info
+  A pure enum without a backing value binds its case `name`, so
+  `Plain::Foo` becomes `'Foo'`.
+  :::
+
+- A closure or a `Query` object is a subquery. It renders in parentheses
+  and is not bound. It must return one value, see
+  [Subqueries](/documentation/components/query/select#subqueries):
+
+  ```php
+  $query->where('author_id', function (Query $q) {
+      $q->select('id')
+          ->from('users')
+          ->where('name', 'admin');
+  });
+  // `author_id` = (SELECT `id` FROM `users` WHERE `name` = ?)
+  ```
+
+- A `raw()` value is written into the SQL as given, without a binding:
+
+  ```php
+  $query->where('created', '<=', raw('NOW()'));
+  // `created` <= NOW()
+  ```
+
+- A `DateTime` object is formatted for the statement and then bound:
+
+  ```php
+  $query->where(
+      'created',
+      '>=',
+      new DateTime('2025-01-01 10:00:00'),
+  );
+  // `created` >= '2025-01-01 10:00:00'
+  ```
+
+- A `Collection` or any other iterable works like an array, and renders
+  as an `IN` list:
+
+  ```php
+  $query->where('id', new Collection([1, 2, 3]));
+  // `id` IN (1, 2, 3)
+  ```
+
 Each operator has a helper method that reads more clearly in code. The
 helpers are `whereIn()`, `whereNotIn()`, `whereBetween()`,
 `whereNotBetween()`, `whereLike()` and `whereNotLike()`:

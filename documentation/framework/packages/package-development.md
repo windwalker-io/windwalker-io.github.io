@@ -117,6 +117,90 @@ Without `--all` or `--tag`, `pkg:install` asks which resources to
 install.
 :::
 
+## Writing a Config File
+
+A package ships its default settings as config files in
+`resources/config/`. `installConfig()` copies them to the host app's
+`etc/packages/` folder, where Windwalker loads them with the rest of
+the configuration. The user can then change a value without editing
+the package in `vendor/`.
+
+Name the file `{name}.config.php`. Windwalker uses the part before
+`.config` as the module name, so `portfolio.config.php` becomes the
+`portfolio` module.
+
+```php
+<?php
+// resources/config/portfolio.config.php
+
+declare(strict_types=1);
+
+namespace App\Config;
+
+use Acme\Portfolio\PortfolioPackage;
+use Windwalker\Core\Attributes\ConfigModule;
+
+return #[ConfigModule(
+    name: 'portfolio',
+    enabled: true,
+    priority: 100,
+    belongsTo: PortfolioPackage::class,
+)]
+static fn() => [
+    // Items shown per page. Overridable with an env variable.
+    'per_page' => (int) env('PORTFOLIO_PER_PAGE', 12),
+
+    // Upload folder, relative to the public folder.
+    'upload_dir' => 'images/portfolio',
+];
+```
+
+The file has three parts:
+
+- **`return #[ConfigModule(...)]`**: Attaches the module options to the
+  file. The attribute must be on the `return` line.
+- **`static fn() => [...]`**: A callback that returns the settings
+  array. Windwalker calls it only when it reads the configuration.
+- **The settings array**: Plain keys and values. Read them with the
+  module name as the first segment of the path.
+
+```php
+// In a controller, service, or any class with the app instance
+$perPage = $app->config('portfolio.per_page');   // 12
+$folder  = $app->config('portfolio.upload_dir'); // images/portfolio
+```
+
+`ConfigModule` options:
+
+- `name`: The module name. Used as the first segment of the config path.
+- `enabled`: Turns the module on or off.
+- `priority`: Sets the merge order when several modules compete.
+- `env`: Loads the module only for the listed `APP_ENV` values, such as
+  `env: 'dev'`.
+- `belongsTo`: Loads the module only when the package or class is
+  installed. Use `PortfolioPackage::class` so the file is skipped if the
+  package is removed.
+
+::: tip
+Use `env()` for values that differ between machines, such as keys or
+paths. Keep fixed defaults as literal values.
+:::
+
+::: info
+The callback is not called until the configuration is read, so an
+expensive value does not slow down unrelated requests.
+:::
+
+::: warning
+Do not put secrets, such as API keys or passwords, as literal values
+in a package config file. Installed files are readable in the host app
+and may be committed to the project repository. Read them from `env()`
+instead.
+:::
+
+For the merge rules and all the `ConfigModule` options, see
+[Configuration](../getting-started/configuration).
+
 ## Installer Methods
 
 `install()` receives a `PackageInstaller`. Each method copies one group
