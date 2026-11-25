@@ -75,6 +75,7 @@ export const frameworkSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
             { text: 'Middleware', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/middleware` },
             { text: 'Controllers', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/controllers` },
             { text: 'Request & Input', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/request-and-input` },
+            { text: 'Proxies', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/proxies` },
             { text: 'Validation & Filter', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/validation-and-filter` },
             { text: 'Exceptions', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/exceptions` },
             { text: 'Uploaded Files', link: `/${frameworkRoutePrefix}/core-concepts/http-routing/uploaded-files` },
