@@ -259,6 +259,7 @@ export const frameworkSidebar = computed<DefaultTheme.SidebarItem[]>(() => {
           items: [
             { text: 'Overview', link: `/${frameworkRoutePrefix}/packages/package-development` },
             { text: 'Package Migrations', link: `/${frameworkRoutePrefix}/packages/package-migration` },
+            { text: 'Package JavaScript', link: `/${frameworkRoutePrefix}/packages/package-javascript` },
           ],
         },
       ]
