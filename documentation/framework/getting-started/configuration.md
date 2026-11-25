@@ -104,6 +104,59 @@ Keep environment-specific values in `.env` files and let configuration
 files read them. Avoid editing the arrays for each environment.
 :::
 
+### Injecting Configuration with #[Ref]
+
+Calling `$app->config()` inside every class ties the class to the
+application. `#[Ref]` injects a configuration value into a constructor
+parameter or a property. It takes the same dot path as `config()`:
+
+```php
+// etc/conf/mail.config.php
+return [
+    'from' => env('MAIL_FROM', 'hello@example.com'),
+    'retry' => [
+        'times' => 5,
+    ],
+];
+```
+
+```php
+// src/Service/Mailer.php
+namespace App\Service;
+
+use Windwalker\Core\Attributes\Ref;
+
+class Mailer
+{
+    public function __construct(
+        #[Ref('mail.from')]
+        protected string $from = 'noreply@example.com',
+    ) {}
+
+    #[Ref('mail.retry.times')]
+    protected int $retries = 3;
+}
+```
+
+Get the object through the container, for example with
+`$app->make()`, and the attribute fills in the values:
+
+```php
+$mailer = $app->make(\App\Service\Mailer::class);
+
+echo $mailer->from; // hello@example.com
+```
+
+::: info
+If the key does not exist, the default value of the parameter or
+property is used. Give every `#[Ref]` target a default so a missing
+key does not cause a type error.
+:::
+
+The optional second argument sets the path delimiter. It defaults to
+`.`. Like `#[Inject]`, the attribute works only on objects that the
+container creates.
+
 ### Listeners
 
 The `listeners` key registers event listeners when the app boots. A key
