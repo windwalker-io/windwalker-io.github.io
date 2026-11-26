@@ -213,24 +213,33 @@ need an unescaped wildcard in the middle of the string.
 :::
 
 ::: warning
-`where()` with the `in` operator and `whereIn()` do not check the list. An
-empty array renders `IN ()`, which MySQL rejects with a syntax error, so the
-statement fails at runtime. SQLite accepts it and matches no rows. The builder
-does not fill in a default for you, so check the type and the content of the
-value before you build the condition. Use one of these two patterns:
+`where()` with the `in` operator and `whereIn()` do not check the list. If
+you do not pass the `$default` argument, the builder does not fill in a
+value. An empty array renders `IN ()`, which MySQL rejects with a syntax
+error, so the statement fails when it runs. Check the list before you build
+the condition, or pass the `$default` argument described below. Use one of
+these patterns:
 
 ```php
-// Skip the query when there is nothing to match.
+$ids = [];
+
+// ERROR: syntax error since SQL syntax `IN()`
+$query->whereIn('id', $ids);
+
+// Skip the condition when there is nothing to match.
 if ($ids !== []) {
     $query->whereIn('id', $ids);
 }
 
-// Or pass a placeholder that matches no row.
+// Use a default array that matches no row.
 $query->whereIn('id', $ids ?: [0]);
+
+// Or pass a default that matches no row.
+$query->whereIn('id', $ids, 0);
 ```
 
-The placeholder `[0]` is safe only when no row has the ID `0`. Skipping the
-query is the clearer choice when the empty list means "no result".
+The default `0` is safe only when no row has the ID `0`. Skipping the
+condition is the clearer choice when the empty list means "no result".
 :::
 
 ### Default Value for Empty Lists
@@ -248,11 +257,15 @@ $query->whereIn('id', $ids, 0);
 ```
 
 The default applies only when you pass it. Pass `null` to compare with
-`IS NULL`, the same as `where('id', null)`:
+`IS NULL`, the same as `where('id', null)`. For `whereNotIn()`, `null`
+renders `IS NOT NULL`:
 
 ```php
 $query->whereIn('id', [], null);
 // `id` IS NULL
+
+$query->whereNotIn('id', [], null);
+// `id` IS NOT NULL
 ```
 
 `whereNotIn()` and `havingNotIn()` use the `!=` operator for the empty-list
