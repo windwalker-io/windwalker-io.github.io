@@ -233,6 +233,49 @@ The placeholder `[0]` is safe only when no row has the ID `0`. Skipping the
 query is the clearer choice when the empty list means "no result".
 :::
 
+### Default Value for Empty Lists
+
+The `whereIn()`, `whereNotIn()`, `havingIn()` and `havingNotIn()` methods
+take an optional third argument, `$default`. When the list is empty, the
+method uses the default value as a single-value condition instead of an
+`IN` list:
+
+```php
+$query->whereIn('id', $ids, 0);
+
+// Non-empty list: `id` IN (1, 2, 3)
+// Empty list:     `id` = 0
+```
+
+The default applies only when you pass it. Pass `null` to compare with
+`IS NULL`, the same as `where('id', null)`:
+
+```php
+$query->whereIn('id', [], null);
+// `id` IS NULL
+```
+
+`whereNotIn()` and `havingNotIn()` use the `!=` operator for the empty-list
+fallback, not `=`:
+
+```php
+$query->whereNotIn('id', [], 0);
+// `id` != 0
+
+$query->whereNotIn('id', [], null);
+
+// `id` IS NOT NULL
+
+$query->whereNotIn('id', [1, 2], 0);
+// `id` NOT IN (1, 2)
+```
+
+::: tip
+Use the default value when an empty list has a clear meaning, such as "match
+nothing" or "match everything". It avoids the `IN ()` syntax error without
+adding an `if` before the query.
+:::
+
 ## Array Conditions
 
 Pass an array to add several conditions at once. A string key is a column
