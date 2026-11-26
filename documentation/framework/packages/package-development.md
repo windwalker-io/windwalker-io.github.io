@@ -37,6 +37,42 @@ Suppose a portfolio feature (entity, repository, controllers, views, and
 routes) is used by several projects. Instead of copying these files into
 each app, put them in one package and install it everywhere.
 
+### Create the Skeleton
+
+Start with a small set of files and install the package into a host
+app before you write features. An early install test catches wrong
+namespaces and paths while the package is still small.
+
+A new package needs these files:
+
+```
+acme/portfolio
+├── .gitignore
+├── composer.json
+├── README.md
+├── VERSION
+├── resources/
+└── src/
+    └── PortfolioPackage.php
+```
+
+- `composer.json`: Declares the `windwalker-package` type, the autoload
+  namespace, and the package class.
+- `src/PortfolioPackage.php`: The package class. Start with an empty
+  `install()` method and add installer calls later.
+- `.gitignore`: Excludes `vendor/`, so the package's own dependencies
+  are not committed.
+- `README.md`: Describes the package and how to install it.
+- `VERSION`: Holds the version number when you release with a tag
+  script. It is optional.
+- `resources/`: Holds the files that `pkg:install` copies. Create the
+  subfolders when you need them.
+
+Run `composer init` in the package folder and enter `windwalker-package`
+as the package type.
+
+### Declare the Package
+
 Declare the package type and register the package class in
 `composer.json`:
 
@@ -58,6 +94,8 @@ Declare the package type and register the package class in
     }
 }
 ```
+
+### Create the Package Class
 
 Create the package class. `install()` receives a `PackageInstaller` and
 copies the package's resources into the host app.
@@ -105,8 +143,56 @@ class PortfolioPackage extends AbstractPackage
 }
 ```
 
-Install the package into the host app. `pkg:install` runs `install()`
-and copies the resources.
+### Initialize Git Early
+
+Run `git init` and commit the first skeleton before you write features.
+Commit each step that works, so that you can roll back a failed change.
+
+```bash
+cd ../portfolio
+git init
+git add .
+git commit -m "First commit"
+```
+
+::: tip
+Create the remote repository and push early as well. A remote copy
+protects the code and makes it easy to install from Git later.
+:::
+
+### Link the Package to the Host App
+
+Use a Composer `path` repository to install the local package folder
+into the host app. Keep the package outside the host app's `vendor/`
+folder, so that `composer update` does not touch your source.
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../portfolio"
+        }
+    ],
+    "require": {
+        "acme/portfolio": "dev-main"
+    }
+}
+```
+
+Run `composer update acme/portfolio` in the host app. Composer links the
+package folder into `vendor/`, so PHP changes are visible without another
+install. Replace `dev-main` with the branch you are working on.
+
+::: info
+Changes to the files that `pkg:install` copies are not applied to the
+host app until you run `pkg:install` again.
+:::
+
+### Test the Install
+
+Run the installer in the host app. `pkg:install` runs `install()` and
+copies the resources.
 
 ```bash
 php windwalker pkg:install acme/portfolio --all
@@ -115,6 +201,18 @@ php windwalker pkg:install acme/portfolio --all
 ::: info
 Without `--all` or `--tag`, `pkg:install` asks which resources to
 install.
+:::
+
+Use `--force` to overwrite files that a previous install already copied.
+
+```bash
+php windwalker pkg:install acme/portfolio --all --force
+```
+
+::: warning
+`pkg:install --force` overwrites files in the host app without asking.
+Commit the host app before you run it, so that local changes can be
+restored.
 :::
 
 ## Writing a Config File
@@ -436,3 +534,60 @@ php windwalker pkg:install acme/portfolio --tag=views --tag=routes
 The `--tag` option can be repeated. Without `--tag` or `--all`, the
 command asks which resources to install. Use `--all` to install every
 resource of the listed packages.
+
+## Modifying an Existing Package
+
+Use this workflow to change a package that the host app installs from
+Composer, such as a Windwalker or Unicorn package, and to test the change
+in a real host app.
+
+### Install the Git Checkout
+
+Composer installs only the release code by default. Remove the installed
+copy and install again with `--prefer-source` to get a Git checkout:
+
+```bash
+rm -rf vendor/windwalker/xxx
+composer install --prefer-source
+```
+
+Use `vendor/windwalker/xxx` as the path of the package you want to edit.
+The checkout keeps its `.git` folder, so you can manage it with any Git
+client.
+
+::: warning
+A fresh checkout can be on a detached `HEAD`. Commits made on a detached
+`HEAD` are lost when you switch branches. Run `git status` first, and
+create a branch before you edit:
+
+```bash
+git switch -c fix/my-change
+```
+
+If you already committed on a detached `HEAD`, create a branch at the
+current commit before you switch to another branch.
+:::
+
+### Edit, Test, and Submit
+
+Edit the files in the checkout and test them from the host app. When the
+change works, push the branch to your fork and open a pull request
+against the upstream repository.
+
+### Framework Core
+
+The framework is split into several sub-packages. To get the full
+framework source as a Git checkout, require `windwalker/framework` in
+`require-dev` and run `composer update`:
+
+```json
+{
+    "require-dev": {
+        "windwalker/framework": "dev-master"
+    }
+}
+```
+
+If the checked-out framework has no `.git` folder, repeat the steps in
+[Install the Git Checkout](#install-the-git-checkout).
+
