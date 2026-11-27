@@ -22,24 +22,20 @@ your own base class if you already extend another class.
 
 ## Defining a Record
 
-Extend `Record` and declare the fields as typed public properties. A
-constructor is optional. When it exists, its parameter names are used to
-pass values from the array when the object is wrapped:
+Extend `Record` and declare the fields as promoted constructor
+properties. The constructor parameter names are used to pass values from
+the array when the object is wrapped:
 
 ```php
 use Windwalker\Data\Record;
 
 class Customer extends Record
 {
-    public string $name = '';
-
-    public string $tier = 'basic';
-
-    public array $tags = [];
-
-    public function __construct(string $name = '')
-    {
-        $this->name = $name;
+    public function __construct(
+        public string $name = '',
+        public string $tier = 'basic',
+        public array $tags = [],
+    ) {
     }
 }
 
@@ -58,14 +54,14 @@ use Windwalker\ORM\Attributes\JsonNoSerialize;
 
 class Customer extends Record
 {
-    public string $name = '';
-
-    public string $tier = 'basic';
-
-    public array $tags = [];
-
-    #[JsonNoSerialize]
-    public string $password = '';
+    public function __construct(
+        public string $name = '',
+        public string $tier = 'basic',
+        public array $tags = [],
+        #[JsonNoSerialize]
+        public string $password = '',
+    ) {
+    }
 }
 
 $customer = Customer::wrap([
@@ -239,10 +235,12 @@ use Windwalker\Utilities\Attributes\Invisible;
 
 class Session extends Record
 {
-    public string $user = '';
-
-    #[Invisible]
-    public string $token = '';
+    public function __construct(
+        public string $user = '',
+        #[Invisible]
+        public string $token = '',
+    ) {
+    }
 }
 
 $session = Session::wrap(['user' => 'Rose', 'token' => 'abc']);
@@ -277,7 +275,10 @@ use Windwalker\Data\Attributes\DropsUndeclaredProperties;
 #[DropsUndeclaredProperties]
 class StrictCustomer extends Record
 {
-    public string $name = '';
+    public function __construct(
+        public string $name = '',
+    ) {
+    }
 }
 
 $customer = StrictCustomer::wrap([
